@@ -52,15 +52,15 @@ public class Uninstaller {
             int successUninstallCount = 0;
             int failureUninstallCount = 0;
             for (AdbDevice device : devices) {
-                if (arguments.device == null || arguments.device.equals(device.name)) {
-                    CmdUtil.Result packagesCmdResult = runAdbCommand(new String[]{"-s", device.name, "shell", "\"pm list packages -f\""}, adbLocation);
+                if (arguments.device == null || arguments.device.equals(device.serial)) {
+                    CmdUtil.Result packagesCmdResult = runAdbCommand(new String[]{"-s", device.serial, "shell", "\"pm list packages -f\""}, adbLocation);
 
                     String modelName = "Device";
                     if (device.model != null) {
                         modelName = device.model;
                     }
 
-                    String deviceLog = modelName + " [" + device.name + "]";
+                    String deviceLog = modelName + " [" + device.serial + "]";
 
                     if (device.status != AdbDevice.Status.OK) {
                         deviceLog += ": " + device.status;
@@ -82,7 +82,7 @@ public class Uninstaller {
                             String uninstallStatus = "\t";
                             if (!arguments.dryRun) {
                                 CmdUtil.Result uninstallCmdResult =
-                                        runAdbCommand(new String[]{"-s", device.name, "uninstall", (arguments.keepData ? "-k" : ""), filteredPackage}, adbLocation);
+                                        runAdbCommand(new String[]{"-s", device.serial, "uninstall", (arguments.keepData ? "-k" : ""), filteredPackage}, adbLocation);
 
                                 uninstallStatus += filteredPackage + "\t" + uninstallCmdResult.out;
                                 if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
@@ -129,7 +129,7 @@ public class Uninstaller {
         if (arguments.device != null) {
             boolean found = false;
             for (AdbDevice device : devices) {
-                if (device.name.equals(arguments.device) && device.status == AdbDevice.Status.OK) {
+                if (device.serial.equals(arguments.device) && device.status == AdbDevice.Status.OK) {
                     found = true;
                     break;
                 }

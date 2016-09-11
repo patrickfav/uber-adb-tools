@@ -3,15 +3,15 @@ package at.favre.tools.auninst.parser;
 public class AdbDevice {
     public enum Status {OK, OFFLINE, UNAUTHORIZED, UNKOWN}
 
-    public final String name;
+    public final String serial;
     public final Status status;
     public final String model;
     public final String product;
     public final boolean isEmulator;
 
 
-    public AdbDevice(String name, Status status, String model, String product, boolean isEmulator) {
-        this.name = name;
+    public AdbDevice(String serial, Status status, String model, String product, boolean isEmulator) {
+        this.serial = serial;
         this.status = status;
         this.model = model;
         this.product = product;
@@ -21,7 +21,7 @@ public class AdbDevice {
     @Override
     public String toString() {
         return "AdbDevice{" +
-                "name='" + name + '\'' +
+                "serial='" + serial + '\'' +
                 ", status=" + status +
                 ", model='" + model + '\'' +
                 ", product='" + product + '\'' +
@@ -37,7 +37,7 @@ public class AdbDevice {
         AdbDevice adbDevice = (AdbDevice) o;
 
         if (isEmulator != adbDevice.isEmulator) return false;
-        if (name != null ? !name.equals(adbDevice.name) : adbDevice.name != null) return false;
+        if (serial != null ? !serial.equals(adbDevice.serial) : adbDevice.serial != null) return false;
         if (status != adbDevice.status) return false;
         if (model != null ? !model.equals(adbDevice.model) : adbDevice.model != null) return false;
         return product != null ? product.equals(adbDevice.product) : adbDevice.product == null;
@@ -46,7 +46,7 @@ public class AdbDevice {
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
+        int result = serial != null ? serial.hashCode() : 0;
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (model != null ? model.hashCode() : 0);
         result = 31 * result + (product != null ? product.hashCode() : 0);

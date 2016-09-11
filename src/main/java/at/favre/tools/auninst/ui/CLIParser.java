@@ -4,6 +4,9 @@ import org.apache.commons.cli.*;
 
 public class CLIParser {
 
+    static final String ARG_PACKAGE_FILTER = "p";
+    static final String ARG_DEVICE_SERIAL = "s";
+
     public static Arg parse(String[] args) {
         Options options = setupOptions();
         CommandLineParser parser = new DefaultParser();
@@ -22,14 +25,14 @@ public class CLIParser {
                 return null;
             }
 
-            argument.filterString = commandLine.getOptionValue("filter");
+            argument.filterString = commandLine.getOptionValue(ARG_PACKAGE_FILTER);
 
             if (commandLine.hasOption("adbPath")) {
                 argument.adbPath = commandLine.getOptionValue("adbPath");
             }
 
-            if (commandLine.hasOption("device")) {
-                argument.device = commandLine.getOptionValue("device");
+            if (commandLine.hasOption(ARG_DEVICE_SERIAL)) {
+                argument.device = commandLine.getOptionValue(ARG_DEVICE_SERIAL);
             }
 
             argument.dryRun = commandLine.hasOption("dryRun");
@@ -47,10 +50,10 @@ public class CLIParser {
 
     private static Options setupOptions() {
         Options options = new Options();
-        Option filterOpt = Option.builder("filter").argName("package name").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'").build();
+        Option filterOpt = Option.builder(ARG_PACKAGE_FILTER).argName("package name").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'").build();
 
         Option adbPathOpt = Option.builder("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this is omitted the tool tries to find adb in PATH env variable.").build();
-        Option deviceOpt = Option.builder("device").argName("device id").hasArg(true).desc("If this is set, will only uninstall on given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
+        Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).argName("device serial").hasArg(true).desc("If this is set, will only uninstall on given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
 
         Option dryRunOpt = Option.builder("dryRun").hasArg(false).desc("Use this to see what would be uninstalled on what devices with the given params. Will not uninstall anything.").build();
         Option skipEmuOpt = Option.builder("skipEmulators").hasArg(false).desc("Skips device emulators.").build();
