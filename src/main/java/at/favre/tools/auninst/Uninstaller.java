@@ -25,7 +25,7 @@ public class Uninstaller {
         try {
             AdbLocationFinder.LocationResult adbLocation = new AdbLocationFinder().find(arguments.adbPath);
 
-            CmdUtil.Result devicesCmdResult = runAdbCommand(new String[]{"devices"}, adbLocation);
+            CmdUtil.Result devicesCmdResult = runAdbCommand(new String[]{"devices","-l"}, adbLocation);
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
 
             if (devices.isEmpty()) {
@@ -55,7 +55,12 @@ public class Uninstaller {
                 if (arguments.device == null || arguments.device.equals(device.name)) {
                     CmdUtil.Result packagesCmdResult = runAdbCommand(new String[]{"-s", device.name, "shell", "\"pm list packages -f\""}, adbLocation);
 
-                    String deviceLog = "Device [" + device.name + "]";
+                    String modelName = "Device";
+                    if (device.model != null) {
+                        modelName = device.model;
+                    }
+
+                    String deviceLog = modelName + " [" + device.name + "]";
 
                     if (device.status != AdbDevice.Status.OK) {
                         deviceLog += ": " + device.status;
@@ -96,10 +101,10 @@ public class Uninstaller {
                         }
                     }
                     log("", arguments);
-
-                    logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
                 }
             }
+
+            logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
 
             if (deviceCount == 0) {
                 logLoud("No ready devices found. Check if you authorized your computer on your Android." +

@@ -37,6 +37,6 @@ public class InstalledPackagesParser {
     }
 
     public static boolean wasSuccessfulUninstalled(String cmdOut) {
-        return cmdOut != null && cmdOut.toLowerCase().equals("success");
+        return cmdOut != null && cmdOut.toLowerCase().trim().startsWith("success");
     }
 }
