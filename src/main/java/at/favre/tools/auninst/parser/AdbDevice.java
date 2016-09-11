@@ -1,7 +1,7 @@
 package at.favre.tools.auninst.parser;
 
 public class AdbDevice {
-    public enum Status {OK, OFFLINE, UNAUTHORIZED, UNKOWN}
+    public enum Status {OK, OFFLINE, UNAUTHORIZED, BOOTLOADER, UNKOWN}
 
     public final String serial;
     public final Status status;

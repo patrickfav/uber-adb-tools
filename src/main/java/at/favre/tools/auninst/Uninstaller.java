@@ -25,6 +25,8 @@ public class Uninstaller {
         try {
             AdbLocationFinder.LocationResult adbLocation = new AdbLocationFinder().find(arguments.adbPath);
 
+            runAdbCommand(new String[]{"start-server"}, adbLocation);
+
             CmdUtil.Result devicesCmdResult = runAdbCommand(new String[]{"devices", "-l"}, adbLocation);
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
 
@@ -82,7 +84,7 @@ public class Uninstaller {
                                 CmdUtil.Result uninstallCmdResult =
                                         runAdbCommand(new String[]{"-s", device.serial, "uninstall", (arguments.keepData ? "-k" : ""), filteredPackage}, adbLocation);
 
-                                uninstallStatus += filteredPackage + "\t" + uninstallCmdResult.out;
+                                uninstallStatus += filteredPackage + "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
                                 if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
                                     successUninstallCount++;
                                 } else {

@@ -8,6 +8,7 @@ public class AdbDevicesParser {
     private static final String STATUS_OFFLINE = "offline";
     private static final String STATUS_OK = "device";
     private static final String STATUS_UNAUTHORIZED = "unauthorized";
+    private static final String STATUS_BOOTLOADER = "bootloader";
 
     private static final String PROP_MODEL = "model";
     private static final String PROP_DEVICE = "device";
@@ -87,6 +88,8 @@ public class AdbDevicesParser {
                 return AdbDevice.Status.OK;
             case STATUS_UNAUTHORIZED:
                 return AdbDevice.Status.UNAUTHORIZED;
+            case STATUS_BOOTLOADER:
+                return AdbDevice.Status.BOOTLOADER;
             default:
                 return AdbDevice.Status.UNKOWN;
         }
