@@ -96,7 +96,7 @@ Use maven (3.1+) to create a jar including all dependencies
 
 ## Tech Stack
 
-* Java 8
+* Java 7
 * Maven
 
 # License
