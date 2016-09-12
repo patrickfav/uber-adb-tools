@@ -1,7 +1,6 @@
 package at.favre.tools.auninst;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
@@ -25,7 +24,7 @@ public class CmdUtil {
         } catch (Exception e) {
             exception = e;
         }
-        return new Result(logStringBuilder.toString(), exception);
+        return new Result(logStringBuilder.toString(), exception, cmdArray);
     }
 
     public static boolean canRunCmd(String[] cmd) {
@@ -53,10 +52,17 @@ public class CmdUtil {
     public static class Result {
         public final Exception exception;
         public final String out;
+        public final String cmd;
 
-        public Result(String out, Exception exception) {
+        public Result(String out, Exception exception, String[] cmd) {
             this.out = out;
             this.exception = exception;
+            this.cmd = Arrays.toString(cmd);
+        }
+
+        @Override
+        public String toString() {
+            return cmd+"\n"+out+"\n";
         }
     }
 }

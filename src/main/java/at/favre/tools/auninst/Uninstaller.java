@@ -7,6 +7,7 @@ import at.favre.tools.auninst.parser.PackageMatcher;
 import at.favre.tools.auninst.ui.Arg;
 import at.favre.tools.auninst.ui.CLIParser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -22,12 +23,15 @@ public class Uninstaller {
     }
 
     private static void execute(Arg arguments) {
+        List<CmdUtil.Result> executedCommands = new ArrayList<>();
+
         try {
             AdbLocationFinder.LocationResult adbLocation = new AdbLocationFinder().find(arguments.adbPath);
 
-            runAdbCommand(new String[]{"start-server"}, adbLocation);
+            executedCommands.add(runAdbCommand(new String[]{"start-server"}, adbLocation));
 
             CmdUtil.Result devicesCmdResult = runAdbCommand(new String[]{"devices", "-l"}, adbLocation);
+            executedCommands.add(devicesCmdResult);
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
 
             if (!devices.isEmpty()) {
@@ -53,7 +57,8 @@ public class Uninstaller {
             int failureUninstallCount = 0;
             for (AdbDevice device : devices) {
                 if (arguments.device == null || arguments.device.equals(device.serial)) {
-                    CmdUtil.Result packagesCmdResult = runAdbCommand(new String[]{"-s", device.serial, "shell", "\"pm list packages -f\""}, adbLocation);
+                    CmdUtil.Result packagesCmdResult = runAdbCommand(new String[]{"-s", device.serial, "shell", "pm list packages -f"}, adbLocation);
+                    executedCommands.add(packagesCmdResult);
 
                     String modelName = "Device";
                     if (device.model != null) {
@@ -83,6 +88,7 @@ public class Uninstaller {
                             if (!arguments.dryRun) {
                                 CmdUtil.Result uninstallCmdResult =
                                         runAdbCommand(new String[]{"-s", device.serial, "uninstall", (arguments.keepData ? "-k" : ""), filteredPackage}, adbLocation);
+                                executedCommands.add(uninstallCmdResult);
 
                                 uninstallStatus += filteredPackage + "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
                                 if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
@@ -106,15 +112,43 @@ public class Uninstaller {
 
 
             if (deviceCount == 0) {
-                logLoud("No ready devices found. Check if you authorized your computer on your Android device. " +
-                        "See http://stackoverflow.com/questions/23081263");
+                logLoud("No ready devices found.");
+                if(hasUnauthorizedDevices(devices)) {
+                    logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
+                }
             } else {
                 logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
             }
 
+            if(arguments.debug) {
+                logLoud(getCommandHistory(executedCommands));
+            }
         } catch (Exception e) {
             logErr(e.getMessage());
+
+            if(arguments.debug) {
+                logErr(getCommandHistory(executedCommands));
+            } else {
+                logErr("Run with '-debug' parameter to get additional information.");
+            }
         }
+    }
+
+    private static boolean hasUnauthorizedDevices(List<AdbDevice> devices) {
+        for (AdbDevice device : devices) {
+            if(device.status == AdbDevice.Status.UNAUTHORIZED) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String getCommandHistory(List<CmdUtil.Result> executedCommands) {
+        StringBuilder sb = new StringBuilder("\nCmd history for debugging purpose:\n-----------------------\n");
+        for (CmdUtil.Result executedCommand : executedCommands) {
+            sb.append(executedCommand.toString());
+        }
+        return sb.toString();
     }
 
 

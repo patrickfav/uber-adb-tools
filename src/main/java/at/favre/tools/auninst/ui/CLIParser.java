@@ -39,6 +39,7 @@ public class CLIParser {
             argument.skipEmulators = commandLine.hasOption("skipEmulators");
             argument.keepData = commandLine.hasOption("keepData");
             argument.quiet = commandLine.hasOption("quiet");
+            argument.debug = commandLine.hasOption("debug");
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -59,6 +60,7 @@ public class CLIParser {
         Option skipEmuOpt = Option.builder("skipEmulators").hasArg(false).desc("Skips device emulators.").build();
         Option keepDataOpt = Option.builder("keepData").hasArg(false).desc("Uses the '-k' param on 'adb uninstall' to keep data and caches of the app.").build();
         Option quietOpt = Option.builder("quiet").hasArg(false).desc("Prints less output.").build();
+        Option debugOpt = Option.builder("debug").hasArg(false).desc("Prints additional info for debugging.").build();
 
         Option help = Option.builder("h").longOpt("help").desc("Prints docs").build();
         Option version = Option.builder("v").longOpt("version").desc("Prints current version.").build();
@@ -69,7 +71,7 @@ public class CLIParser {
 
         options.addOptionGroup(mainArgs);
         options.addOption(adbPathOpt).addOption(deviceOpt).addOption(dryRunOpt).addOption(skipEmuOpt).addOption(keepDataOpt)
-                .addOption(quietOpt);
+                .addOption(quietOpt).addOption(debugOpt);
 
         return options;
     }
