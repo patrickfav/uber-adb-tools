@@ -7,10 +7,7 @@ import at.favre.tools.auninst.parser.PackageMatcher;
 import at.favre.tools.auninst.ui.Arg;
 import at.favre.tools.auninst.ui.CLIParser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 public class Uninstaller {
 
@@ -43,8 +40,10 @@ public class Uninstaller {
                     statusLog += " Keep data/caches.";
                 }
 
-                if (adbLocation.location == AdbLocationFinder.Location.WIN_DEFAULT) {
-                    statusLog += " Adb not found in PATH, use default location: " + adbLocation.args[2] + ".";
+                if (adbLocation.location == AdbLocationFinder.Location.WIN_DEFAULT ||
+                        adbLocation.location == AdbLocationFinder.Location.MAC_DEFAULT ||
+                        adbLocation.location == AdbLocationFinder.Location.LINUX_DEFAULT) {
+                    statusLog += " Adb not found in PATH, use default location: " + adbLocation.arg() + ".";
                 }
 
                 statusLog += "\n";
@@ -86,7 +85,7 @@ public class Uninstaller {
                         for (String filteredPackage : filteredPackages) {
                             String uninstallStatus = "\t";
                             if (!arguments.dryRun) {
-                                CmdUtil.Result uninstallCmdResult = runAdbCommand(createUninstallCmd(device,filteredPackage,arguments), adbLocation);
+                                CmdUtil.Result uninstallCmdResult = runAdbCommand(createUninstallCmd(device, filteredPackage, arguments), adbLocation);
                                 executedCommands.add(uninstallCmdResult);
 
                                 uninstallStatus += filteredPackage + "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
@@ -112,20 +111,20 @@ public class Uninstaller {
 
             if (deviceCount == 0) {
                 logLoud("No ready devices found.");
-                if(hasUnauthorizedDevices(devices)) {
+                if (hasUnauthorizedDevices(devices)) {
                     logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
                 }
             } else {
                 logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
             }
 
-            if(arguments.debug) {
+            if (arguments.debug) {
                 logLoud(getCommandHistory(executedCommands));
             }
         } catch (Exception e) {
             logErr(e.getMessage());
 
-            if(arguments.debug) {
+            if (arguments.debug) {
                 logErr(getCommandHistory(executedCommands));
             } else {
                 logErr("Run with '-debug' parameter to get additional information.");
@@ -136,16 +135,16 @@ public class Uninstaller {
     private static String[] createUninstallCmd(AdbDevice device, String filteredPackage, Arg arguments) {
         String[] basicCmd = new String[]{"-s", device.serial, "uninstall"};
 
-        if(arguments.keepData) {
-            basicCmd = CmdUtil.concat(basicCmd,new String[] {"-k"});
+        if (arguments.keepData) {
+            basicCmd = CmdUtil.concat(basicCmd, new String[]{"-k"});
         }
 
-        return CmdUtil.concat(basicCmd,new String[] {filteredPackage});
+        return CmdUtil.concat(basicCmd, new String[]{filteredPackage});
     }
 
     private static boolean hasUnauthorizedDevices(List<AdbDevice> devices) {
         for (AdbDevice device : devices) {
-            if(device.status == AdbDevice.Status.UNAUTHORIZED) {
+            if (device.status == AdbDevice.Status.UNAUTHORIZED) {
                 return true;
             }
         }

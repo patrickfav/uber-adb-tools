@@ -12,6 +12,16 @@ Basic usage:
 
     java -jar uber-uninstaller-android.jar -p com.your.packa*
 
+![gui-screenshot](misc/cmd_example.png)
+
+This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
+be either set in `PATH` or `ANDROID_HOME` should be set.
+
+## Why do I need this?
+
+If you or your company develops many apps or flavors, if you make heavily use of buildTypes and/or if you share test devices with peers this is a convient tool
+to wipe all test apps from your device (or multiple devices simultaneously). This is even more important where different apps have sideffects if more than one flavor is installed.
+
 ## Command Line Interface
 
 Provide more than one package filter:
@@ -72,8 +82,10 @@ Note: Wildcard is not supported at the beginning of the package filter
 ### Adb Executable Location Strategy
 
 If you provide a custom location to adb, the tool will try to use it. Otherwise
-it will try to use which requires adb to be set in PATH (See http://stackoverflow.com/questions/20564514).
-As a fallback, if the tool does not find the adb in PATH it tries to check some default locations for the Android SDK.
+it will try to use which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514).
+As a fallback, if the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK.
+One of these default location check involves checking if `$ANDROID_HOME`/`%ANDROID_HOME%` is set, so if you dont want to set ADB in PATH,
+use `ANDROID_HOME` environment variable.
 
 ## Used ADB commands
 
