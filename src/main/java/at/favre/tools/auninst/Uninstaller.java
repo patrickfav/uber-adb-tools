@@ -86,8 +86,7 @@ public class Uninstaller {
                         for (String filteredPackage : filteredPackages) {
                             String uninstallStatus = "\t";
                             if (!arguments.dryRun) {
-                                CmdUtil.Result uninstallCmdResult =
-                                        runAdbCommand(new String[]{"-s", device.serial, "uninstall", (arguments.keepData ? "-k" : ""), filteredPackage}, adbLocation);
+                                CmdUtil.Result uninstallCmdResult = runAdbCommand(createUninstallCmd(device,filteredPackage,arguments), adbLocation);
                                 executedCommands.add(uninstallCmdResult);
 
                                 uninstallStatus += filteredPackage + "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
@@ -132,6 +131,16 @@ public class Uninstaller {
                 logErr("Run with '-debug' parameter to get additional information.");
             }
         }
+    }
+
+    private static String[] createUninstallCmd(AdbDevice device, String filteredPackage, Arg arguments) {
+        String[] basicCmd = new String[]{"-s", device.serial, "uninstall"};
+
+        if(arguments.keepData) {
+            basicCmd = CmdUtil.concat(basicCmd,new String[] {"-k"});
+        }
+
+        return CmdUtil.concat(basicCmd,new String[] {filteredPackage});
     }
 
     private static boolean hasUnauthorizedDevices(List<AdbDevice> devices) {
