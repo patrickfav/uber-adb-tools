@@ -44,6 +44,9 @@ public class CLIParser {
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
+
+            CLIParser.printHelp(options);
+
             argument = null;
         }
 
