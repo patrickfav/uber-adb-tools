@@ -11,13 +11,14 @@ public class Arg {
     public boolean skipEmulators = false;
     public boolean keepData = false;
     public boolean quiet = false;
-    public boolean debug;
+    public boolean debug = false;
+    public boolean force = false;
 
     public Arg() {
     }
 
     public Arg(String filterString, String adbPath, String device, boolean dryRun, boolean skipEmulators, boolean keepData,
-               boolean quiet, boolean debug) {
+               boolean quiet, boolean debug, boolean force) {
         this.adbPath = adbPath;
         this.filterString = filterString;
         this.device = device;
@@ -26,6 +27,7 @@ public class Arg {
         this.keepData = keepData;
         this.quiet = quiet;
         this.debug = debug;
+        this.force = force;
     }
 
     @Override
@@ -40,6 +42,7 @@ public class Arg {
         if (keepData != arg.keepData) return false;
         if (quiet != arg.quiet) return false;
         if (debug != arg.debug) return false;
+        if (force != arg.force) return false;
         if (filterString != null ? !filterString.equals(arg.filterString) : arg.filterString != null) return false;
         if (adbPath != null ? !adbPath.equals(arg.adbPath) : arg.adbPath != null) return false;
         return device != null ? device.equals(arg.device) : arg.device == null;
@@ -56,6 +59,7 @@ public class Arg {
         result = 31 * result + (keepData ? 1 : 0);
         result = 31 * result + (quiet ? 1 : 0);
         result = 31 * result + (debug ? 1 : 0);
+        result = 31 * result + (force ? 1 : 0);
         return result;
     }
 
@@ -70,6 +74,7 @@ public class Arg {
                 ", keepData=" + keepData +
                 ", quiet=" + quiet +
                 ", debug=" + debug +
+                ", force=" + force +
                 '}';
     }
 }

@@ -7,6 +7,9 @@ import at.favre.tools.auninst.parser.PackageMatcher;
 import at.favre.tools.auninst.ui.Arg;
 import at.favre.tools.auninst.ui.CLIParser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Uninstaller {
@@ -40,6 +43,10 @@ public class Uninstaller {
                     statusLog += " Keep data/caches.";
                 }
 
+                if (arguments.force) {
+                    statusLog += " Uninstall without user prompt.";
+                }
+
                 if (adbLocation.location == AdbLocationFinder.Location.WIN_DEFAULT ||
                         adbLocation.location == AdbLocationFinder.Location.MAC_DEFAULT ||
                         adbLocation.location == AdbLocationFinder.Location.LINUX_DEFAULT) {
@@ -51,71 +58,8 @@ public class Uninstaller {
                 logLoud(statusLog);
             }
 
-            int deviceCount = 0;
-            int successUninstallCount = 0;
-            int failureUninstallCount = 0;
-            for (AdbDevice device : devices) {
-                if (arguments.device == null || arguments.device.equals(device.serial)) {
-                    CmdUtil.Result packagesCmdResult = runAdbCommand(new String[]{"-s", device.serial, "shell", "pm list packages -f"}, adbLocation);
-                    executedCommands.add(packagesCmdResult);
-
-                    String modelName = "Device";
-                    if (device.model != null) {
-                        modelName = device.model;
-                    }
-
-                    String deviceLog = modelName + " [" + device.serial + "]";
-
-                    if (device.status != AdbDevice.Status.OK) {
-                        deviceLog += ": " + device.status;
-                    }
-
-                    if (arguments.skipEmulators && device.isEmulator) {
-                        deviceLog += " (skip)";
-                    }
-
-                    log(deviceLog, arguments);
-                    if (device.status == AdbDevice.Status.OK && (!arguments.skipEmulators || !device.isEmulator)) {
-                        deviceCount++;
-
-                        List<String> allPackages = new InstalledPackagesParser().parse(packagesCmdResult.out);
-                        Set<String> filteredPackages = new PackageMatcher(allPackages).findMatches(
-                                PackageMatcher.parseFiltersArg(arguments.filterString));
-
-                        for (String filteredPackage : filteredPackages) {
-                            String uninstallStatus = "\t";
-                            if (!arguments.dryRun) {
-                                CmdUtil.Result uninstallCmdResult = runAdbCommand(createUninstallCmd(device, filteredPackage, arguments), adbLocation);
-                                executedCommands.add(uninstallCmdResult);
-
-                                uninstallStatus += filteredPackage + "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
-                                if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
-                                    successUninstallCount++;
-                                } else {
-                                    failureUninstallCount++;
-                                }
-                            } else {
-                                uninstallStatus += filteredPackage + "\t [Dryrun]";
-                            }
-                            log(uninstallStatus, arguments);
-                        }
-
-                        if (filteredPackages.isEmpty()) {
-                            log("\t No apps found for given filter", arguments);
-                        }
-                    }
-                    log("", arguments);
-                }
-            }
-
-
-            if (deviceCount == 0) {
-                logLoud("No ready devices found.");
-                if (hasUnauthorizedDevices(devices)) {
-                    logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
-                }
-            } else {
-                logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
+            if (arguments.dryRun || arguments.force || iterateDevices(devices, adbLocation, arguments, executedCommands, true)) {
+                iterateDevices(devices, adbLocation, arguments, executedCommands, false);
             }
 
             if (arguments.debug) {
@@ -132,14 +76,103 @@ public class Uninstaller {
         }
     }
 
-    private static String[] createUninstallCmd(AdbDevice device, String filteredPackage, Arg arguments) {
-        String[] basicCmd = new String[]{"-s", device.serial, "uninstall"};
+    private static boolean iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
+                                          List<CmdUtil.Result> executedCommands, boolean preview) {
+        int deviceCount = 0;
+        int successUninstallCount = 0;
+        int failureUninstallCount = 0;
 
-        if (arguments.keepData) {
-            basicCmd = CmdUtil.concat(basicCmd, new String[]{"-k"});
+        for (AdbDevice device : devices) {
+            if (arguments.device == null || arguments.device.equals(device.serial)) {
+                CmdUtil.Result packagesCmdResult = runAdbCommand(new String[]{"-s", device.serial, "shell", "pm list packages -f"}, adbLocation);
+                executedCommands.add(packagesCmdResult);
+
+                String modelName = "Device";
+                if (device.model != null) {
+                    modelName = device.model;
+                }
+
+                String deviceLog = modelName + " [" + device.serial + "]";
+
+                if (device.status != AdbDevice.Status.OK) {
+                    deviceLog += ": " + device.status;
+                }
+
+                if (arguments.skipEmulators && device.isEmulator) {
+                    deviceLog += " (skip)";
+                }
+
+                log(deviceLog, arguments);
+                if (device.status == AdbDevice.Status.OK && (!arguments.skipEmulators || !device.isEmulator)) {
+                    deviceCount++;
+
+                    List<String> allPackages = new InstalledPackagesParser().parse(packagesCmdResult.out);
+                    Set<String> filteredPackages = new PackageMatcher(allPackages).findMatches(
+                            PackageMatcher.parseFiltersArg(arguments.filterString));
+
+                    for (String filteredPackage : filteredPackages) {
+                        String uninstallStatus = "\t";
+                        if (!arguments.dryRun) {
+                            if (!preview) {
+                                CmdUtil.Result uninstallCmdResult = runAdbCommand(createUninstallCmd(device, filteredPackage, arguments), adbLocation);
+                                executedCommands.add(uninstallCmdResult);
+
+                                uninstallStatus += filteredPackage + "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
+                                if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
+                                    successUninstallCount++;
+                                } else {
+                                    failureUninstallCount++;
+                                }
+                            } else {
+                                successUninstallCount++;
+                                uninstallStatus += filteredPackage;
+                            }
+                        } else {
+                            uninstallStatus += filteredPackage + "\t [Dryrun]";
+                        }
+                        log(uninstallStatus, arguments);
+                    }
+
+                    if (filteredPackages.isEmpty()) {
+                        log("\t No apps found for given filter", arguments);
+                    }
+                }
+                log("", arguments);
+
+                if (preview) {
+                    if (successUninstallCount == 0) {
+                        logLoud("No apps to uninstall.");
+                        return false;
+                    } else {
+                        logLoud(successUninstallCount + " apps would be uninstalled on " + deviceCount + " device(s)m. Continue? [y/n]");
+                        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+                            String input = br.readLine();
+                            return input.trim().toLowerCase().equals("y");
+                        } catch (IOException e) {
+                            throw new IllegalStateException("could not read form console", e);
+                        }
+                    }
+                } else {
+                    if (deviceCount == 0) {
+                        logLoud("No ready devices found.");
+                        if (hasUnauthorizedDevices(devices)) {
+                            logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
+                        }
+                    } else {
+                        logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
+                    }
+                }
+            }
         }
+        return true;
+    }
 
-        return CmdUtil.concat(basicCmd, new String[]{filteredPackage});
+    private static String[] createUninstallCmd(AdbDevice device, String filteredPackage, Arg arguments) {
+        if (!arguments.keepData) {
+            return new String[]{"-s", device.serial, "uninstall", filteredPackage};
+        } else {
+            return new String[]{"-s", device.serial, "shell", "cmd", "package", "uninstall", "-k", filteredPackage};
+        }
     }
 
     private static boolean hasUnauthorizedDevices(List<AdbDevice> devices) {

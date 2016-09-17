@@ -40,6 +40,7 @@ public class CLIParser {
             argument.keepData = commandLine.hasOption("keepData");
             argument.quiet = commandLine.hasOption("quiet");
             argument.debug = commandLine.hasOption("debug");
+            argument.force = commandLine.hasOption("force");
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -61,6 +62,7 @@ public class CLIParser {
         Option keepDataOpt = Option.builder("keepData").hasArg(false).desc("Uses the '-k' param on 'adb uninstall' to keep data and caches of the app.").build();
         Option quietOpt = Option.builder("quiet").hasArg(false).desc("Prints less output.").build();
         Option debugOpt = Option.builder("debug").hasArg(false).desc("Prints additional info for debugging.").build();
+        Option forceOpt = Option.builder("force").hasArg(false).desc("If this flag is set all matched apps will be uninstalled without any further warning. Otherwise a user input is necessary.").build();
 
         Option help = Option.builder("h").longOpt("help").desc("Prints docs").build();
         Option version = Option.builder("v").longOpt("version").desc("Prints current version.").build();
@@ -71,7 +73,7 @@ public class CLIParser {
 
         options.addOptionGroup(mainArgs);
         options.addOption(adbPathOpt).addOption(deviceOpt).addOption(dryRunOpt).addOption(skipEmuOpt).addOption(keepDataOpt)
-                .addOption(quietOpt).addOption(debugOpt);
+                .addOption(quietOpt).addOption(debugOpt).addOption(forceOpt);
 
         return options;
     }
@@ -80,6 +82,6 @@ public class CLIParser {
         HelpFormatter help = new HelpFormatter();
         help.setWidth(110);
         help.setLeftPadding(4);
-        help.printHelp("auninst", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", true);
+        help.printHelp("uber-uninstaller-android", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", true);
     }
 }
