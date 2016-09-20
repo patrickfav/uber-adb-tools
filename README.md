@@ -12,7 +12,7 @@ Basic usage:
 
     java -jar uber-uninstaller-android.jar -p com.your.packa*
 
-[![asciicast](https://asciinema.org/a/86358.png)](https://asciinema.org/a/86358)
+[![asciicast](https://asciinema.org/a/86433.png)](https://asciinema.org/a/86433)
 
 This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
 be either set in `PATH` or `ANDROID_HOME` should be set.
