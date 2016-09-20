@@ -128,7 +128,7 @@ public class Uninstaller {
                                 uninstallStatus += filteredPackage;
                             }
                         } else {
-                            uninstallStatus += filteredPackage + "\t [Dryrun]";
+                            uninstallStatus += filteredPackage + "\t skip";
                         }
                         log(uninstallStatus, arguments);
                     }
