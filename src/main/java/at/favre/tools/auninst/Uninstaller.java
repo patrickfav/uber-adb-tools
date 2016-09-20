@@ -10,7 +10,10 @@ import at.favre.tools.auninst.ui.CLIParser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class Uninstaller {
 
@@ -138,32 +141,33 @@ public class Uninstaller {
                     }
                 }
                 log("", arguments);
-
-                if (preview) {
-                    if (successUninstallCount == 0) {
-                        logLoud("No apps to uninstall.");
-                        return false;
-                    } else {
-                        logLoud(successUninstallCount + " apps would be uninstalled on " + deviceCount + " device(s)m. Continue? [y/n]");
-                        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-                            String input = br.readLine();
-                            return input.trim().toLowerCase().equals("y");
-                        } catch (IOException e) {
-                            throw new IllegalStateException("could not read form console", e);
-                        }
-                    }
-                } else {
-                    if (deviceCount == 0) {
-                        logLoud("No ready devices found.");
-                        if (hasUnauthorizedDevices(devices)) {
-                            logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
-                        }
-                    } else {
-                        logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
-                    }
-                }
             }
         }
+
+        if (preview) {
+            if (successUninstallCount == 0) {
+                logLoud("No apps to uninstall.");
+                return false;
+            } else {
+                logLoud(successUninstallCount + " apps would be uninstalled on " + deviceCount + " device(s)m. Continue? [y/n]");
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+                    String input = br.readLine();
+                    return input.trim().toLowerCase().equals("y");
+                } catch (IOException e) {
+                    throw new IllegalStateException("could not read form console", e);
+                }
+            }
+        } else {
+            if (deviceCount == 0) {
+                logLoud("No ready devices found.");
+                if (hasUnauthorizedDevices(devices)) {
+                    logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
+                }
+            } else {
+                logLoud(generateReport(deviceCount, successUninstallCount, failureUninstallCount));
+            }
+        }
+
         return true;
     }
 
