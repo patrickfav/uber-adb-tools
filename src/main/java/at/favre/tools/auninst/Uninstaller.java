@@ -149,7 +149,7 @@ public class Uninstaller {
                 logLoud("No apps to uninstall.");
                 return false;
             } else {
-                logLoud(successUninstallCount + " apps would be uninstalled on " + deviceCount + " device(s)m. Continue? [y/n]");
+                logLoud(successUninstallCount + " apps would be uninstalled on " + deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
                     String input = br.readLine();
                     return input.trim().toLowerCase().equals("y");
@@ -173,7 +173,7 @@ public class Uninstaller {
 
     private static String[] createUninstallCmd(AdbDevice device, String filteredPackage, Arg arguments) {
         if (!arguments.keepData) {
-            return new String[]{"-s", device.serial, "uninstall", filteredPackage};
+            return new String[]{"-s", device.serial, "shell", "pm", "uninstall", filteredPackage};
         } else {
             return new String[]{"-s", device.serial, "shell", "cmd", "package", "uninstall", "-k", filteredPackage};
         }
