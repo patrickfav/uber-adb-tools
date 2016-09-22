@@ -17,6 +17,10 @@ Basic usage:
 This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
 be either set in `PATH` or `ANDROID_HOME` should be set.
 
+## Download
+
+[Grab jar from latest Release](https://github.com/patrickfav/uber-uninstaller-android/releases/latest)
+
 ## Why do I need this?
 
 If you or your company develops many apps or flavors, if you make heavily use of buildTypes and/or if you share test devices with peers this is a convient tool
