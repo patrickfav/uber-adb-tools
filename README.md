@@ -23,7 +23,7 @@ be either set in `PATH` or `ANDROID_HOME` should be set.
 
 ## Why do I need this?
 
-If you or your company develops many apps or flavors, if you make heavily use of buildTypes and/or if you share test devices with peers this is a convient tool
+If you or your company develops many apps or flavors, if you make heavy use of buildTypes and/or if you share testing devices with peers this is a convenient tool
 to wipe all test apps from your device (or multiple devices simultaneously). This is even more important where different apps have sideffects if more than one flavor is installed.
 
 ## Command Line Interface
@@ -32,7 +32,7 @@ Provide more than one package filter:
 
     java -jar uber-uninstaller-android.jar -p com.your.packa*,com.their.packa*,com.third.* -dryRun
 
-Test which apps would be uninstalled with a dryrun:
+Test which apps would be uninstalled with a dry run:
 
     java -jar uber-uninstaller-android.jar -p com.your.packa* -dryRun
 
@@ -83,12 +83,12 @@ Will NOT match `com.android.debug`, `com.android.app`
 
 Note: Wildcard is not supported at the beginning of the package filter
 
-### Adb Executable Location Strategy
+### ADB Executable Location Strategy
 
 If you provide a custom location to adb, the tool will try to use it. Otherwise
-it will try to use which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514).
+it will try to use, which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514).
 As a fallback, if the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK.
-One of these default location check involves checking if `$ANDROID_HOME`/`%ANDROID_HOME%` is set, so if you dont want to set ADB in PATH,
+One of these default location checks involves checking if `$ANDROID_HOME`/`%ANDROID_HOME%` is set, so if you don't want to set adb in PATH,
 use `ANDROID_HOME` environment variable.
 
 ## Used ADB commands
