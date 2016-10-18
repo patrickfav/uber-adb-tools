@@ -1,16 +1,18 @@
-# Uber Uninstaller for Android
-A simple tool that makes it more convenient to uninstall multiple apps by e.g. providing wildcards and
-multiple devices. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
+# Uber Adb Tools for Android
+A simple tool that makes it more convenient to **install and uninstall multiple apps on multiple devices** with one command.  Additionally uninstalling allows to use **wildcards as package name**. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
 
 Main features:
 
-* Wildcard support for package names at the end or middle of the filter string: `com.android.*` or `com.android.*e`
+* Wildcard support for package names when uninstalling at the end or middle of the filter string: `com.android.*` or `com.android.*e`
 * Possible to provide multiple packages to uninstall: `com.android.*,com.google.*,org.wiki*`
-* Uninstalling on all connected devices
+* Installing multiple apks with one command
+* Installing/Uninstalling on all connected devices
 
 Basic usage:
 
-    java -jar uber-uninstaller-android.jar -p com.your.packa*
+    java -jar uber-adbtool.jar -install /folder/apks/
+    java -jar uber-adbtool.jar -uninstall com.your.packa*
+
 
 [![asciicast](https://asciinema.org/a/86433.png)](https://asciinema.org/a/86433)
 
@@ -19,49 +21,68 @@ be either set in `PATH` or `ANDROID_HOME` should be set.
 
 ## Download
 
-[Grab jar from latest Release](https://github.com/patrickfav/uber-uninstaller-android/releases/latest)
+**[Grab jar from latest Release](https://github.com/patrickfav/uber-uninstaller-android/releases/latest)**
 
 ## Why do I need this?
 
-If you or your company develops many apps or flavors, if you make heavy use of buildTypes and/or if you share testing devices with peers this is a convenient tool
-to wipe all test apps from your device (or multiple devices simultaneously). This is even more important where different apps have sideffects if more than one flavor is installed.
+If you or your company develops many apps or flavors, if you make heavy use of buildTypes and/or if you share testing devices with peers this is a convenient tool to either wipe all test apps from your device (or multiple devices simultaneously) or install all buildTypes for testing in one go. This is even more important where different apps have sideffects if more than one flavor is installed.
 
 ## Command Line Interface
 
 Provide more than one package filter:
 
-    java -jar uber-uninstaller-android.jar -p com.your.packa*,com.their.packa*,com.third.* -dryRun
+    java -jar uber-adbtool.jar -uninstall com.your.packa*,com.their.packa*,com.third.*
 
-Test which apps would be uninstalled with a dry run:
+Test what would happen with dryrun:
 
-    java -jar uber-uninstaller-android.jar -p com.your.packa* -dryRun
+    java -jar uber-adbtool.jar -uninstall com.your.packa* -dryRun
+    java -jar uber-adbtool.jar -install /myfolder -dryRun
 
-Uninstall only on a certain device by providing the device's serial (check `adb devices`):
+Install/Uninstall only on a certain device by providing the device's serial (check `adb devices`):
 
-    java -jar uber-uninstaller-android.jar -p com.your.packa* -s IUG65621532
+    java -jar uber-adbtool.jar -uninstall com.your.packa* -s IUG65621532
+    java -jar uber-adbtool.jar -install /myfolder -s IUG65621532
 
 Provide your own adb executables:
 
-    java -jar uber-uninstaller-android.jar -p com.your.packa* -adbPath "C:\pathToAdb\adb.exe"
+    java -jar uber-adbtool.jar -uninstall com.your.packa* -adbPath "C:\pathToAdb\adb.exe"
+
+If the apk is already installed upgrade to new version while keeping the app's data:
+
+    java -jar uber-adbtool.jar -install /myfolder/my-apk.apk -upgrade
+
+Only install a certain apk file (as opposed to installing all from a folder):
+
+    java -jar uber-adbtool.jar -install /myfolder/my-apk.apk
 
 The documentation of all possible parameters
 
-    -adbPath <path>      Full path to adb executable. If this is omitted the tool tries to find adb in PATH
-                         env variable.
-    -dryRun              Use this to see what would be uninstalled on what devices with the given params. Will
-                         not uninstall anything.
-    -h,--help            Prints docs
-    -keepData            Uses the '-k' param on 'adb uninstall' to keep data and caches of the app.
-    -p <package name>    Filter string that has to be a package name or part of it containing wildcards '*'.
-                         Can be multiple filter Strings comma separated. Example: 'com.android.*' or
-                         'com.android.*,com.google.*'
-    -quiet               Prints less output.
-    -s <device serial>   If this is set, will only uninstall on given device. Default is all connected
-                         devices. Device id is the same that is given by 'adb devices'
-    -skipEmulators       Skips device emulators.
-    -v,--version         Prints current version.
+    -adbPath <path>              Full path to adb executable. If this is omitted the tool tries to find adb in
+                                 PATH env variable.
+    -debug                       Prints additional info for debugging.
+    -dryRun                      Use this to see what would be installed/uninstalled on what devices with the
+                                 given params. Will not install/uninstall anything.
+    -force                       If this flag is set all matched apps will be installed/uninstalled without
+                                 any further warning. Otherwise a user input is necessary.
+    -h,--help                    Prints docs
+    -install <apk file/folder>   Provide path to an apk file or folder containing apk files and the tool tries
+                                 to install all of them to all connected devices (if not a specfic device is
+                                 selected). Either this or 'uninstall' must be passed as argument.
+    -keepData                    Only for uninstall: Uses the '-k' param on 'adb uninstall' to keep data and
+                                 caches of the app.
+    -quiet                       Prints less output.
+    -s <device serial>           If this is set, will only use given device. Default is all connected devices.
+                                 Device id is the same that is given by 'adb devices'
+    -skipEmulators               Skips device emulators for install/uninstall.
+    -uninstall <package name>    Filter string that has to be a package name or part of it containing
+                                 wildcards '*'. Can be multiple filter Strings comma separated. Example:
+                                 'com.android.*' or 'com.android.*,com.google.*'. Either this or 'install'
+                                 must be passed as argument.
+    -upgrade                     Only for install: Uses the '-r' param on 'adb install' for trying to
+                                 reinstall the app and keeping its data.
+    -v,--version                 Prints current version.
 
-### Wildcard Support
+### Wildcard Support for Uninstall
 
 It is possible to just use the full package name like using `adb uninstall com.mypackage.app`. 
 To take advantage of the enhance features wildcards are supported:
@@ -101,8 +122,11 @@ Gathers the attached devices. May use the `-s` param with a device's serial.
 `adb shell "pm list packages -f"`
 List all installed packages. May use the `-s` param with a device's serial.
 
-`adb uninstall <package>`
+`adb shell pm uninstall <package>`
 Uninstalls an app.
+
+`adb install <apk-file>`
+Installs an app.
 
 ## Build
 

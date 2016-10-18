@@ -1,4 +1,4 @@
-package at.favre.tools.auninst.parser;
+package at.favre.tools.uberadb.parser;
 
 import java.util.ArrayList;
 import java.util.List;

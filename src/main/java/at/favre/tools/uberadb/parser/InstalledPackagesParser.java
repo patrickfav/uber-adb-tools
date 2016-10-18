@@ -1,4 +1,4 @@
-package at.favre.tools.auninst.parser;
+package at.favre.tools.uberadb.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,10 @@ public class InstalledPackagesParser {
     }
 
     public static boolean wasSuccessfulUninstalled(String cmdOut) {
+        return cmdOut != null && cmdOut.toLowerCase().trim().startsWith("success");
+    }
+
+    public static boolean wasSuccessfullInstalled(String cmdOut) {
         return cmdOut != null && cmdOut.toLowerCase().trim().startsWith("success");
     }
 }

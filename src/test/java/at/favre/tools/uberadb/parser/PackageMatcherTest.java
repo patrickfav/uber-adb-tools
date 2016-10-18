@@ -1,11 +1,8 @@
-package at.favre.tools.auninst.parser;
+package at.favre.tools.uberadb.parser;
 
 import org.junit.Test;
 
-import static at.favre.tools.auninst.parser.PackageMatcher.parseFiltersArg;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PackageMatcherTest {
 

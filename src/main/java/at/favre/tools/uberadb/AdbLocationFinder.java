@@ -1,4 +1,4 @@
-package at.favre.tools.auninst;
+package at.favre.tools.uberadb;
 
 public class AdbLocationFinder {
     public enum Location {PATH, PATH_WIN, CUSTOM, WIN_DEFAULT, MAC_DEFAULT, LINUX_DEFAULT}

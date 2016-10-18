@@ -1,4 +1,4 @@
-package at.favre.tools.auninst;
+package at.favre.tools.uberadb;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

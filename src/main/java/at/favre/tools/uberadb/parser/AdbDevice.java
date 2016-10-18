@@ -1,4 +1,4 @@
-package at.favre.tools.auninst.parser;
+package at.favre.tools.uberadb.parser;
 
 public class AdbDevice {
     public enum Status {OK, OFFLINE, UNAUTHORIZED, BOOTLOADER, UNKOWN}

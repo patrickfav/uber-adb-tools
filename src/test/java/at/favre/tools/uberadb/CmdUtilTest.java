@@ -1,4 +1,4 @@
-package at.favre.tools.auninst;
+package at.favre.tools.uberadb;
 
 
 import org.junit.Test;
