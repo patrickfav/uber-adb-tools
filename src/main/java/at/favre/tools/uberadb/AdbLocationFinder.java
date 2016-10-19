@@ -62,7 +62,7 @@ public class AdbLocationFinder {
         }
 
         throw new IllegalStateException("Could not find adb. Not found in PATH or the usual default locations. Did you install " +
-                "the Android SDK and set adb to PATH? See: http://stackoverflow.com/questions/20564514");
+                "the Android SDK and set adb to PATH? As alternative you could use the '-adbPath' argument. See: http://stackoverflow.com/questions/20564514");
     }
 
     public static class LocationResult {

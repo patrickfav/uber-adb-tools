@@ -39,21 +39,22 @@ public class AdbTool {
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
 
             List<File> installFiles = new ArrayList<>();
-            boolean installMode = arguments.apkInstallFile != null;
 
             if (!devices.isEmpty()) {
                 checkSpecificDevice(devices, arguments);
 
                 String statusLog = "Found " + devices.size() + " device(s).";
 
-                if (installMode) {
-                    statusLog += " Installing '" + arguments.apkInstallFile + "'.";
+                if (arguments.mode == Arg.Mode.INSTALL) {
+                    statusLog += " Installing '" + arguments.mainArgument + "'.";
                     installFiles = getFilesToInstall(arguments);
-                } else {
-                    statusLog += " Uninstalling with filter '" + arguments.filterString + "'.";
+                } else if (arguments.mode == Arg.Mode.UNINSTALL) {
+                    statusLog += " Uninstalling with filter '" + arguments.mainArgument + "'.";
                     if (arguments.keepData) {
                         statusLog += " Keep data/caches.";
                     }
+                } else if (arguments.mode == Arg.Mode.BUGREPORT) {
+                    statusLog += " Creating bugreport for apps with filter '" + arguments.mainArgument + "'.";
                 }
 
                 if (arguments.force) {
@@ -71,8 +72,8 @@ public class AdbTool {
                 logLoud(statusLog);
             }
 
-            if (arguments.dryRun || arguments.force || iterateDevices(installMode, devices, adbLocation, arguments, executedCommands, installFiles, true)) {
-                iterateDevices(installMode, devices, adbLocation, arguments, executedCommands, installFiles, false);
+            if (arguments.dryRun || arguments.force || iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, true)) {
+                iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, false);
             }
 
             if (arguments.debug) {
@@ -89,11 +90,12 @@ public class AdbTool {
         }
     }
 
-    private static boolean iterateDevices(boolean installMode, List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
+    private static boolean iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
                                           List<CmdUtil.Result> executedCommands, List<File> installFiles, boolean preview) {
         int deviceCount = 0;
         int successCount = 0;
         int failureCount = 0;
+        long startDuration = System.currentTimeMillis();
 
         for (AdbDevice device : devices) {
             if (arguments.device == null || arguments.device.equals(device.serial)) {
@@ -121,52 +123,66 @@ public class AdbTool {
                     deviceCount++;
                     List<String> allPackages = new InstalledPackagesParser().parse(packagesCmdResult.out);
 
-                    if (installMode) {
+                    if (arguments.mode == Arg.Mode.INSTALL) {
                         for (File installFile : installFiles) {
-                            String installStatus = "\t";
+                            String installStatus = "\t" + installFile.getName();
+
                             if (!arguments.dryRun) {
                                 if (!preview) {
                                     CmdUtil.Result installCmdResult = runAdbCommand(createInstallCmd(device, installFile.getAbsolutePath(), arguments), adbLocation);
                                     executedCommands.add(installCmdResult);
 
-                                    installStatus += installFile.getName() + "\t" + (installCmdResult.out != null ? installCmdResult.out.trim() : "");
-                                    if (InstalledPackagesParser.wasSuccessfullInstalled(installCmdResult.out)) {
+
+                                    if (InstalledPackagesParser.wasSuccessfulInstalled(installCmdResult.out)) {
+                                        installStatus += "\tSuccess";
                                         successCount++;
                                     } else {
+                                        installStatus += "\t" + InstalledPackagesParser.parseShortenedInstallStatus(installCmdResult.out);
                                         failureCount++;
                                     }
                                 } else {
                                     successCount++;
-                                    installStatus += installFile.getName();
                                 }
                             } else {
-                                installStatus += installFile.getName() + "\t skip";
+                                installStatus += "\tskip";
                             }
                             log(installStatus, arguments);
                         }
-                    } else {
+                    } else if (arguments.mode == Arg.Mode.UNINSTALL || arguments.mode == Arg.Mode.BUGREPORT) {
                         Set<String> filteredPackages = new PackageMatcher(allPackages).findMatches(
-                                PackageMatcher.parseFiltersArg(arguments.filterString));
+                                PackageMatcher.parseFiltersArg(arguments.mainArgument));
 
                         for (String filteredPackage : filteredPackages) {
-                            String uninstallStatus = "\t";
+                            String uninstallStatus = "\t" + filteredPackage;
                             if (!arguments.dryRun) {
                                 if (!preview) {
-                                    CmdUtil.Result uninstallCmdResult = runAdbCommand(createUninstallCmd(device, filteredPackage, arguments), adbLocation);
-                                    executedCommands.add(uninstallCmdResult);
+                                    if (arguments.mode == Arg.Mode.UNINSTALL) {
+                                        CmdUtil.Result uninstallCmdResult = runAdbCommand(createUninstallCmd(device, filteredPackage, arguments), adbLocation);
+                                        executedCommands.add(uninstallCmdResult);
+                                        uninstallStatus += "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
+                                        if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
+                                            successCount++;
+                                        } else {
+                                            failureCount++;
+                                        }
+                                    } else if (arguments.mode == Arg.Mode.BUGREPORT) {
+                                        CmdUtil.Result screecapCmd = runAdbCommand(new String[]{"shell", "screencap", "/sdcard/bugreport.png"}, adbLocation);
+                                        CmdUtil.Result pullscreenCmd = runAdbCommand(new String[]{"pull", "/sdcard/bugreport.png", "C:\\Temp\\" + filteredPackage + ".png"}, adbLocation);
+                                        CmdUtil.Result logcat = runAdbCommand(new String[]{"logcat", "-d", "-f", "/sdcard/bugreport_logcat.txt"}, adbLocation);
+                                        CmdUtil.Result pullLogcatCmd = runAdbCommand(new String[]{"pull", "/sdcard/bugreport_logcat.txt", "C:\\Temp\\logcat_" + filteredPackage + ".txt"}, adbLocation);
 
-                                    uninstallStatus += filteredPackage + "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
-                                    if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
+                                        executedCommands.add(screecapCmd);
+                                        executedCommands.add(pullscreenCmd);
+                                        executedCommands.add(logcat);
+                                        executedCommands.add(pullLogcatCmd);
+                                        uninstallStatus += "\treport created";
                                         successCount++;
-                                    } else {
-                                        failureCount++;
                                     }
                                 } else {
                                     successCount++;
-                                    uninstallStatus += filteredPackage;
                                 }
                             } else {
-                                uninstallStatus += filteredPackage + "\t skip";
+                                uninstallStatus += "\tskip";
                             }
                             log(uninstallStatus, arguments);
                         }
@@ -182,10 +198,10 @@ public class AdbTool {
 
         if (preview) {
             if (successCount == 0) {
-                logLoud("No apps " + (installMode ? "installed." : "uninstall."));
+                logLoud("No apps " + getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report."));
                 return false;
             } else {
-                logLoud(successCount + " apps would be " + (installMode ? "installed" : "uninstalled") + " on " + deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
+                logLoud(successCount + " apps would be " + getCorrectAction(arguments.mode, "installed", "uninstalled", "used for creating bug reports") + " on " + deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
                     String input = br.readLine();
                     return input.trim().toLowerCase().equals("y");
@@ -200,19 +216,20 @@ public class AdbTool {
                     logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
                 }
             } else {
-                logLoud(generateReport(installMode, deviceCount, successCount, failureCount));
+                logLoud(generateReport(arguments.mode, deviceCount, successCount, failureCount, System.currentTimeMillis() - startDuration));
             }
         }
 
         return true;
     }
 
+
     private static List<File> getFilesToInstall(Arg arguments) {
         List<File> installFiles = new ArrayList<>();
 
-        File apkFileRef = new File(arguments.apkInstallFile);
+        File apkFileRef = new File(arguments.mainArgument);
         if (!apkFileRef.exists()) {
-            throw new IllegalArgumentException("could not find " + arguments.apkInstallFile + " for install");
+            throw new IllegalArgumentException("could not find " + arguments.mainArgument + " for install");
         }
         if (apkFileRef.isFile()) {
             if (apkFileRef.getName().toLowerCase().endsWith(".apk")) {
@@ -227,7 +244,7 @@ public class AdbTool {
         }
 
         if (installFiles.isEmpty()) {
-            throw new IllegalArgumentException("could not find any apk files in " + arguments.apkInstallFile + " to install");
+            throw new IllegalArgumentException("could not find any apk files in " + arguments.mainArgument + " to install");
         }
         return installFiles;
     }
@@ -266,11 +283,13 @@ public class AdbTool {
     }
 
 
-    private static String generateReport(boolean installMode, int deviceCount, int successUninstallCount, int failureUninstallCount) {
-        String report = String.format(Locale.US, "%d apps were " + (installMode ? "installed" : "uninstalled") + " on %d device(s).", successUninstallCount, deviceCount);
+    private static String generateReport(Arg.Mode mode, int deviceCount, int successUninstallCount, int failureUninstallCount, long executionDurationMs) {
+        String report = String.format(Locale.US, "%d apps were " + getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " on %d device(s).", successUninstallCount, deviceCount);
         if (failureUninstallCount > 0) {
-            report += String.format(Locale.US, " %d apps could not be " + (installMode ? "installed" : "uninstalled") + " due to errors.", failureUninstallCount);
+            report += String.format(Locale.US, " %d apps could not be " + getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " due to errors.", failureUninstallCount);
         }
+        report += " Took " + String.format(Locale.US, "%.2f", (double) executionDurationMs / 1000.0) + " seconds.";
+
         return report;
     }
 
@@ -305,5 +324,19 @@ public class AdbTool {
 
     private static CmdUtil.Result runAdbCommand(String[] adbArgs, AdbLocationFinder.LocationResult locationResult) {
         return CmdUtil.runCmd(CmdUtil.concat(locationResult.args, adbArgs));
+    }
+
+
+    private static String getCorrectAction(Arg.Mode mode, String install, String uninstall, String bugreport) {
+        switch (mode) {
+            case INSTALL:
+                return install;
+            case UNINSTALL:
+                return uninstall;
+            case BUGREPORT:
+                return bugreport;
+            default:
+                return "unknown";
+        }
     }
 }

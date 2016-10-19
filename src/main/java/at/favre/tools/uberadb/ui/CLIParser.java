@@ -6,6 +6,7 @@ public class CLIParser {
 
     static final String ARG_UNINSTALL = "uninstall";
     static final String ARG_INSTALL = "install";
+    static final String ARG_BUGREPORT = "bugreport";
 
     static final String ARG_DEVICE_SERIAL = "s";
 
@@ -27,14 +28,24 @@ public class CLIParser {
                 return null;
             }
 
+            int mainArgCount = 0;
             if (commandLine.hasOption(ARG_UNINSTALL)) {
-                argument.filterString = commandLine.getOptionValue(ARG_UNINSTALL);
+                argument.mainArgument = commandLine.getOptionValue(ARG_UNINSTALL);
+                argument.mode = Arg.Mode.UNINSTALL;
+                mainArgCount++;
             }
             if (commandLine.hasOption(ARG_INSTALL)) {
-                argument.apkInstallFile = commandLine.getOptionValue(ARG_INSTALL);
+                argument.mainArgument = commandLine.getOptionValue(ARG_INSTALL);
+                argument.mode = Arg.Mode.INSTALL;
+                mainArgCount++;
+            }
+            if (commandLine.hasOption(ARG_BUGREPORT)) {
+                argument.mainArgument = commandLine.getOptionValue(ARG_BUGREPORT);
+                argument.mode = Arg.Mode.BUGREPORT;
+                mainArgCount++;
             }
 
-            if (argument.filterString == null && argument.apkInstallFile == null) {
+            if (mainArgCount != 1) {
                 throw new IllegalArgumentException("Must either provide " + ARG_INSTALL + " or " + ARG_UNINSTALL + " argument");
             }
 
@@ -67,8 +78,9 @@ public class CLIParser {
     private static Options setupOptions() {
         Options options = new Options();
 
-        Option mainInstall = Option.builder(ARG_INSTALL).argName("apk file/folder").desc("Provide path to an apk file or folder containing apk files and the tool tries to install all of them to all connected devices (if not a specfic device is selected). Either this or 'uninstall' must be passed as argument.").hasArg().build();
-        Option mainUninstall = Option.builder(ARG_UNINSTALL).argName("package name").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'. Either this or 'install' must be passed as argument.").build();
+        Option mainInstall = Option.builder(ARG_INSTALL).argName("apk file/folder").desc("Provide path to an apk file or folder containing apk files and the tool tries to install all of them to all connected devices (if not a specfic device is selected).").hasArg().build();
+        Option mainUninstall = Option.builder(ARG_UNINSTALL).argName("package name").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*' for uninstalling. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'.").build();
+        Option mainBugReport = Option.builder(ARG_BUGREPORT).argName("package name").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*' to match the apps to create the bug report for. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'.").build();
 
         Option adbPathOpt = Option.builder("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this is omitted the tool tries to find adb in PATH env variable.").build();
         Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).argName("device serial").hasArg(true).desc("If this is set, will only use given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
@@ -85,7 +97,7 @@ public class CLIParser {
         Option version = Option.builder("v").longOpt("version").desc("Prints current version.").build();
 
         OptionGroup mainArgs = new OptionGroup();
-        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(help).addOption(version);
+        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(mainBugReport).addOption(help).addOption(version);
         mainArgs.setRequired(true);
 
         options.addOptionGroup(mainArgs);
@@ -100,6 +112,6 @@ public class CLIParser {
         HelpFormatter help = new HelpFormatter();
         help.setWidth(110);
         help.setLeftPadding(4);
-        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | --help", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", false);
+        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -"+ARG_BUGREPORT + " <package filter> | --help", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", false);
     }
 }

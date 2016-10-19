@@ -10,8 +10,8 @@ Main features:
 
 Basic usage:
 
-    java -jar uber-adbtool.jar -install /folder/apks/
-    java -jar uber-adbtool.jar -uninstall com.your.packa*
+    java -jar uber-adb-tools.jar -install /folder/apks/
+    java -jar uber-adb-tools.jar -uninstall com.your.packa*
 
 
 [![asciicast](https://asciinema.org/a/86433.png)](https://asciinema.org/a/86433)
@@ -31,29 +31,29 @@ If you or your company develops many apps or flavors, if you make heavy use of b
 
 Provide more than one package filter:
 
-    java -jar uber-adbtool.jar -uninstall com.your.packa*,com.their.packa*,com.third.*
+    java -jar uber-adb-tools.jar -uninstall com.your.packa*,com.their.packa*,com.third.*
 
 Test what would happen with dryrun:
 
-    java -jar uber-adbtool.jar -uninstall com.your.packa* -dryRun
-    java -jar uber-adbtool.jar -install /myfolder -dryRun
+    java -jar uber-adb-tools.jar -uninstall com.your.packa* -dryRun
+    java -jar uber-adb-tools.jar -install /myfolder -dryRun
 
 Install/Uninstall only on a certain device by providing the device's serial (check `adb devices`):
 
-    java -jar uber-adbtool.jar -uninstall com.your.packa* -s IUG65621532
-    java -jar uber-adbtool.jar -install /myfolder -s IUG65621532
+    java -jar uber-adb-tools.jar -uninstall com.your.packa* -s IUG65621532
+    java -jar uber-adb-tools.jar -install /myfolder -s IUG65621532
 
 Provide your own adb executables:
 
-    java -jar uber-adbtool.jar -uninstall com.your.packa* -adbPath "C:\pathToAdb\adb.exe"
+    java -jar uber-adb-tools.jar -uninstall com.your.packa* -adbPath "C:\pathToAdb\adb.exe"
 
 If the apk is already installed upgrade to new version while keeping the app's data:
 
-    java -jar uber-adbtool.jar -install /myfolder/my-apk.apk -upgrade
+    java -jar uber-adb-tools.jar -install /myfolder/my-apk.apk -upgrade
 
 Only install a certain apk file (as opposed to installing all from a folder):
 
-    java -jar uber-adbtool.jar -install /myfolder/my-apk.apk
+    java -jar uber-adb-tools.jar -install /myfolder/my-apk.apk
 
 The documentation of all possible parameters
 

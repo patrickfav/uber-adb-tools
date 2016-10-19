@@ -40,7 +40,24 @@ public class InstalledPackagesParser {
         return cmdOut != null && cmdOut.toLowerCase().trim().startsWith("success");
     }
 
-    public static boolean wasSuccessfullInstalled(String cmdOut) {
-        return cmdOut != null && cmdOut.toLowerCase().trim().startsWith("success");
+    public static boolean wasSuccessfulInstalled(String cmdOut) {
+        return cmdOut != null && cmdOut.toLowerCase().trim().contains("success");
+    }
+
+    public static String parseShortenedInstallStatus(String cmdOut) {
+        if(cmdOut == null) {
+            return "";
+        }
+
+        String truncated=cmdOut.trim();
+        if(cmdOut.contains("\n")) {
+            truncated = truncated.substring(truncated.lastIndexOf("\n")+1,truncated.length());
+        }
+
+        if(truncated.length() > 64) {
+            truncated = truncated.substring(truncated.length() - 63, truncated.length());
+        }
+
+        return truncated;
     }
 }
