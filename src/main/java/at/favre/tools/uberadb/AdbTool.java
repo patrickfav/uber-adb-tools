@@ -70,7 +70,7 @@ public class AdbTool {
                 logLoud(statusLog);
             }
 
-            if (arguments.dryRun || arguments.force || iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, true)) {
+            if (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, true)) {
                 iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, false);
             }
 
@@ -128,8 +128,11 @@ public class AdbTool {
                         String dateTimeString = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
 
                         File outFolder;
-                        if (arguments.mainArgument != null && arguments.mainArgument.isEmpty() && new File(arguments.mainArgument).exists()) {
+                        if (arguments.mainArgument != null && !arguments.mainArgument.isEmpty()) {
                             outFolder = new File(arguments.mainArgument);
+                            if (!outFolder.exists() && !outFolder.mkdirs()) {
+                                throw new IllegalStateException("could not create directory " + arguments.mainArgument);
+                            }
                         } else {
                             outFolder = new File(AdbTool.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
                         }
@@ -144,12 +147,11 @@ public class AdbTool {
                         CmdUtil.Result wakeupScreenCmd = runAdbCommand(new String[]{"shell", "input", "keyevent", "KEYCODE_WAKEUP"}, adbLocation);
                         CmdUtil.Result screecapCmd = runAdbCommand(new String[]{"shell", "screencap", tempFileScreenshot}, adbLocation);
                         CmdUtil.Result pullscreenCmd = runAdbCommand(new String[]{"pull", tempFileScreenshot, localTempFileScreenshot.getAbsolutePath()}, adbLocation);
-                        log("\tpull logcat", arguments);
+                        log("\tcreate logcat file and pull from device", arguments);
                         CmdUtil.Result logcat = runAdbCommand(new String[]{"logcat", "-d", "-f", tempFileLogcat}, adbLocation);
                         CmdUtil.Result pullLogcatCmd = runAdbCommand(new String[]{"pull", tempFileLogcat, localTempFileLogcat.getAbsolutePath()}, adbLocation);
                         log(String.format(Locale.US, "\t%.2fkB screenshot, %.2fkB logcat",
                                 (double) localTempFileScreenshot.length() / 1024.0, (double) localTempFileLogcat.length() / 1024.0), arguments);
-                        log("\tremove temp files and zip to " + zipFile.getName(), arguments);
                         CmdUtil.Result removeTempFiles1Cmd = runAdbCommand(new String[]{"shell", "rm", "-f", tempFileScreenshot}, adbLocation);
                         CmdUtil.Result removeTempFiles2Cmd = runAdbCommand(new String[]{"shell", "rm", "-f", tempFileLogcat}, adbLocation);
 
@@ -164,6 +166,11 @@ public class AdbTool {
                         MiscUtil.zip(zipFile, Arrays.asList(localTempFileScreenshot, localTempFileLogcat));
                         localTempFileScreenshot.delete();
                         localTempFileLogcat.delete();
+
+                        if (!zipFile.exists()) {
+                            throw new IllegalStateException("could not create zip file " + zipFile);
+                        }
+                        log(String.format(Locale.US, "\ttemp files removed and zip %s (%.2fkB) created", zipFile.getAbsolutePath(), (double) zipFile.length() / 1024.0), arguments);
 
                     } else if (arguments.mode == Arg.Mode.INSTALL) {
                         for (File installFile : installFiles) {
@@ -319,12 +326,16 @@ public class AdbTool {
 
 
     private static String generateReport(Arg.Mode mode, int deviceCount, int successUninstallCount, int failureUninstallCount, long executionDurationMs) {
-        String report = String.format(Locale.US, "%d apps were " + getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " on %d device(s).", successUninstallCount, deviceCount);
-        if (failureUninstallCount > 0) {
-            report += String.format(Locale.US, " %d apps could not be " + getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " due to errors.", failureUninstallCount);
+        String report;
+        if (mode == Arg.Mode.BUGREPORT) {
+            report = String.format(Locale.US, "Bug reports generated from %d device(s).", deviceCount);
+        } else {
+            report = String.format(Locale.US, "%d apps were " + getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " on %d device(s).", successUninstallCount, deviceCount);
+            if (failureUninstallCount > 0) {
+                report += String.format(Locale.US, " %d apps could not be " + getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " due to errors.", failureUninstallCount);
+            }
         }
         report += " Took " + String.format(Locale.US, "%.2f", (double) executionDurationMs / 1000.0) + " seconds.";
-
         return report;
     }
 
