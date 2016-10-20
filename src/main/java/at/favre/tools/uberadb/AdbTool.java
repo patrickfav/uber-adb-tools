@@ -81,6 +81,7 @@ public class AdbTool {
             logErr(e.getMessage());
 
             if (arguments.debug) {
+                e.printStackTrace();
                 logErr(getCommandHistory(executedCommands));
             } else {
                 logErr("Run with '-debug' parameter to get additional information.");
@@ -125,7 +126,7 @@ public class AdbTool {
                     if (arguments.mode == Arg.Mode.BUGREPORT) {
                         logLoud("create bug report:");
 
-                        String dateTimeString = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+                        String dateTimeString = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
 
                         File outFolder;
                         if (arguments.mainArgument != null && !arguments.mainArgument.isEmpty()) {
@@ -139,21 +140,21 @@ public class AdbTool {
 
                         String tempFileScreenshot = "/sdcard/bugreport_tempfile_screenshot.png";
                         String tempFileLogcat = "/sdcard/bugreport_tempfile_logcat";
-                        File localTempFileScreenshot = new File(outFolder.getAbsolutePath(), "screen_" + dateTimeString + ".png");
-                        File localTempFileLogcat = new File(outFolder.getAbsolutePath(), "logcat_" + dateTimeString + ".txt");
-                        File zipFile = new File(outFolder, "bugreport_" + device.model + "_" + dateTimeString + ".zip");
+                        File localTempFileScreenshot = new File(outFolder.getAbsolutePath(), "screen-" + device.model + "-" + dateTimeString + ".png");
+                        File localTempFileLogcat = new File(outFolder.getAbsolutePath(), "logcat-" + device.model + "-" + dateTimeString + ".txt");
+                        File zipFile = new File(outFolder, "bugreport-" + device.model + "-" + dateTimeString + ".zip");
 
                         log("\twake up screen and take screenshot", arguments);
-                        CmdUtil.Result wakeupScreenCmd = runAdbCommand(new String[]{"shell", "input", "keyevent", "KEYCODE_WAKEUP"}, adbLocation);
-                        CmdUtil.Result screecapCmd = runAdbCommand(new String[]{"shell", "screencap", tempFileScreenshot}, adbLocation);
-                        CmdUtil.Result pullscreenCmd = runAdbCommand(new String[]{"pull", tempFileScreenshot, localTempFileScreenshot.getAbsolutePath()}, adbLocation);
+                        CmdUtil.Result wakeupScreenCmd = runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, adbLocation);
+                        CmdUtil.Result screecapCmd = runAdbCommand(new String[]{"-s", device.serial, "shell", "screencap", tempFileScreenshot}, adbLocation);
+                        CmdUtil.Result pullscreenCmd = runAdbCommand(new String[]{"-s", device.serial, "pull", tempFileScreenshot, localTempFileScreenshot.getAbsolutePath()}, adbLocation);
                         log("\tcreate logcat file and pull from device", arguments);
-                        CmdUtil.Result logcat = runAdbCommand(new String[]{"logcat", "-d", "-f", tempFileLogcat}, adbLocation);
-                        CmdUtil.Result pullLogcatCmd = runAdbCommand(new String[]{"pull", tempFileLogcat, localTempFileLogcat.getAbsolutePath()}, adbLocation);
+                        CmdUtil.Result logcat = runAdbCommand(new String[]{"-s", device.serial, "logcat", "-d", "-f", tempFileLogcat}, adbLocation);
+                        CmdUtil.Result pullLogcatCmd = runAdbCommand(new String[]{"-s", device.serial, "pull", tempFileLogcat, localTempFileLogcat.getAbsolutePath()}, adbLocation);
                         log(String.format(Locale.US, "\t%.2fkB screenshot, %.2fkB logcat",
                                 (double) localTempFileScreenshot.length() / 1024.0, (double) localTempFileLogcat.length() / 1024.0), arguments);
-                        CmdUtil.Result removeTempFiles1Cmd = runAdbCommand(new String[]{"shell", "rm", "-f", tempFileScreenshot}, adbLocation);
-                        CmdUtil.Result removeTempFiles2Cmd = runAdbCommand(new String[]{"shell", "rm", "-f", tempFileLogcat}, adbLocation);
+                        CmdUtil.Result removeTempFiles1Cmd = runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", tempFileScreenshot}, adbLocation);
+                        CmdUtil.Result removeTempFiles2Cmd = runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", tempFileLogcat}, adbLocation);
 
                         executedCommands.add(wakeupScreenCmd);
                         executedCommands.add(screecapCmd);
