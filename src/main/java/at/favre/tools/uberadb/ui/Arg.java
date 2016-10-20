@@ -1,6 +1,8 @@
 package at.favre.tools.uberadb.ui;
 
 
+import java.util.Arrays;
+
 public class Arg {
     public enum Mode {INSTALL, UNINSTALL, BUGREPORT}
 
@@ -8,7 +10,7 @@ public class Arg {
 
     public String adbPath;
     public String device;
-    public String reportFilterIntent;
+    public String[] reportFilterIntent;
 
     public boolean dryRun = false;
     public boolean skipEmulators = false;
@@ -22,7 +24,7 @@ public class Arg {
     public Arg() {
     }
 
-    public Arg(String mainArgument, String adbPath, String device, String reportFilterIntent, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, Mode mode) {
+    public Arg(String mainArgument, String adbPath, String device, String[] reportFilterIntent, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, Mode mode) {
         this.mainArgument = mainArgument;
         this.adbPath = adbPath;
         this.device = device;
@@ -52,8 +54,8 @@ public class Arg {
         if (mainArgument != null ? !mainArgument.equals(arg.mainArgument) : arg.mainArgument != null) return false;
         if (adbPath != null ? !adbPath.equals(arg.adbPath) : arg.adbPath != null) return false;
         if (device != null ? !device.equals(arg.device) : arg.device != null) return false;
-        if (reportFilterIntent != null ? !reportFilterIntent.equals(arg.reportFilterIntent) : arg.reportFilterIntent != null)
-            return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(reportFilterIntent, arg.reportFilterIntent)) return false;
         return mode == arg.mode;
 
     }
@@ -63,7 +65,7 @@ public class Arg {
         int result = mainArgument != null ? mainArgument.hashCode() : 0;
         result = 31 * result + (adbPath != null ? adbPath.hashCode() : 0);
         result = 31 * result + (device != null ? device.hashCode() : 0);
-        result = 31 * result + (reportFilterIntent != null ? reportFilterIntent.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(reportFilterIntent);
         result = 31 * result + (dryRun ? 1 : 0);
         result = 31 * result + (skipEmulators ? 1 : 0);
         result = 31 * result + (keepData ? 1 : 0);
@@ -72,5 +74,22 @@ public class Arg {
         result = 31 * result + (force ? 1 : 0);
         result = 31 * result + (mode != null ? mode.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Arg{" +
+                "mainArgument='" + mainArgument + '\'' +
+                ", adbPath='" + adbPath + '\'' +
+                ", device='" + device + '\'' +
+                ", reportFilterIntent='" + Arrays.toString(reportFilterIntent) + '\'' +
+                ", dryRun=" + dryRun +
+                ", skipEmulators=" + skipEmulators +
+                ", keepData=" + keepData +
+                ", quiet=" + quiet +
+                ", debug=" + debug +
+                ", force=" + force +
+                ", mode=" + mode +
+                '}';
     }
 }

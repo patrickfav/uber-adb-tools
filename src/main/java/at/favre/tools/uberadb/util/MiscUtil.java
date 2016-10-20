@@ -1,4 +1,4 @@
-package at.favre.tools.uberadb;
+package at.favre.tools.uberadb.util;
 
 import java.io.File;
 import java.net.URI;
