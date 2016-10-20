@@ -11,10 +11,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class AdbTool {
 
@@ -53,8 +51,8 @@ public class AdbTool {
                     if (arguments.keepData) {
                         statusLog += " Keep data/caches.";
                     }
-                } else if (arguments.mode == Arg.Mode.BUGREPORT) {
-                    statusLog += " Creating bugreport for apps with filter '" + arguments.mainArgument + "'.";
+                } else if (arguments.mode == Arg.Mode.BUGREPORT && arguments.mainArgument != null && !arguments.mainArgument.isEmpty()) {
+                    statusLog += " Creating bugreport and save to '" + arguments.mainArgument + "'.";
                 }
 
                 if (arguments.force) {
@@ -87,11 +85,12 @@ public class AdbTool {
             } else {
                 logErr("Run with '-debug' parameter to get additional information.");
             }
+            System.exit(1);
         }
     }
 
     private static boolean iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
-                                          List<CmdUtil.Result> executedCommands, List<File> installFiles, boolean preview) {
+                                          List<CmdUtil.Result> executedCommands, List<File> installFiles, boolean preview) throws Exception {
         int deviceCount = 0;
         int successCount = 0;
         int failureCount = 0;
@@ -123,13 +122,57 @@ public class AdbTool {
                     deviceCount++;
                     List<String> allPackages = new InstalledPackagesParser().parse(packagesCmdResult.out);
 
-                    if (arguments.mode == Arg.Mode.INSTALL) {
+                    if (arguments.mode == Arg.Mode.BUGREPORT) {
+                        logLoud("create bug report:");
+
+                        String dateTimeString = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+
+                        File outFolder;
+                        if (arguments.mainArgument != null && arguments.mainArgument.isEmpty() && new File(arguments.mainArgument).exists()) {
+                            outFolder = new File(arguments.mainArgument);
+                        } else {
+                            outFolder = new File(AdbTool.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+                        }
+
+                        String tempFileScreenshot = "/sdcard/bugreport_tempfile_screenshot.png";
+                        String tempFileLogcat = "/sdcard/bugreport_tempfile_logcat";
+                        File localTempFileScreenshot = new File(outFolder.getAbsolutePath(), "screen_" + dateTimeString + ".png");
+                        File localTempFileLogcat = new File(outFolder.getAbsolutePath(), "logcat_" + dateTimeString + ".txt");
+                        File zipFile = new File(outFolder, "bugreport_" + device.model + "_" + dateTimeString + ".zip");
+
+                        log("\twake up screen and take screenshot", arguments);
+                        CmdUtil.Result wakeupScreenCmd = runAdbCommand(new String[]{"shell", "input", "keyevent", "KEYCODE_WAKEUP"}, adbLocation);
+                        CmdUtil.Result screecapCmd = runAdbCommand(new String[]{"shell", "screencap", tempFileScreenshot}, adbLocation);
+                        CmdUtil.Result pullscreenCmd = runAdbCommand(new String[]{"pull", tempFileScreenshot, localTempFileScreenshot.getAbsolutePath()}, adbLocation);
+                        log("\tpull logcat", arguments);
+                        CmdUtil.Result logcat = runAdbCommand(new String[]{"logcat", "-d", "-f", tempFileLogcat}, adbLocation);
+                        CmdUtil.Result pullLogcatCmd = runAdbCommand(new String[]{"pull", tempFileLogcat, localTempFileLogcat.getAbsolutePath()}, adbLocation);
+                        log(String.format(Locale.US, "\t%.2fkB screenshot, %.2fkB logcat",
+                                (double) localTempFileScreenshot.length() / 1024.0, (double) localTempFileLogcat.length() / 1024.0), arguments);
+                        log("\tremove temp files and zip to " + zipFile.getName(), arguments);
+                        CmdUtil.Result removeTempFiles1Cmd = runAdbCommand(new String[]{"shell", "rm", "-f", tempFileScreenshot}, adbLocation);
+                        CmdUtil.Result removeTempFiles2Cmd = runAdbCommand(new String[]{"shell", "rm", "-f", tempFileLogcat}, adbLocation);
+
+                        executedCommands.add(wakeupScreenCmd);
+                        executedCommands.add(screecapCmd);
+                        executedCommands.add(pullscreenCmd);
+                        executedCommands.add(logcat);
+                        executedCommands.add(pullLogcatCmd);
+                        executedCommands.add(removeTempFiles1Cmd);
+                        executedCommands.add(removeTempFiles2Cmd);
+
+                        MiscUtil.zip(zipFile, Arrays.asList(localTempFileScreenshot, localTempFileLogcat));
+                        localTempFileScreenshot.delete();
+                        localTempFileLogcat.delete();
+
+                    } else if (arguments.mode == Arg.Mode.INSTALL) {
                         for (File installFile : installFiles) {
                             String installStatus = "\t" + installFile.getName();
 
                             if (!arguments.dryRun) {
                                 if (!preview) {
-                                    CmdUtil.Result installCmdResult = runAdbCommand(createInstallCmd(device, installFile.getAbsolutePath(), arguments), adbLocation);
+                                    CmdUtil.Result installCmdResult = runAdbCommand(createInstallCmd(device,
+                                            installFile.getAbsolutePath(), arguments), adbLocation);
                                     executedCommands.add(installCmdResult);
 
 
@@ -148,7 +191,7 @@ public class AdbTool {
                             }
                             log(installStatus, arguments);
                         }
-                    } else if (arguments.mode == Arg.Mode.UNINSTALL || arguments.mode == Arg.Mode.BUGREPORT) {
+                    } else if (arguments.mode == Arg.Mode.UNINSTALL) {
                         Set<String> filteredPackages = new PackageMatcher(allPackages).findMatches(
                                 PackageMatcher.parseFiltersArg(arguments.mainArgument));
 
@@ -166,15 +209,7 @@ public class AdbTool {
                                             failureCount++;
                                         }
                                     } else if (arguments.mode == Arg.Mode.BUGREPORT) {
-                                        CmdUtil.Result screecapCmd = runAdbCommand(new String[]{"shell", "screencap", "/sdcard/bugreport.png"}, adbLocation);
-                                        CmdUtil.Result pullscreenCmd = runAdbCommand(new String[]{"pull", "/sdcard/bugreport.png", "C:\\Temp\\" + filteredPackage + ".png"}, adbLocation);
-                                        CmdUtil.Result logcat = runAdbCommand(new String[]{"logcat", "-d", "-f", "/sdcard/bugreport_logcat.txt"}, adbLocation);
-                                        CmdUtil.Result pullLogcatCmd = runAdbCommand(new String[]{"pull", "/sdcard/bugreport_logcat.txt", "C:\\Temp\\logcat_" + filteredPackage + ".txt"}, adbLocation);
 
-                                        executedCommands.add(screecapCmd);
-                                        executedCommands.add(pullscreenCmd);
-                                        executedCommands.add(logcat);
-                                        executedCommands.add(pullLogcatCmd);
                                         uninstallStatus += "\treport created";
                                         successCount++;
                                     }

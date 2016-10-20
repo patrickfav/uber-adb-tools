@@ -45,6 +45,11 @@ public class CLIParser {
                 mainArgCount++;
             }
 
+            if (commandLine.hasOption("reportDebugIntent")) {
+                String reportFilter = commandLine.getArgs()[0];
+                String reportIntent = commandLine.getArgs()[1];
+            }
+
             if (mainArgCount != 1) {
                 throw new IllegalArgumentException("Must either provide " + ARG_INSTALL + " or " + ARG_UNINSTALL + " argument");
             }
@@ -80,10 +85,11 @@ public class CLIParser {
 
         Option mainInstall = Option.builder(ARG_INSTALL).argName("apk file/folder").desc("Provide path to an apk file or folder containing apk files and the tool tries to install all of them to all connected devices (if not a specfic device is selected).").hasArg().build();
         Option mainUninstall = Option.builder(ARG_UNINSTALL).argName("package name").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*' for uninstalling. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'.").build();
-        Option mainBugReport = Option.builder(ARG_BUGREPORT).argName("package name").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*' to match the apps to create the bug report for. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'.").build();
+        Option mainBugReport = Option.builder(ARG_BUGREPORT).argName("package name").optionalArg(true).hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*' to match the apps to create the bug report for. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'.").build();
 
         Option adbPathOpt = Option.builder("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this is omitted the tool tries to find adb in PATH env variable.").build();
         Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).argName("device serial").hasArg(true).desc("If this is set, will only use given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
+        Option reportFilter = Option.builder("reportDebugIntent").argName("package and intent").numberOfArgs(2).hasArg(true).desc("").build();
 
         Option dryRunOpt = Option.builder("dryRun").hasArg(false).desc("Use this to see what would be installed/uninstalled on what devices with the given params. Will not install/uninstall anything.").build();
         Option skipEmuOpt = Option.builder("skipEmulators").hasArg(false).desc("Skips device emulators for install/uninstall.").build();
@@ -112,6 +118,6 @@ public class CLIParser {
         HelpFormatter help = new HelpFormatter();
         help.setWidth(110);
         help.setLeftPadding(4);
-        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -"+ARG_BUGREPORT + " <package filter> | --help", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", false);
+        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <package filter> | --help", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", false);
     }
 }

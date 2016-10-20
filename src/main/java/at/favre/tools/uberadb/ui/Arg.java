@@ -8,6 +8,7 @@ public class Arg {
 
     public String adbPath;
     public String device;
+    public String reportFilterIntent;
 
     public boolean dryRun = false;
     public boolean skipEmulators = false;
@@ -21,10 +22,11 @@ public class Arg {
     public Arg() {
     }
 
-    public Arg(String mainArgument, String adbPath, String device, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, Mode mode) {
+    public Arg(String mainArgument, String adbPath, String device, String reportFilterIntent, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, Mode mode) {
         this.mainArgument = mainArgument;
         this.adbPath = adbPath;
         this.device = device;
+        this.reportFilterIntent = reportFilterIntent;
         this.dryRun = dryRun;
         this.skipEmulators = skipEmulators;
         this.keepData = keepData;
@@ -50,6 +52,8 @@ public class Arg {
         if (mainArgument != null ? !mainArgument.equals(arg.mainArgument) : arg.mainArgument != null) return false;
         if (adbPath != null ? !adbPath.equals(arg.adbPath) : arg.adbPath != null) return false;
         if (device != null ? !device.equals(arg.device) : arg.device != null) return false;
+        if (reportFilterIntent != null ? !reportFilterIntent.equals(arg.reportFilterIntent) : arg.reportFilterIntent != null)
+            return false;
         return mode == arg.mode;
 
     }
@@ -59,6 +63,7 @@ public class Arg {
         int result = mainArgument != null ? mainArgument.hashCode() : 0;
         result = 31 * result + (adbPath != null ? adbPath.hashCode() : 0);
         result = 31 * result + (device != null ? device.hashCode() : 0);
+        result = 31 * result + (reportFilterIntent != null ? reportFilterIntent.hashCode() : 0);
         result = 31 * result + (dryRun ? 1 : 0);
         result = 31 * result + (skipEmulators ? 1 : 0);
         result = 31 * result + (keepData ? 1 : 0);
