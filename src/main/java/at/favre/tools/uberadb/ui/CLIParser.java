@@ -122,7 +122,7 @@ public class CLIParser {
     private static void printHelp(Options options) {
         HelpFormatter help = new HelpFormatter();
         help.setWidth(120);
-        help.setLeftPadding(3);
+        help.setLeftPadding(4);
         help.setDescPadding(3);
         help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | --help", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", false);
     }

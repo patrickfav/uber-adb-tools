@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BugReport {
+
     public static void create(AdbLocationFinder.LocationResult adbLocation, Arg arguments, List<CmdUtil.Result> executedCommands, AdbDevice device, List<String> allPackages) throws Exception {
         Commons.logLoud("create bug report:");
 
@@ -25,7 +26,7 @@ public class BugReport {
                 throw new IllegalStateException("could not create directory " + arguments.mainArgument);
             }
         } else {
-            outFolder = new File(AdbTool.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+            outFolder = new File(AdbTool.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
         }
 
         if (arguments.reportFilterIntent != null && arguments.reportFilterIntent.length >= 2) {
@@ -47,31 +48,79 @@ public class BugReport {
             }
         }
 
-        String tempFileScreenshot = "/sdcard/bugreport_tempfile_screenshot.png";
-        String tempFileLogcat = "/sdcard/bugreport_tempfile_logcat";
-        File localTempFileScreenshot = new File(outFolder.getAbsolutePath(), "screen-" + device.model + "-" + dateTimeString + ".png");
-        File localTempFileLogcat = new File(outFolder.getAbsolutePath(), "logcat-" + device.model + "-" + dateTimeString + ".txt");
-        File zipFile = new File(outFolder, "bugreport-" + device.model + "-" + dateTimeString + ".zip");
+        File zipFile = new File(outFolder, "bugreport-" + dateTimeString + "--" + device.model + "--" + device.serial + ".zip");
 
-        Commons.log("\twake up screen and take screenshot", arguments);
+        List<BugReportAction> actions = new ArrayList<>();
+
+        actions.add(new BugReportAction(
+                "\twake up screen and take screenshot",
+                "/sdcard/bugreport_tempfile_screenshot.png",
+                new File(outFolder.getAbsolutePath(), "screen-" + dateTimeString + "--" + device.model + ".png"),
+                new String[]{"shell", "screencap", "/sdcard/bugreport_tempfile_screenshot.png"}));
+
+        actions.add(new BugReportAction(
+                "\tcreate logcat file and pull from device",
+                "/sdcard/bugreport_tempfile_logcat",
+                new File(outFolder.getAbsolutePath(), "logcat-" + dateTimeString + "--" + device.model + ".txt"),
+                new String[]{"logcat", "-b", "main", "-d", "-f", "/sdcard/bugreport_tempfile_logcat"}));
+        actions.add(new BugReportAction(
+                "\tcreate events logcat file and pull from device",
+                "/sdcard/bugreport_tempfile_logcat_events",
+                new File(outFolder.getAbsolutePath(), "events-" + dateTimeString + "--" + device.model + ".txt"),
+                new String[]{"logcat", "-b", "events", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_events"}));
+        actions.add(new BugReportAction(
+                "\tcreate radio logcat file and pull from device",
+                "/sdcard/bugreport_tempfile_logcat_radio",
+                new File(outFolder.getAbsolutePath(), "radio-" + dateTimeString + "--" + device.model + ".txt"),
+                new String[]{"logcat", "-b", "radio", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_radio"}));
+
         executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, adbLocation));
-        executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "screencap", tempFileScreenshot}, adbLocation));
-        executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "pull", tempFileScreenshot, localTempFileScreenshot.getAbsolutePath()}, adbLocation));
-        Commons.log("\tcreate logcat file and pull from device", arguments);
-        executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "logcat", "-d", "-f", tempFileLogcat}, adbLocation));
-        executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "pull", tempFileLogcat, localTempFileLogcat.getAbsolutePath()}, adbLocation));
-        Commons.log(String.format(Locale.US, "\t%.2fkB screenshot, %.2fkB logcat",
-                (double) localTempFileScreenshot.length() / 1024.0, (double) localTempFileLogcat.length() / 1024.0), arguments);
-        executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", tempFileScreenshot}, adbLocation));
-        executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", tempFileLogcat}, adbLocation));
 
-        MiscUtil.zip(zipFile, Arrays.asList(localTempFileScreenshot, localTempFileLogcat));
-        localTempFileScreenshot.delete();
-        localTempFileLogcat.delete();
+        for (BugReportAction action : actions) {
+            executedCommands.add(Commons.runAdbCommand(CmdUtil.concat(new String[]{"-s", device.serial}, action.command), adbLocation));
+            executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "pull", action.deviceTempFile, action.localTempFile.getAbsolutePath()}, adbLocation));
+            executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", action.deviceTempFile}, adbLocation));
+            Commons.log(String.format(Locale.US, action.log + " (%.2fkB)", (double) action.localTempFile.length() / 1024.0), arguments);
+        }
+
+
+        List<File> tempFilesToZip = new ArrayList<>();
+        for (BugReportAction action : actions) {
+            if (action.localTempFile.exists()) {
+                tempFilesToZip.add(action.localTempFile);
+            } else {
+                Commons.log("could not find local file " + action.localTempFile, arguments);
+            }
+        }
+
+        MiscUtil.zip(zipFile, tempFilesToZip);
+
+        for (BugReportAction action : actions) {
+            if (!action.localTempFile.delete()) {
+                Commons.log("could not delete " + action.localTempFile.getAbsolutePath(), arguments);
+            }
+        }
 
         if (!zipFile.exists()) {
             throw new IllegalStateException("could not create zip file " + zipFile);
         }
+
         Commons.log(String.format(Locale.US, "\ttemp files removed and zip %s (%.2fkB) created", zipFile.getAbsolutePath(), (double) zipFile.length() / 1024.0), arguments);
     }
+
+
+    private static class BugReportAction {
+        final String deviceTempFile;
+        final File localTempFile;
+        final String[] command;
+        final String log;
+
+        BugReportAction(String log, String deviceTempFile, File localTempFile, String[] command) {
+            this.deviceTempFile = deviceTempFile;
+            this.localTempFile = localTempFile;
+            this.command = command;
+            this.log = log;
+        }
+    }
+
 }
