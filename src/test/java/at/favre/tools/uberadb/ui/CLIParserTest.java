@@ -31,8 +31,8 @@ public class CLIParserTest {
 
     @Test
     public void testSimpleBugReportWithOnlyFile() throws Exception {
-        Arg parsedArg = CLIParser.parse(asArgArray("-" + CLIParser.ARG_BUGREPORT + " ./"));
-        Arg expectedArg = new Arg("./", null, null, null, false, false, false, false, false, false, Arg.Mode.BUGREPORT);
+        Arg parsedArg = CLIParser.parse(asArgArray("-" + CLIParser.ARG_BUGREPORT));
+        Arg expectedArg = new Arg(null, null, null, null, false, false, false, false, false, false, Arg.Mode.BUGREPORT);
         assertEquals(expectedArg, parsedArg);
 
         Arg parsedArg1 = CLIParser.parse(asArgArray("-" + CLIParser.ARG_BUGREPORT + " /mnt/test/"));
@@ -136,7 +136,7 @@ public class CLIParserTest {
     @Test
     public void testBugReportWithoutFileAndIntent() throws Exception {
         Arg parsedArg = CLIParser.parse(asArgArray("-" + CLIParser.ARG_BUGREPORT + " --reportDebugIntent at.psa.* '-a ${package}/.Activity --ez HEADLESS true'"));
-        Arg expectedArg = new Arg(null, null, null, new String[]{"at.psa.*", "-a ${package}/.Activity --ez HEADLESS true"}, false, false, false, false, false, false, Arg.Mode.BUGREPORT);
+        Arg expectedArg = new Arg(null, null, null, new String[]{"at.psa.*", "-a", "${package}/.Activity", "--ez", "HEADLESS", "true"}, false, false, false, false, false, false, Arg.Mode.BUGREPORT);
         assertEquals(expectedArg, parsedArg);
     }
 

@@ -9,6 +9,7 @@ public class CmdUtil {
     public static Result runCmd(String[] cmdArray) {
         StringBuilder logStringBuilder = new StringBuilder();
         Exception exception = null;
+        int exitValue = -1;
         try {
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
@@ -21,10 +22,11 @@ public class CmdUtil {
                 }
             }
             process.waitFor();
+            exitValue = process.exitValue();
         } catch (Exception e) {
             exception = e;
         }
-        return new Result(logStringBuilder.toString(), exception, cmdArray);
+        return new Result(logStringBuilder.toString(), exception, cmdArray, exitValue);
     }
 
     public static boolean canRunCmd(String[] cmd) {
@@ -53,16 +55,22 @@ public class CmdUtil {
         public final Exception exception;
         public final String out;
         public final String cmd;
+        public final int exitValue;
 
-        public Result(String out, Exception exception, String[] cmd) {
+        public Result(String out, Exception exception, String[] cmd, int exitValue) {
             this.out = out;
             this.exception = exception;
             this.cmd = Arrays.toString(cmd);
+            this.exitValue = exitValue;
         }
 
         @Override
         public String toString() {
-            return cmd+"\n"+out+"\n";
+            return cmd + "\n" + out + "\n";
+        }
+
+        public boolean isSuccess() {
+            return exitValue == 0;
         }
     }
 }

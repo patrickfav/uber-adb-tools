@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,6 +59,9 @@ public class AdbTool {
                     }
                 } else if (arguments.mode == Arg.Mode.BUGREPORT && arguments.mainArgument != null && !arguments.mainArgument.isEmpty()) {
                     statusLog += " Creating bugreport and save to '" + arguments.mainArgument + "'.";
+                    if (arguments.reportFilterIntent != null) {
+                        statusLog += " Use activity manager command " + Arrays.toString(arguments.reportFilterIntent);
+                    }
                 }
 
                 if (arguments.force) {
@@ -75,7 +79,7 @@ public class AdbTool {
                 Commons.logLoud(statusLog);
             }
 
-            if (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, true)) {
+            if (iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, true)) {
                 iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, false);
             }
 
@@ -97,6 +101,10 @@ public class AdbTool {
 
     private static boolean iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
                                           List<CmdUtil.Result> executedCommands, List<File> installFiles, boolean preview) throws Exception {
+        if (arguments.dryRun || arguments.force || (preview && arguments.mode == Arg.Mode.BUGREPORT)) {
+            return true;
+        }
+
         Commons.ActionResult actionResult = new Commons.ActionResult();
         long startDuration = System.currentTimeMillis();
 
