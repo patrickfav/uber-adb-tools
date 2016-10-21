@@ -101,7 +101,7 @@ public class AdbTool {
 
     private static boolean iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
                                           List<CmdUtil.Result> executedCommands, List<File> installFiles, boolean preview) throws Exception {
-        if (arguments.dryRun || arguments.force || (preview && arguments.mode == Arg.Mode.BUGREPORT)) {
+        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT)) {
             return true;
         }
 
