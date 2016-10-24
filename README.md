@@ -21,7 +21,7 @@ be either set in `PATH` or `ANDROID_HOME` should be set.
 
 ## Download
 
-**[Grab jar from latest Release](https://github.com/patrickfav/uber--uninstaller-android/releases/latest)**
+**[Grab jar from latest Release](https://github.com/patrickfav/uber-adb-tools/releases/latest)**
 
 ## Demo
 
