@@ -85,7 +85,7 @@ public class CmdUtil {
         if (osName.contains("win")) {
             return OS.WIN;
         }
-        if (osName.contains("win")) {
+        if (osName.contains("mac")) {
             return OS.MAC;
         }
 
