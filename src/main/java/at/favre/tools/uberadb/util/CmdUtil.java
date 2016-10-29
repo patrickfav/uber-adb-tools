@@ -1,45 +1,12 @@
 package at.favre.tools.uberadb.util;
 
-import java.io.BufferedReader;
+import at.favre.tools.uberadb.CmdProvider;
+
 import java.io.File;
 import java.io.FileFilter;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 
 public class CmdUtil {
-
-    public static Result runCmd(String[] cmdArray) {
-        StringBuilder logStringBuilder = new StringBuilder();
-        Exception exception = null;
-        int exitValue = -1;
-        try {
-            ProcessBuilder pb = new ProcessBuilder(cmdArray);
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            try (BufferedReader inStreamReader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String s;
-                while ((s = inStreamReader.readLine()) != null) {
-                    if (!s.isEmpty()) logStringBuilder.append(s).append("\n");
-                }
-            }
-            process.waitFor();
-            exitValue = process.exitValue();
-        } catch (Exception e) {
-            exception = e;
-        }
-        return new Result(logStringBuilder.toString(), exception, cmdArray, exitValue);
-    }
-
-    public static boolean canRunCmd(String[] cmd) {
-        Result result = runCmd(cmd);
-
-        if (result.exception != null) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     public static <T> T[] concat(T[] first, T[] second) {
         T[] result = Arrays.copyOf(first, first.length + second.length);
@@ -47,7 +14,7 @@ public class CmdUtil {
         return result;
     }
 
-    public static File checkAndGetFromPATHEnvVar(final String matchesExecutable) {
+    public static File checkAndGetFromPATHEnvVar(CmdProvider provider, final String matchesExecutable) {
         String separator = ":";
         if (getOsType() == OS.WIN) {
             separator = ";";
@@ -69,7 +36,7 @@ public class CmdUtil {
 
                 if (matchedFiles != null) {
                     for (File matchedFile : matchedFiles) {
-                        if (CmdUtil.canRunCmd(new String[]{matchedFile.getAbsolutePath()})) {
+                        if (provider.canRunCmd(new String[]{matchedFile.getAbsolutePath()})) {
                             return matchedFile;
                         }
                     }
@@ -96,26 +63,12 @@ public class CmdUtil {
         WIN, MAC, _NIX;
     }
 
-    public static class Result {
-        public final Exception exception;
-        public final String out;
-        public final String cmd;
-        public final int exitValue;
+    public static String toPlainString(String[] array) {
+        StringBuilder sb = new StringBuilder();
 
-        public Result(String out, Exception exception, String[] cmd, int exitValue) {
-            this.out = out;
-            this.exception = exception;
-            this.cmd = Arrays.toString(cmd);
-            this.exitValue = exitValue;
+        for (String s : array) {
+            sb.append(s).append(" ");
         }
-
-        @Override
-        public String toString() {
-            return cmd + "\n" + out + "\n";
-        }
-
-        public boolean isSuccess() {
-            return exitValue == 0;
-        }
+        return sb.toString().trim();
     }
 }

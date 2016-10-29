@@ -1,26 +1,24 @@
 package at.favre.tools.uberadb.actions;
 
 import at.favre.tools.uberadb.AdbLocationFinder;
+import at.favre.tools.uberadb.CmdProvider;
 import at.favre.tools.uberadb.parser.AdbDevice;
 import at.favre.tools.uberadb.parser.InstalledPackagesParser;
 import at.favre.tools.uberadb.ui.Arg;
-import at.favre.tools.uberadb.util.CmdUtil;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Install {
-    public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, List<CmdUtil.Result> executedCommands, List<File> installFiles, boolean preview, Commons.ActionResult actionResult, AdbDevice device) {
+    public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, List<File> installFiles, boolean preview, Commons.ActionResult actionResult, AdbDevice device) {
         for (File installFile : installFiles) {
             String installStatus = "\t" + installFile.getName();
 
             if (!arguments.dryRun) {
                 if (!preview) {
-                    CmdUtil.Result installCmdResult = Commons.runAdbCommand(createInstallCmd(device,
-                            installFile.getAbsolutePath(), arguments), adbLocation);
-                    executedCommands.add(installCmdResult);
-
+                    CmdProvider.Result installCmdResult = Commons.runAdbCommand(createInstallCmd(device,
+                            installFile.getAbsolutePath(), arguments), cmdProvider, adbLocation);
 
                     if (InstalledPackagesParser.wasSuccessfulInstalled(installCmdResult.out)) {
                         installStatus += "\tSuccess";

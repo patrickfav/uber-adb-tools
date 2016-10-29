@@ -2,6 +2,7 @@ package at.favre.tools.uberadb.actions;
 
 import at.favre.tools.uberadb.AdbLocationFinder;
 import at.favre.tools.uberadb.AdbTool;
+import at.favre.tools.uberadb.CmdProvider;
 import at.favre.tools.uberadb.parser.AdbDevice;
 import at.favre.tools.uberadb.parser.PackageMatcher;
 import at.favre.tools.uberadb.ui.Arg;
@@ -14,7 +15,7 @@ import java.util.*;
 
 public class BugReport {
 
-    public static void create(AdbLocationFinder.LocationResult adbLocation, Arg arguments, List<CmdUtil.Result> executedCommands, AdbDevice device, List<String> allPackages) throws Exception {
+    public static void create(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, AdbDevice device, List<String> allPackages) throws Exception {
         Commons.logLoud("create bug report:");
 
         String dateTimeString = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
@@ -39,8 +40,7 @@ public class BugReport {
                     copy[i] = copy[i].replace("${package}", filteredPackage);
                 }
 
-                CmdUtil.Result uninstallCmdResult = Commons.runAdbCommand(CmdUtil.concat(new String[]{"-s", device.serial, "shell", "am",}, copy), adbLocation);
-                executedCommands.add(uninstallCmdResult);
+                Commons.runAdbCommand(CmdUtil.concat(new String[]{"-s", device.serial, "shell", "am",}, copy), cmdProvider, adbLocation);
 
                 String intentStatus = "\texecute command for " + filteredPackage + " - adb shell am " + Arrays.toString(copy);
                 Commons.log(intentStatus, arguments);
@@ -74,12 +74,12 @@ public class BugReport {
                 new File(outFolder.getAbsolutePath(), "radio-" + dateTimeString + "--" + device.model + ".txt"),
                 new String[]{"logcat", "-b", "radio", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_radio"}));
 
-        executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, adbLocation));
+        Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, cmdProvider, adbLocation);
 
         for (BugReportAction action : actions) {
-            executedCommands.add(Commons.runAdbCommand(CmdUtil.concat(new String[]{"-s", device.serial}, action.command), adbLocation));
-            executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "pull", action.deviceTempFile, action.localTempFile.getAbsolutePath()}, adbLocation));
-            executedCommands.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", action.deviceTempFile}, adbLocation));
+            Commons.runAdbCommand(CmdUtil.concat(new String[]{"-s", device.serial}, action.command), cmdProvider, adbLocation);
+            Commons.runAdbCommand(new String[]{"-s", device.serial, "pull", action.deviceTempFile, action.localTempFile.getAbsolutePath()}, cmdProvider, adbLocation);
+            Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", action.deviceTempFile}, cmdProvider, adbLocation);
             Commons.log(String.format(Locale.US, action.log + " (%.2fkB)", (double) action.localTempFile.length() / 1024.0), arguments);
         }
 

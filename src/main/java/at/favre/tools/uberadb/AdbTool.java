@@ -9,7 +9,6 @@ import at.favre.tools.uberadb.parser.AdbDevicesParser;
 import at.favre.tools.uberadb.parser.InstalledPackagesParser;
 import at.favre.tools.uberadb.ui.Arg;
 import at.favre.tools.uberadb.ui.CLIParser;
-import at.favre.tools.uberadb.util.CmdUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,20 +25,21 @@ public class AdbTool {
         Arg arguments = CLIParser.parse(args);
 
         if (arguments != null) {
-            execute(arguments);
+            if (execute(arguments, new CmdProvider.DefaultCmdProvider()) == null) {
+                System.exit(1);
+            }
         }
     }
 
-    private static void execute(Arg arguments) {
-        List<CmdUtil.Result> executedCommands = new ArrayList<>();
+    static Commons.ActionResult execute(Arg arguments, CmdProvider cmdProvider) {
+        Commons.ActionResult result = null;
 
         try {
-            AdbLocationFinder.LocationResult adbLocation = new AdbLocationFinder().find(arguments.adbPath);
+            AdbLocationFinder.LocationResult adbLocation = new AdbLocationFinder().find(cmdProvider, arguments.adbPath);
 
-            executedCommands.add(Commons.runAdbCommand(new String[]{"start-server"}, adbLocation));
+            Commons.runAdbCommand(new String[]{"start-server"}, cmdProvider, adbLocation);
 
-            CmdUtil.Result devicesCmdResult = Commons.runAdbCommand(new String[]{"devices", "-l"}, adbLocation);
-            executedCommands.add(devicesCmdResult);
+            CmdProvider.Result devicesCmdResult = Commons.runAdbCommand(new String[]{"devices", "-l"}, cmdProvider, adbLocation);
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
 
             List<File> installFiles = new ArrayList<>();
@@ -79,39 +79,42 @@ public class AdbTool {
                 Commons.logLoud(statusLog);
             }
 
-            if (iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, true)) {
-                iterateDevices(devices, adbLocation, arguments, executedCommands, installFiles, false);
+
+            if (iterateDevices(devices, adbLocation, arguments, cmdProvider, installFiles, true).proceed) {
+                result = iterateDevices(devices, adbLocation, arguments, cmdProvider, installFiles, false).result;
             }
 
             if (arguments.debug) {
-                Commons.logLoud(getCommandHistory(executedCommands));
+                Commons.logLoud(getCommandHistory(cmdProvider));
             }
         } catch (Exception e) {
             Commons.logErr(e.getMessage());
 
             if (arguments.debug) {
                 e.printStackTrace();
-                Commons.logErr(getCommandHistory(executedCommands));
+                Commons.logErr(getCommandHistory(cmdProvider));
             } else {
                 Commons.logErr("Run with '-debug' parameter to get additional information.");
             }
-            System.exit(1);
+            return null;
         }
+        return result;
     }
 
-    private static boolean iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
-                                          List<CmdUtil.Result> executedCommands, List<File> installFiles, boolean preview) throws Exception {
+
+    private static Commons.IterationResult iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
+                                                          CmdProvider cmdProvider, List<File> installFiles, boolean preview) throws Exception {
+        Commons.ActionResult actionResult = new Commons.ActionResult();
+
         if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT)) {
-            return true;
+            return new Commons.IterationResult(actionResult, true);
         }
 
-        Commons.ActionResult actionResult = new Commons.ActionResult();
         long startDuration = System.currentTimeMillis();
 
         for (AdbDevice device : devices) {
             if (arguments.device == null || arguments.device.equals(device.serial)) {
-                CmdUtil.Result packagesCmdResult = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm list packages -f"}, adbLocation);
-                executedCommands.add(packagesCmdResult);
+                CmdProvider.Result packagesCmdResult = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm list packages -f"}, cmdProvider, adbLocation);
 
                 String modelName = "Device";
                 if (device.model != null) {
@@ -135,11 +138,11 @@ public class AdbTool {
                     List<String> allPackages = new InstalledPackagesParser().parse(packagesCmdResult.out);
 
                     if (arguments.mode == Arg.Mode.BUGREPORT) {
-                        BugReport.create(adbLocation, arguments, executedCommands, device, allPackages);
+                        BugReport.create(adbLocation, arguments, cmdProvider, device, allPackages);
                     } else if (arguments.mode == Arg.Mode.INSTALL) {
-                        Install.execute(adbLocation, arguments, executedCommands, installFiles, preview, actionResult, device);
+                        Install.execute(adbLocation, arguments, cmdProvider, installFiles, preview, actionResult, device);
                     } else if (arguments.mode == Arg.Mode.UNINSTALL) {
-                        Uninstall.execute(adbLocation, arguments, executedCommands, preview, actionResult, device, allPackages);
+                        Uninstall.execute(adbLocation, arguments, cmdProvider, preview, actionResult, device, allPackages);
                     }
                 }
                 Commons.log("", arguments);
@@ -149,9 +152,9 @@ public class AdbTool {
         if (preview) {
             if (actionResult.successCount == 0) {
                 Commons.logLoud("No apps " + Commons.getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report."));
-                return false;
+                return new Commons.IterationResult(actionResult, false);
             } else {
-                return promptUser(actionResult, arguments);
+                return new Commons.IterationResult(actionResult, promptUser(actionResult, arguments));
             }
         } else {
             if (actionResult.deviceCount == 0) {
@@ -164,7 +167,7 @@ public class AdbTool {
             }
         }
 
-        return true;
+        return new Commons.IterationResult(actionResult, true);
     }
 
     private static boolean promptUser(Commons.ActionResult actionResult, Arg arguments) {
@@ -187,9 +190,9 @@ public class AdbTool {
         return false;
     }
 
-    private static String getCommandHistory(List<CmdUtil.Result> executedCommands) {
+    private static String getCommandHistory(CmdProvider cmdProvider) {
         StringBuilder sb = new StringBuilder("\nCmd history for debugging purpose:\n-----------------------\n");
-        for (CmdUtil.Result executedCommand : executedCommands) {
+        for (CmdProvider.Result executedCommand : cmdProvider.getHistory()) {
             sb.append(executedCommand.toString());
         }
         return sb.toString();
@@ -207,6 +210,18 @@ public class AdbTool {
         }
         report += " Took " + String.format(Locale.US, "%.2f", (double) executionDurationMs / 1000.0) + " seconds.";
         return report;
+    }
+
+    static class Result {
+        final boolean error;
+        final int success;
+        final int unsuccessful;
+
+        Result(boolean error, int success, int unsuccessful) {
+            this.error = error;
+            this.success = success;
+            this.unsuccessful = unsuccessful;
+        }
     }
 
 }

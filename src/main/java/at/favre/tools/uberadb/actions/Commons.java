@@ -1,6 +1,7 @@
 package at.favre.tools.uberadb.actions;
 
 import at.favre.tools.uberadb.AdbLocationFinder;
+import at.favre.tools.uberadb.CmdProvider;
 import at.favre.tools.uberadb.parser.AdbDevice;
 import at.favre.tools.uberadb.ui.Arg;
 import at.favre.tools.uberadb.util.CmdUtil;
@@ -25,14 +26,24 @@ public class Commons {
         }
     }
 
-    public static CmdUtil.Result runAdbCommand(String[] adbArgs, AdbLocationFinder.LocationResult locationResult) {
-        return CmdUtil.runCmd(CmdUtil.concat(locationResult.args, adbArgs));
+    public static CmdProvider.Result runAdbCommand(String[] adbArgs, CmdProvider cmdProvider, AdbLocationFinder.LocationResult locationResult) {
+        return cmdProvider.runCmd(CmdUtil.concat(locationResult.args, adbArgs));
     }
 
     public static class ActionResult {
         public int deviceCount = 0;
         public int successCount = 0;
         public int failureCount = 0;
+    }
+
+    public static class IterationResult {
+        public ActionResult result;
+        public boolean proceed;
+
+        public IterationResult(ActionResult result, boolean proceed) {
+            this.result = result;
+            this.proceed = proceed;
+        }
     }
 
     public static void checkSpecificDevice(List<AdbDevice> devices, Arg arguments) {

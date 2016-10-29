@@ -1,18 +1,18 @@
 package at.favre.tools.uberadb.actions;
 
 import at.favre.tools.uberadb.AdbLocationFinder;
+import at.favre.tools.uberadb.CmdProvider;
 import at.favre.tools.uberadb.parser.AdbDevice;
 import at.favre.tools.uberadb.parser.InstalledPackagesParser;
 import at.favre.tools.uberadb.parser.PackageMatcher;
 import at.favre.tools.uberadb.ui.Arg;
-import at.favre.tools.uberadb.util.CmdUtil;
 
 import java.util.List;
 import java.util.Set;
 
 public class Uninstall {
 
-    public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, List<CmdUtil.Result> executedCommands, boolean preview, Commons.ActionResult actionResult, AdbDevice device, List<String> allPackages) {
+    public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, boolean preview, Commons.ActionResult actionResult, AdbDevice device, List<String> allPackages) {
         Set<String> filteredPackages = new PackageMatcher(allPackages).findMatches(
                 PackageMatcher.parseFiltersArg(arguments.mainArgument));
 
@@ -21,8 +21,7 @@ public class Uninstall {
             if (!arguments.dryRun) {
                 if (!preview) {
                     if (arguments.mode == Arg.Mode.UNINSTALL) {
-                        CmdUtil.Result uninstallCmdResult = Commons.runAdbCommand(createUninstallCmd(device, filteredPackage, arguments), adbLocation);
-                        executedCommands.add(uninstallCmdResult);
+                        CmdProvider.Result uninstallCmdResult = Commons.runAdbCommand(createUninstallCmd(device, filteredPackage, arguments), cmdProvider, adbLocation);
                         uninstallStatus += "\t" + (uninstallCmdResult.out != null ? uninstallCmdResult.out.trim() : "");
                         if (InstalledPackagesParser.wasSuccessfulUninstalled(uninstallCmdResult.out)) {
                             actionResult.successCount++;
@@ -55,5 +54,4 @@ public class Uninstall {
             return new String[]{"-s", device.serial, "shell", "cmd", "package", "uninstall", "-k", filteredPackage};
         }
     }
-
 }

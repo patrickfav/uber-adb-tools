@@ -185,7 +185,7 @@ Now we might have the problem when using multiple flavours, that you want to use
 
 ### ADB Executable Location Strategy
 
-If you provide a custom location to adb, the tool will try to use it. Otherwise it will try to use, which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514).As a fallback, if the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK. One of these default location checks involves checking if `$ANDROID_HOME`/`%ANDROID_HOME%` is set, so if you don't want to set adb in PATH, use `ANDROID_HOME` environment variable.
+If you provide a custom location to adb, the tool will try to use it. Otherwise it will try to use, which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514 ). As a fallback, if the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK. One of these default location checks involves checking if `$ANDROID_HOME`/`%ANDROID_HOME%` is set, so if you don't want to set adb in PATH, use `ANDROID_HOME` environment variable.
 
 ## Used ADB commands
 
