@@ -6,16 +6,16 @@ import at.favre.tools.uberadb.util.CmdUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MockAdbCmdProvider implements CmdProvider {
+class MockAdbCmdProvider implements CmdProvider {
     private List<AdbDevice> devices;
     private List<String> installedPackages;
     private boolean retunsSuccess;
     private List<Result> history = new ArrayList<>();
 
-    public MockAdbCmdProvider(List<AdbDevice> devices, List<String> installedPackages, boolean retunsSuccess) {
+    public MockAdbCmdProvider(List<AdbDevice> devices, List<String> installedPackages, boolean returnsSuccess) {
         this.devices = devices;
         this.installedPackages = installedPackages;
-        this.retunsSuccess = retunsSuccess;
+        this.retunsSuccess = returnsSuccess;
     }
 
     @Override
@@ -58,5 +58,13 @@ public class MockAdbCmdProvider implements CmdProvider {
     @Override
     public List<Result> getHistory() {
         return history;
+    }
+
+    public int deviceCount() {
+        return devices.size();
+    }
+
+    public int installedCount() {
+        return installedPackages.size();
     }
 }

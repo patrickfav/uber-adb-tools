@@ -5,7 +5,9 @@ import at.favre.tools.uberadb.parser.AdbDevice;
 import at.favre.tools.uberadb.ui.Arg;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.Arrays;
@@ -17,8 +19,10 @@ import static junit.framework.TestCase.assertNotNull;
 
 public class AdbToolTest {
 
-    private CmdProvider adbMockCmdProviderMultiDevices;
-    private CmdProvider adbMockCmdProviderSingleDevice;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private MockAdbCmdProvider adbMockCmdProviderMultiDevices;
+    private MockAdbCmdProvider adbMockCmdProviderSingleDevice;
     private List<String> installedPackages;
     private List<AdbDevice> adbDevices;
     private File apks;
@@ -44,7 +48,7 @@ public class AdbToolTest {
     public void testSimpleUninstallMultiDevices() throws Exception {
         Arg arg = new Arg("com.example.*", null, null, null, false, false, false, false, false, true, Arg.Mode.UNINSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
-        check(result, installedPackages.size() * adbDevices.size(), 0, adbDevices.size());
+        check(result, adbMockCmdProviderMultiDevices.installedCount() * adbMockCmdProviderMultiDevices.deviceCount(), 0, adbMockCmdProviderMultiDevices.deviceCount());
     }
 
     @Test
@@ -52,35 +56,35 @@ public class AdbToolTest {
         Arg arg = new Arg(apks.getAbsolutePath(), null, null, null, false, false, false, false, false, true, Arg.Mode.INSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
         assertNotNull(result);
-        check(result, apks.listFiles().length * adbDevices.size(), 0, adbDevices.size());
+        check(result, apks.listFiles().length * adbDevices.size(), 0, adbMockCmdProviderMultiDevices.deviceCount());
     }
 
     @Test
     public void testSimpleUninstallOneDevice() throws Exception {
         Arg arg = new Arg("com.example.*", null, null, null, false, false, false, false, false, true, Arg.Mode.UNINSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderSingleDevice);
-        check(result, installedPackages.size(), 0, 1);
+        check(result, installedPackages.size(), 0, adbMockCmdProviderSingleDevice.deviceCount());
     }
 
     @Test
     public void testSimpleUninstallOneDeviceTwoPackages() throws Exception {
         Arg arg = new Arg("com.example.app1,com.example.app2", null, null, null, false, false, false, false, false, true, Arg.Mode.UNINSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderSingleDevice);
-        check(result, 2, 0, 1);
+        check(result, 2, 0, adbMockCmdProviderSingleDevice.deviceCount());
     }
 
     @Test
     public void testSimpleInstallOneDevice() throws Exception {
         Arg arg = new Arg(apks.getAbsolutePath(), null, null, null, false, false, false, false, false, true, Arg.Mode.INSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderSingleDevice);
-        check(result, apks.listFiles().length, 0, 1);
+        check(result, apks.listFiles().length, 0, adbMockCmdProviderSingleDevice.deviceCount());
     }
 
     @Test
     public void testSimpleInstallMultiDevicesSingleApk() throws Exception {
         Arg arg = new Arg(apks.listFiles()[0].getAbsolutePath(), null, null, null, false, false, false, false, false, true, Arg.Mode.INSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
-        check(result, adbDevices.size(), 0, adbDevices.size());
+        check(result, adbMockCmdProviderMultiDevices.deviceCount(), 0, adbMockCmdProviderMultiDevices.deviceCount());
     }
 
     @Test
@@ -101,21 +105,21 @@ public class AdbToolTest {
     public void testSimpleUninstallMultiDevicesSelectSpecific() throws Exception {
         Arg arg = new Arg("com.example.*", null, adbDevices.get(0).serial, null, false, false, false, false, false, true, Arg.Mode.UNINSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
-        check(result, installedPackages.size(), 0, 1);
+        check(result, adbMockCmdProviderMultiDevices.installedCount(), 0, 1);
     }
 
     @Test
     public void testSimpleUninstallMultiDevicesDryRun() throws Exception {
         Arg arg = new Arg("com.example.*", null, null, null, true, false, false, false, false, true, Arg.Mode.UNINSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
-        check(result, 0, 0, adbDevices.size());
+        check(result, 0, 0, adbMockCmdProviderMultiDevices.deviceCount());
     }
 
     @Test
     public void testSimpleUninstallMultiDevicesSkipEmu() throws Exception {
         Arg arg = new Arg("com.example.*", null, null, null, false, true, false, false, false, true, Arg.Mode.UNINSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
-        check(result, installedPackages.size() * (adbDevices.size() - 1), 0, adbDevices.size() - 1);
+        check(result, adbMockCmdProviderMultiDevices.installedCount() * (adbMockCmdProviderMultiDevices.deviceCount() - 1), 0, adbMockCmdProviderMultiDevices.deviceCount() - 1);
     }
 
     @Test
@@ -129,14 +133,28 @@ public class AdbToolTest {
     public void testSimpleInstallMultiDevicesDryRun() throws Exception {
         Arg arg = new Arg(apks.getAbsolutePath(), null, null, null, true, false, false, false, false, true, Arg.Mode.INSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
-        check(result, 0, 0, adbDevices.size());
+        check(result, 0, 0, adbMockCmdProviderMultiDevices.deviceCount());
     }
 
     @Test
     public void testSimpleInstallMultiDevicesSkipEmu() throws Exception {
         Arg arg = new Arg(apks.getAbsolutePath(), null, null, null, false, true, false, false, false, true, Arg.Mode.INSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
-        check(result, apks.listFiles().length * (adbDevices.size() - 1), 0, adbDevices.size() - 1);
+        check(result, apks.listFiles().length * (adbDevices.size() - 1), 0, adbMockCmdProviderMultiDevices.deviceCount() - 1);
+    }
+
+    @Test
+    public void testSimpleBugReport() throws Exception {
+        Arg arg = new Arg(temporaryFolder.newFolder().getAbsolutePath(), null, null, null, false, false, false, false, false, false, Arg.Mode.BUGREPORT);
+        Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices);
+        check(result, 0, 0, adbMockCmdProviderMultiDevices.deviceCount());
+    }
+
+    @Test
+    public void testSimpleBugReportSingleDevice() throws Exception {
+        Arg arg = new Arg(temporaryFolder.newFolder().getAbsolutePath(), null, null, null, false, false, false, false, false, false, Arg.Mode.BUGREPORT);
+        Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderSingleDevice);
+        check(result, 0, 0, adbMockCmdProviderSingleDevice.deviceCount());
     }
 
     private static void check(Commons.ActionResult result, int expectedSuccess, int expectedFail, int expectedDevices) {

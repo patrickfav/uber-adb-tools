@@ -10,6 +10,7 @@ import at.favre.tools.uberadb.util.CmdUtil;
 import at.favre.tools.uberadb.util.MiscUtil;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -49,29 +50,28 @@ public class BugReport {
         }
 
         File zipFile = new File(outFolder, "bugreport-" + dateTimeString + "--" + device.model + "--" + device.serial + ".zip");
-
+        File tmpFolder = Files.createTempDirectory("adbtools-").toFile();
         List<BugReportAction> actions = new ArrayList<>();
 
         actions.add(new BugReportAction(
                 "\twake up screen and take screenshot",
                 "/sdcard/bugreport_tempfile_screenshot.png",
-                new File(outFolder.getAbsolutePath(), "screen-" + dateTimeString + "--" + device.model + ".png"),
+                new File(tmpFolder, "screen-" + dateTimeString + "--" + device.model + ".png"),
                 new String[]{"shell", "screencap", "/sdcard/bugreport_tempfile_screenshot.png"}));
-
         actions.add(new BugReportAction(
                 "\tcreate logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat",
-                new File(outFolder.getAbsolutePath(), "logcat-" + dateTimeString + "--" + device.model + ".txt"),
+                new File(tmpFolder, "logcat-" + dateTimeString + "--" + device.model + ".txt"),
                 new String[]{"logcat", "-b", "main", "-d", "-f", "/sdcard/bugreport_tempfile_logcat"}));
         actions.add(new BugReportAction(
                 "\tcreate events logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat_events",
-                new File(outFolder.getAbsolutePath(), "events-" + dateTimeString + "--" + device.model + ".txt"),
+                new File(tmpFolder, "events-" + dateTimeString + "--" + device.model + ".txt"),
                 new String[]{"logcat", "-b", "events", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_events"}));
         actions.add(new BugReportAction(
                 "\tcreate radio logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat_radio",
-                new File(outFolder.getAbsolutePath(), "radio-" + dateTimeString + "--" + device.model + ".txt"),
+                new File(tmpFolder, "radio-" + dateTimeString + "--" + device.model + ".txt"),
                 new String[]{"logcat", "-b", "radio", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_radio"}));
 
         Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, cmdProvider, adbLocation);
@@ -82,7 +82,6 @@ public class BugReport {
             Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", action.deviceTempFile}, cmdProvider, adbLocation);
             Commons.log(String.format(Locale.US, action.log + " (%.2fkB)", (double) action.localTempFile.length() / 1024.0), arguments);
         }
-
 
         List<File> tempFilesToZip = new ArrayList<>();
         for (BugReportAction action : actions) {
@@ -107,7 +106,6 @@ public class BugReport {
 
         Commons.log(String.format(Locale.US, "\ttemp files removed and zip %s (%.2fkB) created", zipFile.getAbsolutePath(), (double) zipFile.length() / 1024.0), arguments);
     }
-
 
     private static class BugReportAction {
         final String deviceTempFile;

@@ -90,7 +90,7 @@ public interface CmdProvider {
 
         @Override
         public String toString() {
-            return "command: " + cmd + "\n" + out + "\n\texit value: " + exitValue + "\n";
+            return "command: " + cmd + "\n" + out + "\nexit value (" + exitValue + ")\n";
         }
 
         public boolean isSuccess() {
