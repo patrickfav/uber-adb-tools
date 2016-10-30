@@ -24,7 +24,7 @@ public class Install {
                         installStatus += "\tSuccess";
                         actionResult.successCount++;
                     } else {
-                        installStatus += "\t" + InstalledPackagesParser.parseShortenedInstallStatus(installCmdResult.out);
+                        installStatus += "\tFail " + InstalledPackagesParser.parseShortenedInstallStatus(installCmdResult.out);
                         actionResult.failureCount++;
                     }
                 } else {

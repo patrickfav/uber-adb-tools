@@ -2,6 +2,8 @@ package at.favre.tools.uberadb.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class InstalledPackagesParser {
 
@@ -49,13 +51,25 @@ public class InstalledPackagesParser {
             return "";
         }
 
+        Pattern errorPattern = Pattern.compile("\\[(.*?)\\]");
+        Matcher matchPattern = errorPattern.matcher(cmdOut);
+        List<String> matches = new ArrayList<>();
+
+        while (matchPattern.find()) {
+            matches.add(matchPattern.group(1));
+        }
+
+        if (!matches.isEmpty()) {
+            return "[" + matches.get(matches.size() - 1) + "]";
+        }
+
         String truncated=cmdOut.trim();
         if(cmdOut.contains("\n")) {
             truncated = truncated.substring(truncated.lastIndexOf("\n")+1,truncated.length());
         }
 
-        if(truncated.length() > 64) {
-            truncated = truncated.substring(truncated.length() - 63, truncated.length());
+        if (truncated.length() > 80) {
+            truncated = "..." + truncated.substring(truncated.length() - 79, truncated.length());
         }
 
         return truncated;
