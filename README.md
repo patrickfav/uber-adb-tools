@@ -19,6 +19,11 @@ Basic usage:
 This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
 be either set in `PATH` or `ANDROID_HOME` should be set.
 
+### Requirements
+
+* JDK 7
+* [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) set in `PATH` or `ANDROID_HOME` is set (some default locations work also, see below)
+
 ## Download
 
 **[Grab jar from latest Release](https://github.com/patrickfav/uber-adb-tools/releases/latest)**

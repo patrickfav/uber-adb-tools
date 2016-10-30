@@ -30,7 +30,7 @@ public class CmdUtil {
                 File[] matchedFiles = pathFile.listFiles(new FileFilter() {
                     @Override
                     public boolean accept(File pathname) {
-                        return pathname.getName().toLowerCase().contains(matchesExecutable);
+                        return getFileNameWithoutExtension(pathname).toLowerCase().equals(matchesExecutable);
                     }
                 });
 
@@ -44,6 +44,15 @@ public class CmdUtil {
             }
         }
         return null;
+    }
+
+    public static String getFileNameWithoutExtension(File file) {
+        String fileName = file.getName();
+        int pos = fileName.lastIndexOf(".");
+        if (pos > 0) {
+            fileName = fileName.substring(0, pos);
+        }
+        return fileName;
     }
 
     public static OS getOsType() {
