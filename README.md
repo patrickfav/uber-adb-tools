@@ -30,7 +30,7 @@ be either set in `PATH` or `ANDROID_HOME` should be set.
 
 ## Demo
 
-[![asciicast](https://asciinema.org/a/86433.png)](https://asciinema.org/a/86433)
+[![asciicast](https://asciinema.org/a/91091.png)](https://asciinema.org/a/91091)
 
 ## Why do I need this?
 
