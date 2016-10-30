@@ -1,5 +1,6 @@
 package at.favre.tools.uberadb.ui;
 
+import at.favre.tools.uberadb.util.CmdUtil;
 import org.apache.commons.cli.*;
 
 public class CLIParser {
@@ -23,7 +24,7 @@ public class CLIParser {
             }
 
             if (commandLine.hasOption("v") || commandLine.hasOption("version")) {
-                System.out.println("Version: " + CLIParser.class.getPackage().getImplementationVersion());
+                System.out.println("Version: " + CmdUtil.jarVersion());
                 return null;
             }
 
@@ -124,6 +125,6 @@ public class CLIParser {
         help.setWidth(120);
         help.setLeftPadding(4);
         help.setDescPadding(3);
-        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | --help", "Version: " + CLIParser.class.getPackage().getImplementationVersion(), options, "", false);
+        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | --help", "Version: " + CmdUtil.jarVersion(), options, "", false);
     }
 }

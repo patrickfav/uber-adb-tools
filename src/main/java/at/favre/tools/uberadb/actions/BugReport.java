@@ -7,9 +7,12 @@ import at.favre.tools.uberadb.parser.AdbDevice;
 import at.favre.tools.uberadb.parser.PackageMatcher;
 import at.favre.tools.uberadb.ui.Arg;
 import at.favre.tools.uberadb.util.CmdUtil;
+import at.favre.tools.uberadb.util.FileUtil;
 import at.favre.tools.uberadb.util.MiscUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -49,29 +52,29 @@ public class BugReport {
             }
         }
 
-        File zipFile = new File(outFolder, "bugreport-" + dateTimeString + "--" + device.model + "--" + device.serial + ".zip");
+        File zipFile = new File(outFolder, "bugreport-" + dateTimeString + "-" + device.model + "-" + device.serial + ".zip");
         File tmpFolder = Files.createTempDirectory("adbtools-").toFile();
         List<BugReportAction> actions = new ArrayList<>();
 
         actions.add(new BugReportAction(
                 "\twake up screen and take screenshot",
                 "/sdcard/bugreport_tempfile_screenshot.png",
-                new File(tmpFolder, "screen-" + dateTimeString + "--" + device.model + ".png"),
+                new File(tmpFolder, "screen-" + dateTimeString + "-" + device.model + ".png"),
                 new String[]{"shell", "screencap", "/sdcard/bugreport_tempfile_screenshot.png"}));
         actions.add(new BugReportAction(
                 "\tcreate logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat",
-                new File(tmpFolder, "logcat-" + dateTimeString + "--" + device.model + ".txt"),
+                new File(tmpFolder, "logcat-" + dateTimeString + "-" + device.model + ".txt"),
                 new String[]{"logcat", "-b", "main", "-d", "-f", "/sdcard/bugreport_tempfile_logcat"}));
         actions.add(new BugReportAction(
                 "\tcreate events logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat_events",
-                new File(tmpFolder, "events-" + dateTimeString + "--" + device.model + ".txt"),
+                new File(tmpFolder, "events-" + dateTimeString + "-" + device.model + ".txt"),
                 new String[]{"logcat", "-b", "events", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_events"}));
         actions.add(new BugReportAction(
                 "\tcreate radio logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat_radio",
-                new File(tmpFolder, "radio-" + dateTimeString + "--" + device.model + ".txt"),
+                new File(tmpFolder, "radio-" + dateTimeString + "-" + device.model + ".txt"),
                 new String[]{"logcat", "-b", "radio", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_radio"}));
 
         Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, cmdProvider, adbLocation);
@@ -83,7 +86,14 @@ public class BugReport {
             Commons.log(String.format(Locale.US, action.log + " (%.2fkB)", (double) action.localTempFile.length() / 1024.0), arguments);
         }
 
+        File installedAppsFile = createInstalledAppsFile(tmpFolder, dateTimeString, device, allPackages, arguments);
+        File runningAppsFile = createRunningAppsFile(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
+        File dumpsysFile = createSelectedDumpSysFile(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
+
         List<File> tempFilesToZip = new ArrayList<>();
+        tempFilesToZip.add(installedAppsFile);
+        tempFilesToZip.add(runningAppsFile);
+        tempFilesToZip.add(dumpsysFile);
         for (BugReportAction action : actions) {
             if (action.localTempFile.exists()) {
                 tempFilesToZip.add(action.localTempFile);
@@ -94,10 +104,8 @@ public class BugReport {
 
         MiscUtil.zip(zipFile, tempFilesToZip);
 
-        for (BugReportAction action : actions) {
-            if (!action.localTempFile.delete()) {
-                Commons.log("could not delete " + action.localTempFile.getAbsolutePath(), arguments);
-            }
+        if (tmpFolder.exists()) {
+            FileUtil.removeRecursive(tmpFolder.toPath());
         }
 
         if (!zipFile.exists()) {
@@ -105,6 +113,47 @@ public class BugReport {
         }
 
         Commons.log(String.format(Locale.US, "\ttemp files removed and zip %s (%.2fkB) created", zipFile.getAbsolutePath(), (double) zipFile.length() / 1024.0), arguments);
+    }
+
+    private static File createRunningAppsFile(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
+        CmdProvider.Result result = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "ps"}, cmdProvider, adbLocation);
+        File file = new File(tmpFolder, "running_processes-" + dateTimeString + "-" + device.model + ".txt");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        Files.write(file.toPath(), result.out.getBytes("UTF-8"));
+        Commons.log(String.format(Locale.US, "\tcreate running process file (%.2fkB)", (double) file.length() / 1024.0), arguments);
+        return file;
+    }
+
+    private static File createSelectedDumpSysFile(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
+        List<String> dumsys = new ArrayList<>();
+        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "battery"}, cmdProvider, adbLocation).toString());
+        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "connectivity"}, cmdProvider, adbLocation).toString());
+        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "package"}, cmdProvider, adbLocation).toString());
+        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "notification"}, cmdProvider, adbLocation).toString());
+        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "activity"}, cmdProvider, adbLocation).toString());
+        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "cpuinfo"}, cmdProvider, adbLocation).toString());
+
+
+        File file = new File(tmpFolder, "dumpsys-" + dateTimeString + "-" + device.model + ".txt");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        Files.write(file.toPath(), dumsys, Charset.forName("UTF-8"));
+        Commons.log(String.format(Locale.US, "\tcreate dumpsys file (%.2fkB)", (double) file.length() / 1024.0), arguments);
+        return file;
+    }
+
+    private static File createInstalledAppsFile(File tmpFolder, String dateTimeString, AdbDevice device, List<String> allPackages, Arg arguments) throws IOException {
+        File file = new File(tmpFolder, "installed_packages-" + dateTimeString + "-" + device.model + ".txt");
+        Collections.sort(allPackages);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        Files.write(file.toPath(), allPackages, Charset.forName("UTF-8"));
+        Commons.log(String.format(Locale.US, "\tcreate installed packages file (%.2fkB)", (double) file.length() / 1024.0), arguments);
+        return file;
     }
 
     private static class BugReportAction {

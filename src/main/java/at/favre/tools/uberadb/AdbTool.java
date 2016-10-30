@@ -9,15 +9,13 @@ import at.favre.tools.uberadb.parser.AdbDevicesParser;
 import at.favre.tools.uberadb.parser.InstalledPackagesParser;
 import at.favre.tools.uberadb.ui.Arg;
 import at.favre.tools.uberadb.ui.CLIParser;
+import at.favre.tools.uberadb.util.CmdUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class AdbTool {
 
@@ -203,11 +201,11 @@ public class AdbTool {
     }
 
     private static String generateReport(Arg.Mode mode, int deviceCount, int successUninstallCount, int failureUninstallCount, long executionDurationMs) {
-        String report;
+        String report = "[" + new Date().toString() + "][v" + CmdUtil.jarVersion() + "]\n";
         if (mode == Arg.Mode.BUGREPORT) {
-            report = String.format(Locale.US, "Bug reports generated from %d device(s).", deviceCount);
+            report += String.format(Locale.US, "Bug reports generated from %d device(s).", deviceCount);
         } else {
-            report = String.format(Locale.US, "%d apps were " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " on %d device(s).", successUninstallCount, deviceCount);
+            report += String.format(Locale.US, "%d apps were " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " on %d device(s).", successUninstallCount, deviceCount);
             if (failureUninstallCount > 0) {
                 report += String.format(Locale.US, " %d apps could not be " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " due to errors.", failureUninstallCount);
             }
@@ -215,17 +213,4 @@ public class AdbTool {
         report += " Took " + String.format(Locale.US, "%.2f", (double) executionDurationMs / 1000.0) + " seconds.";
         return report;
     }
-
-    static class Result {
-        final boolean error;
-        final int success;
-        final int unsuccessful;
-
-        Result(boolean error, int success, int unsuccessful) {
-            this.error = error;
-            this.success = success;
-            this.unsuccessful = unsuccessful;
-        }
-    }
-
 }
