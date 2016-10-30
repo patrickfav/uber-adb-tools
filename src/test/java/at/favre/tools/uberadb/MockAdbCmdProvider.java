@@ -9,13 +9,13 @@ import java.util.List;
 class MockAdbCmdProvider implements CmdProvider {
     private List<AdbDevice> devices;
     private List<String> installedPackages;
-    private boolean retunsSuccess;
+    private boolean returnsSuccess;
     private List<Result> history = new ArrayList<>();
 
     public MockAdbCmdProvider(List<AdbDevice> devices, List<String> installedPackages, boolean returnsSuccess) {
         this.devices = devices;
         this.installedPackages = installedPackages;
-        this.retunsSuccess = returnsSuccess;
+        this.returnsSuccess = returnsSuccess;
     }
 
     @Override
@@ -33,13 +33,13 @@ class MockAdbCmdProvider implements CmdProvider {
                 out.append("package:/data/app/").append(installedPackage).append("/base.apk=").append(installedPackage).append("\n");
             }
         } else if (flatCmd.contains("uninstall")) {
-            if (retunsSuccess) {
+            if (returnsSuccess) {
                 out.append("Success");
             } else {
                 out.append("Failure [MOCK-ERROR-UNINSTALL]");
             }
         } else if (flatCmd.contains("install")) {
-            if (retunsSuccess) {
+            if (returnsSuccess) {
                 out.append("Success");
             } else {
                 out.append("Failure [MOCK-ERROR-INSTALL]");

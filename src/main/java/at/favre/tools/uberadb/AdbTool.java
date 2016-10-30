@@ -25,8 +25,12 @@ public class AdbTool {
         Arg arguments = CLIParser.parse(args);
 
         if (arguments != null) {
-            if (execute(arguments, new CmdProvider.DefaultCmdProvider()) == null) {
+            Commons.ActionResult result = execute(arguments, new CmdProvider.DefaultCmdProvider());
+
+            if (result == null) {
                 System.exit(1);
+            } else if (result.failureCount > 0) {
+                System.exit(2);
             }
         }
     }
@@ -174,8 +178,8 @@ public class AdbTool {
         Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "used for creating bug reports")
                 + " on " + actionResult.deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            String input = br.readLine();
-            return input.trim().toLowerCase().equals("y");
+            String input = br.readLine().trim().toLowerCase();
+            return input.equals("y") || input.equals("yes");
         } catch (IOException e) {
             throw new IllegalStateException("could not read form console", e);
         }
