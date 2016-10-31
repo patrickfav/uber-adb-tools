@@ -44,7 +44,7 @@ The documentation of all possible parameters
                                                 adb in PATH env variable.
     -b,--bugreport <out folder>                 Creates a generic bug report (including eg. logcat and screenshot) from
                                                 all connected devices and zips it to the folder given as arg. If no
-                                                folder is given trys to zips it in the location of the .jar.
+                                                folder is given tries to zips it in the location of the .jar.
        --debug                                  Prints additional info for debugging.
        --dryRun                                 Use this to see what would be installed/uninstalled on what devices with
                                                 the given params. Will not install/uninstall anything.
@@ -145,7 +145,7 @@ Provide a activity intent to start before logcat will be pulled for request apps
     
 #### Starting custom intents
 
-When using the `--reportDebugIntent` argument you first have to provide an package filter string (see uninstall) and then a series of arguments describing the activity/service/etc. to start. These arguments are intenally append to a `adb shell am ...` command, therefore use the same syntax, eg. start to `start` an activity with intent params and `startservice` to start an service. For details on the intent syntax see https://developer.android.com/studio/command-line/shell.html#IntentSpec.
+When using the `--reportDebugIntent` argument you first have to provide a package filter string (see uninstall) and then a series of arguments describing the activity/service/etc. to start. These arguments are internally appended to a `adb shell am ...` command, therefore use the same syntax, eg. start to `start` an activity with intent params and `startservice` to start an service. For details on the intent syntax, see https://developer.android.com/studio/command-line/shell.html#IntentSpec.
     
 An example on how to use this:
 
@@ -195,7 +195,7 @@ This application will return `0` if every install/uninstall was successful, `1` 
 
 ### ADB Executable Location Strategy
 
-If you provide a custom location to adb, the tool will try to use it. Otherwise it will try to use, which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514 ). As a fallback, if the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK. One of these default location checks involves checking if `$ANDROID_HOME`/`%ANDROID_HOME%` is set, so if you don't want to set adb in PATH, use `ANDROID_HOME` environment variable.
+If you provide a custom location to adb, the tool will try to use it. Otherwise it will try to use the one provided by the system, which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514 ). As a fallback, if the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK. One of these default location checks involves checking if `ANDROID_HOME` is set, so if you don't want to set adb in `PATH`, use `ANDROID_HOME` environment variable.
 
 ## Used ADB commands
 
