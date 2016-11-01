@@ -60,22 +60,22 @@ public class BugReport {
                 "\twake up screen and take screenshot",
                 "/sdcard/bugreport_tempfile_screenshot.png",
                 new File(tmpFolder, "screen-" + dateTimeString + "-" + device.model + ".png"),
-                new String[]{"shell", "screencap", "/sdcard/bugreport_tempfile_screenshot.png"}));
+                new String[]{"shell", "screencap", "/sdcard/bugreport_tempfile_screenshot.png"}, null));
         actions.add(new BugReportAction(
                 "\tcreate logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat",
                 new File(tmpFolder, "logcat-" + dateTimeString + "-" + device.model + ".txt"),
-                new String[]{"logcat", "-b", "main", "-d", "-f", "/sdcard/bugreport_tempfile_logcat"}));
+                new String[]{"logcat", "-b", "main", "-d", "-f", "/sdcard/bugreport_tempfile_logcat"}, null));
         actions.add(new BugReportAction(
                 "\tcreate events logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat_events",
                 new File(tmpFolder, "events-" + dateTimeString + "-" + device.model + ".txt"),
-                new String[]{"logcat", "-b", "events", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_events"}));
+                new String[]{"logcat", "-b", "events", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_events"}, "additional-logcat"));
         actions.add(new BugReportAction(
                 "\tcreate radio logcat file and pull from device",
                 "/sdcard/bugreport_tempfile_logcat_radio",
                 new File(tmpFolder, "radio-" + dateTimeString + "-" + device.model + ".txt"),
-                new String[]{"logcat", "-b", "radio", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_radio"}));
+                new String[]{"logcat", "-b", "radio", "-d", "-f", "/sdcard/bugreport_tempfile_logcat_radio"}, "additional-logcat"));
 
         Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, cmdProvider, adbLocation);
 
@@ -88,15 +88,19 @@ public class BugReport {
 
         File installedAppsFile = createInstalledAppsFile(tmpFolder, dateTimeString, device, allPackages, arguments);
         File runningAppsFile = createRunningAppsFile(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
-        File dumpsysFile = createSelectedDumpSysFile(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
+        List<File> dumpsysFiles = createSelectedDumpSysFile(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
 
-        List<File> tempFilesToZip = new ArrayList<>();
-        tempFilesToZip.add(installedAppsFile);
-        tempFilesToZip.add(runningAppsFile);
-        tempFilesToZip.add(dumpsysFile);
+        List<MiscUtil.ZipFileDescriptor> tempFilesToZip = new ArrayList<>();
+        tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("misc", installedAppsFile));
+        tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("misc", runningAppsFile));
+
+        for (File dumpsysFile : dumpsysFiles) {
+            tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("dumpsys", dumpsysFile));
+        }
+
         for (BugReportAction action : actions) {
             if (action.localTempFile.exists()) {
-                tempFilesToZip.add(action.localTempFile);
+                tempFilesToZip.add(new MiscUtil.ZipFileDescriptor(action.zipSubFolder, action.localTempFile));
             } else {
                 Commons.log("could not find local file " + action.localTempFile, arguments);
             }
@@ -126,23 +130,23 @@ public class BugReport {
         return file;
     }
 
-    private static File createSelectedDumpSysFile(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
-        List<String> dumsys = new ArrayList<>();
-        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "battery"}, cmdProvider, adbLocation).toString());
-        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "connectivity"}, cmdProvider, adbLocation).toString());
-        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "package"}, cmdProvider, adbLocation).toString());
-        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "notification"}, cmdProvider, adbLocation).toString());
-        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "activity"}, cmdProvider, adbLocation).toString());
-        dumsys.add(Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", "cpuinfo"}, cmdProvider, adbLocation).toString());
+    private static List<File> createSelectedDumpSysFile(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
+        List<File> files = new ArrayList<>();
+        List<String> types = Arrays.asList("battery", "device_policy", "permission", "connectivity", "package", "notification", "activity", "cpuinfo", "nfc", "android.security.keystore");
 
+        for (String type : types) {
+            String dumpsys = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "dumpsys", type}, cmdProvider, adbLocation).toString();
 
-        File file = new File(tmpFolder, "dumpsys-" + dateTimeString + "-" + device.model + ".txt");
-        if (!file.exists()) {
-            file.createNewFile();
+            File file = new File(tmpFolder, "dumpsys-" + type + "-" + dateTimeString + "-" + device.model + ".txt");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            Files.write(file.toPath(), dumpsys.getBytes("UTF-8"));
+            files.add(file);
         }
-        Files.write(file.toPath(), dumsys, Charset.forName("UTF-8"));
-        Commons.log(String.format(Locale.US, "\tcreate dumpsys file (%.2fkB)", (double) file.length() / 1024.0), arguments);
-        return file;
+
+        Commons.log("\tcreate dumpsys files", arguments);
+        return files;
     }
 
     private static File createInstalledAppsFile(File tmpFolder, String dateTimeString, AdbDevice device, List<String> allPackages, Arg arguments) throws IOException {
@@ -161,12 +165,14 @@ public class BugReport {
         final File localTempFile;
         final String[] command;
         final String log;
+        final String zipSubFolder;
 
-        BugReportAction(String log, String deviceTempFile, File localTempFile, String[] command) {
+        BugReportAction(String log, String deviceTempFile, File localTempFile, String[] command, String zipSubFolder) {
             this.deviceTempFile = deviceTempFile;
             this.localTempFile = localTempFile;
             this.command = command;
             this.log = log;
+            this.zipSubFolder = zipSubFolder;
         }
     }
 

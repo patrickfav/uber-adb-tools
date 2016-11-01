@@ -90,11 +90,11 @@ public class AdbTool {
                 Commons.logLoud(getCommandHistory(cmdProvider));
             }
         } catch (Exception e) {
-            Commons.logErr(e.getMessage());
+            Commons.logErr(e.getClass().getName() + ": " + e.getMessage());
 
             if (arguments.debug) {
-                e.printStackTrace();
                 Commons.logErr(getCommandHistory(cmdProvider));
+                e.printStackTrace();
             } else {
                 Commons.logErr("Run with '-debug' parameter to get additional information.");
             }
