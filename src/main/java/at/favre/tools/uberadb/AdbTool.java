@@ -81,7 +81,6 @@ public class AdbTool {
                 Commons.logLoud(statusLog);
             }
 
-
             if (iterateDevices(devices, adbLocation, arguments, cmdProvider, installFiles, true).proceed) {
                 result = iterateDevices(devices, adbLocation, arguments, cmdProvider, installFiles, false).result;
             }
@@ -151,6 +150,14 @@ public class AdbTool {
             }
         }
 
+        if (actionResult.deviceCount == 0) {
+            Commons.logLoud("No ready devices found.");
+
+            if (hasUnauthorizedDevices(devices)) {
+                Commons.logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
+            }
+        }
+
         if (preview) {
             if (actionResult.successCount == 0) {
                 Commons.logLoud("No apps " + Commons.getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report."));
@@ -159,12 +166,7 @@ public class AdbTool {
                 return new Commons.IterationResult(actionResult, promptUser(actionResult, arguments));
             }
         } else {
-            if (actionResult.deviceCount == 0) {
-                Commons.logLoud("No ready devices found.");
-                if (hasUnauthorizedDevices(devices)) {
-                    Commons.logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
-                }
-            } else {
+            if (actionResult.deviceCount > 0) {
                 Commons.logLoud(generateReport(arguments.mode, actionResult.deviceCount, actionResult.successCount, actionResult.failureCount, System.currentTimeMillis() - startDuration));
             }
         }
@@ -176,8 +178,17 @@ public class AdbTool {
         Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "used for creating bug reports")
                 + " on " + actionResult.deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            String input = br.readLine().trim().toLowerCase();
-            return input.equals("y") || input.equals("yes");
+            String rawInput = br.readLine();
+            if (rawInput == null) {
+                return false;
+            }
+            String input = rawInput.trim().toLowerCase();
+            boolean cont = input.equals("y") || input.equals("yes");
+
+            if (!cont) {
+                Commons.log("cancel", arguments);
+            }
+            return cont;
         } catch (IOException e) {
             throw new IllegalStateException("could not read form console", e);
         }
