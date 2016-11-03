@@ -8,13 +8,11 @@ import at.favre.tools.uberadb.parser.PackageMatcher;
 import at.favre.tools.uberadb.ui.Arg;
 
 import java.util.List;
-import java.util.Set;
 
-public class Uninstall {
+public class PackageAction {
 
     public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, boolean preview, Commons.ActionResult actionResult, AdbDevice device, List<String> allPackages) {
-        Set<String> filteredPackages = new PackageMatcher(allPackages).findMatches(
-                PackageMatcher.parseFiltersArg(arguments.mainArgument));
+        List<String> filteredPackages = new PackageMatcher(allPackages).findMatches(arguments.mainArgument);
 
         for (String filteredPackage : filteredPackages) {
             String uninstallStatus = "\t" + filteredPackage;
@@ -28,9 +26,13 @@ public class Uninstall {
                         } else {
                             actionResult.failureCount++;
                         }
-                    } else if (arguments.mode == Arg.Mode.BUGREPORT) {
-
-                        uninstallStatus += "\treport created";
+                    } else if (arguments.mode == Arg.Mode.FORCE_STOP) {
+                        Commons.runAdbCommand(new String[]{"shell", "am", "force-stop", filteredPackage}, cmdProvider, adbLocation);
+                        uninstallStatus += "\tstopped";
+                        actionResult.successCount++;
+                    } else if (arguments.mode == Arg.Mode.CLEAR) {
+                        Commons.runAdbCommand(new String[]{"shell", "pm", "clear", filteredPackage}, cmdProvider, adbLocation);
+                        uninstallStatus += "\tdata cleared";
                         actionResult.successCount++;
                     }
                 } else {

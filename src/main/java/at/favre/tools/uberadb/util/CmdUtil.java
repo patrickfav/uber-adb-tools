@@ -55,16 +55,17 @@ public class CmdUtil {
     }
 
     public enum OS {
-        WIN, MAC, _NIX;
+        WIN, MAC, _NIX
     }
 
-    public static String toPlainString(String[] array) {
+    public static String concat(String[] array, String separator) {
         StringBuilder sb = new StringBuilder();
-
+        String sep = "";
         for (String s : array) {
-            sb.append(s).append(" ");
+            sb.append(sep).append(s);
+            sep = separator;
         }
-        return sb.toString().trim();
+        return sb.toString();
     }
 
     public static String jarVersion() {

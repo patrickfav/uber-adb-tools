@@ -3,7 +3,7 @@ package at.favre.tools.uberadb;
 import at.favre.tools.uberadb.actions.BugReport;
 import at.favre.tools.uberadb.actions.Commons;
 import at.favre.tools.uberadb.actions.Install;
-import at.favre.tools.uberadb.actions.Uninstall;
+import at.favre.tools.uberadb.actions.PackageAction;
 import at.favre.tools.uberadb.parser.AdbDevice;
 import at.favre.tools.uberadb.parser.AdbDevicesParser;
 import at.favre.tools.uberadb.parser.InstalledPackagesParser;
@@ -52,15 +52,25 @@ public class AdbTool {
                 String statusLog = "Found " + devices.size() + " device(s).";
 
                 if (arguments.mode == Arg.Mode.INSTALL) {
-                    statusLog += " Installing '" + arguments.mainArgument + "'.";
+                    statusLog += " Installing '" + CmdUtil.concat(arguments.mainArgument, ", ") + "'.";
                     installFiles = Install.getFilesToInstall(arguments);
+                    if (arguments.grantPermissions) {
+                        statusLog += " Grant permissions.";
+                    }
+                    if (arguments.keepData) {
+                        statusLog += " Reinstall.";
+                    }
                 } else if (arguments.mode == Arg.Mode.UNINSTALL) {
-                    statusLog += " Uninstalling with filter '" + arguments.mainArgument + "'.";
+                    statusLog += " Uninstalling with filter '" + CmdUtil.concat(arguments.mainArgument, ", ") + "'.";
                     if (arguments.keepData) {
                         statusLog += " Keep data/caches.";
                     }
-                } else if (arguments.mode == Arg.Mode.BUGREPORT && arguments.mainArgument != null && !arguments.mainArgument.isEmpty()) {
-                    statusLog += " Creating bugreport and save to '" + arguments.mainArgument + "'.";
+                } else if (arguments.mode == Arg.Mode.FORCE_STOP) {
+                    statusLog += " Force stopping packages '" + CmdUtil.concat(arguments.mainArgument, ", ") + "'.";
+                } else if (arguments.mode == Arg.Mode.CLEAR) {
+                    statusLog += " Clear data for packages '" + CmdUtil.concat(arguments.mainArgument, ", ") + "'.";
+                } else if (arguments.mode == Arg.Mode.BUGREPORT && arguments.mainArgument != null && arguments.mainArgument.length == 1) {
+                    statusLog += " Creating bugreport and save to '" + arguments.mainArgument[0] + "'.";
                     if (arguments.reportFilterIntent != null) {
                         statusLog += " Use activity manager command " + Arrays.toString(arguments.reportFilterIntent);
                     }
@@ -107,7 +117,7 @@ public class AdbTool {
                                                           CmdProvider cmdProvider, List<File> installFiles, boolean preview) throws Exception {
         Commons.ActionResult actionResult = new Commons.ActionResult();
 
-        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT)) {
+        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP)) {
             return new Commons.IterationResult(actionResult, true);
         }
 
@@ -142,8 +152,8 @@ public class AdbTool {
                         BugReport.create(adbLocation, arguments, cmdProvider, device, allPackages);
                     } else if (arguments.mode == Arg.Mode.INSTALL) {
                         Install.execute(adbLocation, arguments, cmdProvider, installFiles, preview, actionResult, device);
-                    } else if (arguments.mode == Arg.Mode.UNINSTALL) {
-                        Uninstall.execute(adbLocation, arguments, cmdProvider, preview, actionResult, device, allPackages);
+                    } else if (arguments.mode == Arg.Mode.UNINSTALL || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.CLEAR) {
+                        PackageAction.execute(adbLocation, arguments, cmdProvider, preview, actionResult, device, allPackages);
                     }
                 }
                 Commons.log("", arguments);
@@ -160,7 +170,7 @@ public class AdbTool {
 
         if (preview) {
             if (actionResult.successCount == 0) {
-                Commons.logLoud("No apps " + Commons.getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report."));
+                Commons.logLoud("No apps " + Commons.getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report.", " stopped.", "cleared."));
                 return new Commons.IterationResult(actionResult, false);
             } else {
                 return new Commons.IterationResult(actionResult, promptUser(actionResult, arguments));
@@ -175,7 +185,7 @@ public class AdbTool {
     }
 
     private static boolean promptUser(Commons.ActionResult actionResult, Arg arguments) {
-        Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "used for creating bug reports")
+        Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared")
                 + " on " + actionResult.deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             String rawInput = br.readLine();
@@ -216,9 +226,9 @@ public class AdbTool {
         if (mode == Arg.Mode.BUGREPORT) {
             report += String.format(Locale.US, "Bug reports generated from %d device(s).", deviceCount);
         } else {
-            report += String.format(Locale.US, "%d apps were " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " on %d device(s).", successUninstallCount, deviceCount);
+            report += String.format(Locale.US, "%d apps were " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared") + " on %d device(s).", successUninstallCount, deviceCount);
             if (failureUninstallCount > 0) {
-                report += String.format(Locale.US, " %d apps could not be " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports") + " due to errors.", failureUninstallCount);
+                report += String.format(Locale.US, " %d apps could not be " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared") + " due to errors.", failureUninstallCount);
             }
         }
         report += " Took " + String.format(Locale.US, "%.2f", (double) executionDurationMs / 1000.0) + " seconds.";

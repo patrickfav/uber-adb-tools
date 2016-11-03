@@ -4,17 +4,20 @@ A simple tool that makes it more convenient to **install, uninstall and creating
 Main features:
 
 * Wildcard support for package names when uninstalling at the end or middle of the filter string: `com.android.*` or `com.android.*e`
-* Possible to provide multiple packages to uninstall: `com.android.*,com.google.*,org.wiki*`
+* Possible to provide multiple packages to uninstall: `com.android.* com.google.* org.wiki*`
 * Installing multiple apks with one command
 * Installing/Uninstalling on all connected devices
 * Creating a bug report in zip format including screenshot and logcats
 * Starting custom activities to log additional information with bug report
+* force process and clear data of given (multiple) packages on all devices
 
 Basic usage:
 
     java -jar uber-adb-tools.jar --install /folder/apks/
     java -jar uber-adb-tools.jar --uninstall com.your.packa*
     java -jar uber-adb-tools.jar --bugreport ~/adb-logs/
+    java -jar uber-adb-tools.jar --force-stop com.your.packa*
+    java -jar uber-adb-tools.jar --clear com.your.packa*
 
 This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
 be either set in `PATH` or `ANDROID_HOME` should be set.
@@ -45,17 +48,30 @@ The documentation of all possible parameters
     -b,--bugreport <out folder>                 Creates a generic bug report (including eg. logcat and screenshot) from
                                                 all connected devices and zips it to the folder given as arg. If no
                                                 folder is given tries to zips it in the location of the .jar.
+    -c,--clear <package filter>                 Will clear app data for given packages. Argument is the filter string
+                                                that has to be a package name or part of it containing wildcards '*'.
+                                                Can be multiple filter Strings space separated. Example: 'com.android.*'
+                                                or 'com.android.* com.google.*'.
        --debug                                  Prints additional info for debugging.
        --dryRun                                 Use this to see what would be installed/uninstalled on what devices with
                                                 the given params. Will not install/uninstall anything.
+       --dumpsysServices <service-name>         Only for bugreport: include only theses dumpsys services. See all
+                                                services with 'adb shell dumpsys list'
        --force                                  If this flag is set all matched apps will be installed/uninstalled
                                                 without any further warning. Otherwise a user input is necessary.
+       --grant                                  Only for install: will grant all permissions set in the apk
+                                                automatically.
     -h,--help                                   Prints docs
     -i,--install <apk file/folder>              Provide path to an apk file or folder containing apk files and the tool
                                                 tries to install all of them to all connected devices (if not a specfic
-                                                device is selected).
+                                                device is selected). It is possible to pass multiple files/folders as
+                                                arguments e.g. '/apks apk1.apk apk2.apk'
        --keepData                               Only for uninstall: Uses the '-k' param on 'adb uninstall' to keep data
                                                 and caches of the app.
+    -p,--force-stop <package filter>            Will stop the process of given packages. Argument is the filter string
+                                                that has to be a package name or part of it containing wildcards '*'.
+                                                Can be multiple filter Strings space separated. Example: 'com.android.*'
+                                                or 'com.android.* com.google.*'.
        --quiet                                  Prints less output.
        --reportDebugIntent <package> <intent>   Only for Bugreport: This is useful to start a e.g. activity that e.g.
                                                 logs additional info before reading the logcat. First param is a package
@@ -68,10 +84,11 @@ The documentation of all possible parameters
                                                 See https://goo.gl/luuPfz for the correct intent start syntax.
     -s,--serial <device serial>                 If this is set, will only use given device. Default is all connected
                                                 devices. Device id is the same that is given by 'adb devices'
+       --simpleBugreport                        Only for bugreport: report will only contain the most essential data
        --skipEmulators                          Skips device emulators for install/uninstall.
     -u,--uninstall <package filter>             Filter string that has to be a package name or part of it containing
-                                                wildcards '*' for uninstalling. Can be multiple filter Strings comma
-                                                separated. Example: 'com.android.*' or 'com.android.*,com.google.*'.
+                                                wildcards '*' for uninstalling. Can be multiple filter Strings space
+                                                separated. Example: 'com.android.*' or 'com.android.* com.google.*'.
        --upgrade                                Only for install: Uses the '-r' param on 'adb install' for trying to
                                                 reinstall the app and keeping its data.
     -v,--version                                Prints current version.
@@ -81,7 +98,6 @@ The documentation of all possible parameters
 Test what would happen with dryrun:
 
     java -jar uber-adb-tools.jar --install /myfolder -dryRun
-
 
 Install/Uninstall only on a certain device by providing the device's serial (check `adb devices`):
 
@@ -105,11 +121,15 @@ Only install a certain apk file (as opposed to installing all from a folder):
 
     java -jar uber-adb-tools.jar --install /myfolder/my-apk.apk
 
+Provide multiple files/folder
+
+    java -jar uber-adb-tools.jar --install /myfolder/my-apk.apk /otherfolder /apk1.apk
+
 ### Uninstall
 
 Provide more than one package filter:
 
-    java -jar uber-adb-tools.jar --uninstall com.your.packa*,com.their.packa*,com.third.*
+    java -jar uber-adb-tools.jar --uninstall com.your.packa* com.their.packa* com.third.*
 
 #### Wildcard Support for Uninstall
 

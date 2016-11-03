@@ -9,6 +9,8 @@ public class CLIParser {
     static final String ARG_UNINSTALL = "u";
     static final String ARG_BUGREPORT = "b";
     static final String ARG_DEVICE_SERIAL = "s";
+    static final String ARG_FORCE_STOP = "p";
+    static final String ARG_CLEAR_DATA = "c";
 
     public static Arg parse(String[] args) {
         Options options = setupOptions();
@@ -30,18 +32,28 @@ public class CLIParser {
 
             int mainArgCount = 0;
             if (commandLine.hasOption(ARG_UNINSTALL)) {
-                argument.mainArgument = commandLine.getOptionValue(ARG_UNINSTALL);
+                argument.mainArgument = commandLine.getOptionValues(ARG_UNINSTALL);
                 argument.mode = Arg.Mode.UNINSTALL;
                 mainArgCount++;
             }
             if (commandLine.hasOption(ARG_INSTALL)) {
-                argument.mainArgument = commandLine.getOptionValue(ARG_INSTALL);
+                argument.mainArgument = commandLine.getOptionValues(ARG_INSTALL);
                 argument.mode = Arg.Mode.INSTALL;
                 mainArgCount++;
             }
             if (commandLine.hasOption(ARG_BUGREPORT)) {
-                argument.mainArgument = commandLine.getOptionValue(ARG_BUGREPORT);
+                argument.mainArgument = commandLine.getOptionValues(ARG_BUGREPORT);
                 argument.mode = Arg.Mode.BUGREPORT;
+                mainArgCount++;
+            }
+            if (commandLine.hasOption(ARG_FORCE_STOP)) {
+                argument.mainArgument = commandLine.getOptionValues(ARG_FORCE_STOP);
+                argument.mode = Arg.Mode.FORCE_STOP;
+                mainArgCount++;
+            }
+            if (commandLine.hasOption(ARG_CLEAR_DATA)) {
+                argument.mainArgument = commandLine.getOptionValues(ARG_CLEAR_DATA);
+                argument.mode = Arg.Mode.CLEAR;
                 mainArgCount++;
             }
 
@@ -55,7 +67,7 @@ public class CLIParser {
             }
 
             if (mainArgCount != 1) {
-                throw new IllegalArgumentException("Must either provide " + ARG_INSTALL + " or " + ARG_UNINSTALL + " argument");
+                throw new IllegalArgumentException("Must either provide either " + ARG_INSTALL + ", " + ARG_UNINSTALL + ", " + ARG_BUGREPORT + ", " + ARG_FORCE_STOP + " or " + ARG_CLEAR_DATA + " argument");
             }
 
             if (commandLine.hasOption("adbPath")) {
@@ -66,13 +78,18 @@ public class CLIParser {
                 argument.device = commandLine.getOptionValue(ARG_DEVICE_SERIAL);
             }
 
+            if (commandLine.hasOption("dumpsysServices")) {
+                argument.dumpsysServices = commandLine.getOptionValues("dumpsysServices");
+            }
+
             argument.dryRun = commandLine.hasOption("dryRun");
             argument.skipEmulators = commandLine.hasOption("skipEmulators");
             argument.keepData = commandLine.hasOption("keepData") || commandLine.hasOption("upgrade");
             argument.quiet = commandLine.hasOption("quiet");
             argument.debug = commandLine.hasOption("debug");
             argument.force = commandLine.hasOption("force");
-
+            argument.grantPermissions = commandLine.hasOption("grant");
+            argument.simpleBugReport = commandLine.hasOption("simpleBugreport");
         } catch (Exception e) {
             System.err.println(e.getMessage());
 
@@ -87,9 +104,11 @@ public class CLIParser {
     private static Options setupOptions() {
         Options options = new Options();
 
-        Option mainInstall = Option.builder(ARG_INSTALL).longOpt("install").argName("apk file/folder").desc("Provide path to an apk file or folder containing apk files and the tool tries to install all of them to all connected devices (if not a specfic device is selected).").hasArg().build();
-        Option mainUninstall = Option.builder(ARG_UNINSTALL).longOpt("uninstall").argName("package filter").hasArg(true).desc("Filter string that has to be a package name or part of it containing wildcards '*' for uninstalling. Can be multiple filter Strings comma separated. Example: 'com.android.*' or 'com.android.*,com.google.*'.").build();
+        Option mainInstall = Option.builder(ARG_INSTALL).longOpt("install").argName("apk file/folder").desc("Provide path to an apk file or folder containing apk files and the tool tries to install all of them to all connected devices (if not a specfic device is selected). It is possible to pass multiple files/folders as arguments e.g. '/apks apk1.apk apk2.apk'").hasArgs().build();
+        Option mainUninstall = Option.builder(ARG_UNINSTALL).longOpt("uninstall").argName("package filter").hasArgs().desc("Filter string that has to be a package name or part of it containing wildcards '*' for uninstalling. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
         Option mainBugReport = Option.builder(ARG_BUGREPORT).longOpt("bugreport").argName("out folder").hasArg().optionalArg(true).desc("Creates a generic bug report (including eg. logcat and screenshot) from all connected devices and zips it to the folder given as arg. If no folder is given tries to zips it in the location of the .jar.").build();
+        Option mainForceStop = Option.builder(ARG_FORCE_STOP).longOpt("force-stop").argName("package filter").hasArgs().desc("Will stop the process of given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
+        Option mainClearAppData = Option.builder(ARG_CLEAR_DATA).longOpt("clear").argName("package filter").hasArgs().desc("Will clear app data for given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
 
         Option adbPathOpt = Option.builder().longOpt("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this is omitted the tool tries to find adb in PATH env variable.").build();
         Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).longOpt("serial").argName("device serial").hasArg(true).desc("If this is set, will only use given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
@@ -97,6 +116,7 @@ public class CLIParser {
                 "First param is a package filter (see --uninstall argument) followed by a series of params appended to a 'adb shell am' type command to start an activity or service (See https://goo.gl/MGK7ck). This will be executed for each app/package that is matched by the first parameter. " +
                 "You can use the placeholder '${package}' and will substitute the package name. Example: 'com.google* start -n ${package}/com.myapp.LogActivity --ez LOG true' See https://goo.gl/luuPfz for the correct intent start syntax.").build();
 
+        Option dumpsysOpt = Option.builder().longOpt("dumpsysServices").argName("service-name").hasArgs().desc("Only for bugreport: include only theses dumpsys services. See all services with 'adb shell dumpsys list'").build();
         Option dryRunOpt = Option.builder().longOpt("dryRun").hasArg(false).desc("Use this to see what would be installed/uninstalled on what devices with the given params. Will not install/uninstall anything.").build();
         Option skipEmuOpt = Option.builder().longOpt("skipEmulators").hasArg(false).desc("Skips device emulators for install/uninstall.").build();
         Option keepDataOpt = Option.builder().longOpt("keepData").hasArg(false).desc("Only for uninstall: Uses the '-k' param on 'adb uninstall' to keep data and caches of the app.").build();
@@ -104,18 +124,21 @@ public class CLIParser {
         Option quietOpt = Option.builder().longOpt("quiet").hasArg(false).desc("Prints less output.").build();
         Option debugOpt = Option.builder().longOpt("debug").hasArg(false).desc("Prints additional info for debugging.").build();
         Option forceOpt = Option.builder().longOpt("force").hasArg(false).desc("If this flag is set all matched apps will be installed/uninstalled without any further warning. Otherwise a user input is necessary.").build();
+        Option grantOpt = Option.builder().longOpt("grant").hasArg(false).desc("Only for install: will grant all permissions set in the apk automatically.").build();
+        Option simpleBugreportOpt = Option.builder().longOpt("simpleBugreport").hasArg(false).desc("Only for bugreport: report will only contain the most essential data").build();
 
         Option help = Option.builder("h").longOpt("help").desc("Prints docs").build();
         Option version = Option.builder("v").longOpt("version").desc("Prints current version.").build();
 
         OptionGroup mainArgs = new OptionGroup();
-        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(mainBugReport).addOption(help).addOption(version);
+        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(mainBugReport).addOption(mainForceStop).addOption(mainClearAppData).addOption(help).addOption(version);
         mainArgs.setRequired(true);
 
         options.addOptionGroup(mainArgs);
 
         options.addOption(adbPathOpt).addOption(deviceOpt).addOption(dryRunOpt).addOption(skipEmuOpt).addOption(keepDataOpt)
-                .addOption(quietOpt).addOption(debugOpt).addOption(forceOpt).addOption(upgradeOpt).addOption(reportFilter);
+                .addOption(quietOpt).addOption(debugOpt).addOption(forceOpt).addOption(upgradeOpt).addOption(reportFilter)
+                .addOption(grantOpt).addOption(simpleBugreportOpt).addOption(dumpsysOpt);
 
         return options;
     }
@@ -125,6 +148,6 @@ public class CLIParser {
         help.setWidth(120);
         help.setLeftPadding(4);
         help.setDescPadding(3);
-        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | --help", "Version: " + CmdUtil.jarVersion(), options, "", false);
+        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | -" + ARG_FORCE_STOP + " <package filter> | -" + ARG_CLEAR_DATA + " <package filter> | --help", "Version:" + CmdUtil.jarVersion(), options, " ", false);
     }
 }

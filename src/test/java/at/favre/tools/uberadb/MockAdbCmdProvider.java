@@ -20,7 +20,7 @@ class MockAdbCmdProvider implements CmdProvider {
 
     @Override
     public Result runCmd(String[] args) {
-        String flatCmd = CmdUtil.toPlainString(args);
+        String flatCmd = CmdUtil.concat(args, " ");
         StringBuilder out = new StringBuilder();
 
         if (flatCmd.contains("devices -l")) {

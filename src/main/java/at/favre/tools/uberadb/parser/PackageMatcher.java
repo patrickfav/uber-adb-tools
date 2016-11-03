@@ -16,7 +16,7 @@ public class PackageMatcher {
         throw new IllegalArgumentException("unexpected arg: "+arg);
     }
 
-    public Set<String> findMatches(String... moreFilters) {
+    public List<String> findMatches(String... moreFilters) {
         Set<String> matchedPackages = new HashSet<>();
 
         List<String> filters = new ArrayList<>();
@@ -31,7 +31,9 @@ public class PackageMatcher {
                 }
             }
         }
-        return matchedPackages;
+        List<String> list = new ArrayList<>(matchedPackages);
+        Collections.sort(list);
+        return list;
     }
 
     static boolean match(String filter, String aPackage) {

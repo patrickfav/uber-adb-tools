@@ -84,7 +84,7 @@ public interface CmdProvider {
         public Result(String out, Exception exception, String[] cmd, int exitValue) {
             this.out = out;
             this.exception = exception;
-            this.cmd = CmdUtil.toPlainString(cmd);
+            this.cmd = CmdUtil.concat(cmd, " ");
             this.exitValue = exitValue;
         }
 
