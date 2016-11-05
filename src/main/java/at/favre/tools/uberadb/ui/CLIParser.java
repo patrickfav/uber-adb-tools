@@ -96,6 +96,8 @@ public class CLIParser {
             argument.force = commandLine.hasOption("force");
             argument.grantPermissions = commandLine.hasOption("grant");
             argument.simpleBugReport = commandLine.hasOption("simpleBugreport");
+            argument.waitForDevice = commandLine.hasOption("waitForDevice");
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
 
@@ -133,7 +135,7 @@ public class CLIParser {
         Option forceOpt = Option.builder().longOpt("force").hasArg(false).desc("If this flag is set all matched apps will be installed/uninstalled without any further warning. Otherwise a user input is necessary.").build();
         Option grantOpt = Option.builder().longOpt("grant").hasArg(false).desc("Only for install: will grant all permissions set in the apk automatically.").build();
         Option simpleBugreportOpt = Option.builder().longOpt("simpleBugreport").hasArg(false).desc("Only for bugreport: report will only contain the most essential data").build();
-
+        Option waitForDeviceOpt = Option.builder().longOpt("waitForDevice").hasArg(false).desc("If set, will wait until a device is connected and debug mode is enabled.").build();
         Option help = Option.builder("h").longOpt("help").desc("Prints docs").build();
         Option version = Option.builder("v").longOpt("version").desc("Prints current version.").build();
 
@@ -145,7 +147,7 @@ public class CLIParser {
 
         options.addOption(adbPathOpt).addOption(deviceOpt).addOption(dryRunOpt).addOption(skipEmuOpt).addOption(keepDataOpt)
                 .addOption(quietOpt).addOption(debugOpt).addOption(forceOpt).addOption(upgradeOpt).addOption(reportFilter)
-                .addOption(grantOpt).addOption(simpleBugreportOpt).addOption(dumpsysOpt);
+                .addOption(grantOpt).addOption(simpleBugreportOpt).addOption(dumpsysOpt).addOption(waitForDeviceOpt);
 
         return options;
     }

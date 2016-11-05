@@ -21,13 +21,14 @@ public class Arg {
     public boolean force = false;
     public boolean grantPermissions = false;
     public boolean simpleBugReport = false;
+    public boolean waitForDevice = false;
 
     public Mode mode;
 
     public Arg() {
     }
 
-    public Arg(String[] mainArgument, String adbPath, String device, String[] reportFilterIntent, String[] dumpsysServices, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, boolean grantPermissions, boolean simpleBugReport, Mode mode) {
+    public Arg(String[] mainArgument, String adbPath, String device, String[] reportFilterIntent, String[] dumpsysServices, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, boolean grantPermissions, boolean simpleBugReport, boolean waitForDevice, Mode mode) {
         this.mainArgument = mainArgument;
         this.adbPath = adbPath;
         this.device = device;
@@ -41,6 +42,7 @@ public class Arg {
         this.force = force;
         this.grantPermissions = grantPermissions;
         this.simpleBugReport = simpleBugReport;
+        this.waitForDevice = waitForDevice;
         this.mode = mode;
     }
 
@@ -59,6 +61,7 @@ public class Arg {
         if (force != arg.force) return false;
         if (grantPermissions != arg.grantPermissions) return false;
         if (simpleBugReport != arg.simpleBugReport) return false;
+        if (waitForDevice != arg.waitForDevice) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(mainArgument, arg.mainArgument)) return false;
         if (adbPath != null ? !adbPath.equals(arg.adbPath) : arg.adbPath != null) return false;
@@ -86,6 +89,7 @@ public class Arg {
         result = 31 * result + (force ? 1 : 0);
         result = 31 * result + (grantPermissions ? 1 : 0);
         result = 31 * result + (simpleBugReport ? 1 : 0);
+        result = 31 * result + (waitForDevice ? 1 : 0);
         result = 31 * result + (mode != null ? mode.hashCode() : 0);
         return result;
     }
@@ -106,6 +110,7 @@ public class Arg {
                 ", force=" + force +
                 ", grantPermissions=" + grantPermissions +
                 ", simpleBugReport=" + simpleBugReport +
+                ", waitForDevice=" + waitForDevice +
                 ", mode=" + mode +
                 '}';
     }

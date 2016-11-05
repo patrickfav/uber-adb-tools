@@ -41,6 +41,11 @@ public class AdbTool {
 
             Commons.runAdbCommand(new String[]{"start-server"}, cmdProvider, adbLocation);
 
+            if (arguments.waitForDevice) {
+                Commons.log("waiting for device...", arguments);
+                Commons.runAdbCommand(new String[]{"wait-for-device"}, cmdProvider, adbLocation);
+            }
+
             CmdProvider.Result devicesCmdResult = Commons.runAdbCommand(new String[]{"devices", "-l"}, cmdProvider, adbLocation);
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
 
