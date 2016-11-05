@@ -101,6 +101,7 @@ The documentation of all possible parameters
        --upgrade                                Only for install: Uses the '-r' param on 'adb install' for trying to
                                                 reinstall the app and keeping its data.
     -v,--version                                Prints current version.
+       --waitForDevice                          If set, will wait until a device is connected and debug mode is enabled.
    
 ### General
 
@@ -119,6 +120,10 @@ Skip user prompt:
 Provide your own adb executables:
 
     java -jar uber-adb-tools.jar --bugreport --adbPath "C:\pathToAdb\adb.exe"
+    
+Wait until device is connected:
+
+    java -jar uber-adb-tools.jar --uninstall com.your.packa* --waitForDevice 
 
 ### Install
 
