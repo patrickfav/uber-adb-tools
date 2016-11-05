@@ -9,6 +9,7 @@ import at.favre.tools.uberadb.ui.Arg;
 import at.favre.tools.uberadb.util.CmdUtil;
 import at.favre.tools.uberadb.util.FileUtil;
 import at.favre.tools.uberadb.util.MiscUtil;
+import net.coobird.thumbnailator.Thumbnails;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BugReport {
+
+    private static final int MAX_IMG_BYTE_SIZE = 1024 * 1024 * 2;
 
     public static void create(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, AdbDevice device, List<String> allPackages) throws Exception {
         Commons.logLoud("create bug report:");
@@ -86,6 +89,7 @@ public class BugReport {
             Commons.runAdbCommand(CmdUtil.concat(new String[]{"-s", device.serial}, action.command), cmdProvider, adbLocation);
             Commons.runAdbCommand(new String[]{"-s", device.serial, "pull", action.deviceTempFile, action.localTempFile.getAbsolutePath()}, cmdProvider, adbLocation);
             Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", action.deviceTempFile}, cmdProvider, adbLocation);
+            action.localTempFile = downscaleIfNeeded(action.localTempFile, arguments);
             Commons.log(String.format(Locale.US, action.log + " (%.2fkB)", (double) action.localTempFile.length() / 1024.0), arguments);
         }
 
@@ -119,6 +123,21 @@ public class BugReport {
         }
 
         Commons.log(String.format(Locale.US, "\ttemp files removed and zip %s (%.2fkB) created", zipFile.getAbsolutePath(), (double) zipFile.length() / 1024.0), arguments);
+    }
+
+    private static File downscaleIfNeeded(File localTempFile, Arg arg) {
+        if (localTempFile.exists() && localTempFile.isFile() && FileUtil.getFileExtension(localTempFile).equalsIgnoreCase("png") && localTempFile.length() > MAX_IMG_BYTE_SIZE) {
+
+            try {
+                while (localTempFile.length() > MAX_IMG_BYTE_SIZE) {
+                    Thumbnails.of(localTempFile).allowOverwrite(true).scale(0.5).toFile(localTempFile);
+                }
+                Commons.log("\tdownscaling screenshot", arg);
+            } catch (IOException e) {
+                throw new IllegalStateException("could not resize screenshot", e);
+            }
+        }
+        return localTempFile;
     }
 
     private static File createFeaturesAndLibs(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
@@ -183,21 +202,13 @@ public class BugReport {
 
     private static class BugReportDeviceFileAction {
         final String deviceTempFile;
-        final File localTempFile;
+        File localTempFile;
         final String[] command;
         final String log;
         final String zipSubFolder;
 
         BugReportDeviceFileAction(String log, String deviceTempFile, File localTempFile, String[] command, String zipSubFolder) {
             this.deviceTempFile = deviceTempFile;
-            this.localTempFile = localTempFile;
-            this.command = command;
-            this.log = log;
-            this.zipSubFolder = zipSubFolder;
-        }
-
-        BugReportDeviceFileAction(String log, File localTempFile, String[] command, String zipSubFolder) {
-            this.deviceTempFile = null;
             this.localTempFile = localTempFile;
             this.command = command;
             this.log = log;

@@ -45,10 +45,15 @@ The documentation of all possible parameters
 
        --adbPath <path>                         Full path to adb executable. If this is omitted the tool tries to find
                                                 adb in PATH env variable.
+       --appinfo <package filter>               Will show additional information (like version, install-time of the apps
+                                                matching the argument). Argument is the filter string that has to be a
+                                                package name or part of it containing wildcards '*'. Can be multiple
+                                                filter Strings space separated. Example: 'com.android.*' or
+                                                'com.android.* com.google.*'.
     -b,--bugreport <out folder>                 Creates a generic bug report (including eg. logcat and screenshot) from
                                                 all connected devices and zips it to the folder given as arg. If no
                                                 folder is given tries to zips it in the location of the .jar.
-    -c,--clear <package filter>                 Will clear app data for given packages. Argument is the filter string
+       --clear <package filter>                 Will clear app data for given packages. Argument is the filter string
                                                 that has to be a package name or part of it containing wildcards '*'.
                                                 Can be multiple filter Strings space separated. Example: 'com.android.*'
                                                 or 'com.android.* com.google.*'.
@@ -59,6 +64,10 @@ The documentation of all possible parameters
                                                 services with 'adb shell dumpsys list'
        --force                                  If this flag is set all matched apps will be installed/uninstalled
                                                 without any further warning. Otherwise a user input is necessary.
+       --force-stop <package filter>            Will stop the process of given packages. Argument is the filter string
+                                                that has to be a package name or part of it containing wildcards '*'.
+                                                Can be multiple filter Strings space separated. Example: 'com.android.*'
+                                                or 'com.android.* com.google.*'.
        --grant                                  Only for install: will grant all permissions set in the apk
                                                 automatically.
     -h,--help                                   Prints docs
@@ -68,15 +77,6 @@ The documentation of all possible parameters
                                                 arguments e.g. '/apks apk1.apk apk2.apk'
        --keepData                               Only for uninstall: Uses the '-k' param on 'adb uninstall' to keep data
                                                 and caches of the app.
-    -n,--appinfo <package filter>               Will show additional information (like version, install-time of the apps
-                                                matching the argument). Argument is the filter string that has to be a
-                                                package name or part of it containing wildcards '*'. Can be multiple
-                                                filter Strings space separated. Example: 'com.android.*' or
-                                                'com.android.* com.google.*'.
-    -p,--force-stop <package filter>            Will stop the process of given packages. Argument is the filter string
-                                                that has to be a package name or part of it containing wildcards '*'.
-                                                Can be multiple filter Strings space separated. Example: 'com.android.*'
-                                                or 'com.android.* com.google.*'.
        --quiet                                  Prints less output.
        --reportDebugIntent <package> <intent>   Only for Bugreport: This is useful to start a e.g. activity that e.g.
                                                 logs additional info before reading the logcat. First param is a package
