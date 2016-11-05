@@ -1,5 +1,5 @@
 # Uber Adb Tools for Android
-A simple tool that makes it more convenient to **install, uninstall and creating bug reports for multiple apps on multiple devices** with one command. Additionally uninstalling allows to use **wildcards as package name**. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
+A simple tool that makes it more convenient to **install, uninstall and creating bug reports and more for multiple apps on multiple devices** with one command. Additionally uninstalling allows to use **wildcards as package name**. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
 
 Main features:
 
@@ -38,10 +38,6 @@ be either set in `PATH` or `ANDROID_HOME` should be set.
 ## Demo
 
 [![asciicast](https://asciinema.org/a/91091.png)](https://asciinema.org/a/91091)
-
-## Why do I need this?
-
-If you or your company develops many apps or flavors, if you make heavy use of buildTypes and/or if you share testing devices with peers this is a convenient tool to either wipe all test apps from your device (or multiple devices simultaneously) or install all buildTypes for testing in one go. This is even more important where different apps have sideffects if more than one flavor is installed.
 
 ## Command Line Interface
 
