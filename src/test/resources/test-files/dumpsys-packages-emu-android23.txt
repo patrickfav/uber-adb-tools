@@ -1,0 +1,33 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        a05df27 com.example.testapp.first/com.example.testapp.testapp.MainActivity
+
+Key Set Manager:
+  [com.example.testapp.first]
+      Signing KeySets: 7
+
+Packages:
+  Package [com.example.testapp.first] (da815d4):
+    userId=10063
+    pkg=Package{d30137d com.example.testapp.first}
+    codePath=/data/app/com.example.testapp.first-1
+    resourcePath=/data/app/com.example.testapp.first-1
+    legacyNativeLibraryDir=/data/app/com.example.testapp.first-1/lib
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    versionCode=1 targetSdk=24
+    versionName=1.0
+    splits=[base]
+    applicationInfo=ApplicationInfo{3169272 com.example.testapp.first}
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    dataDir=/data/user/0/com.example.testapp.first
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2016-11-05 16:22:57
+    firstInstallTime=2016-11-05 16:22:57
+    lastUpdateTime=2016-11-05 16:22:57
+    signatures=PackageSignatures{76746c3 [c5abb40]}
+    installPermissionsFixed=true installStatus=1
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    User 0:  installed=true hidden=false stopped=true notLaunched=true enabled=0
+      runtime permissions:

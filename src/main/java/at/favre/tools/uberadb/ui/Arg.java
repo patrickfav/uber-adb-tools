@@ -4,7 +4,7 @@ package at.favre.tools.uberadb.ui;
 import java.util.Arrays;
 
 public class Arg {
-    public enum Mode {INSTALL, UNINSTALL, BUGREPORT, FORCE_STOP, CLEAR}
+    public enum Mode {INSTALL, UNINSTALL, BUGREPORT, FORCE_STOP, CLEAR, INFO}
 
     public String[] mainArgument;
 

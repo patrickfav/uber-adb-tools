@@ -61,7 +61,7 @@ public class Commons {
         }
     }
 
-    public static String getCorrectAction(Arg.Mode mode, String install, String uninstall, String bugreport, String forceStop, String clear) {
+    public static String getCorrectAction(Arg.Mode mode, String install, String uninstall, String bugreport, String forceStop, String clear, String info) {
         switch (mode) {
             case INSTALL:
                 return install;
@@ -73,6 +73,8 @@ public class Commons {
                 return forceStop;
             case CLEAR:
                 return clear;
+            case INFO:
+                return info;
             default:
                 return "unknown";
         }

@@ -1,0 +1,24 @@
+Key Set Manager:
+  [com.example.testapp.first]
+      Signing KeySets: 1
+
+Packages:
+  Package [com.example.testapp.first] (9d30e7d8):
+    userId=10053 gids=[]
+    pkg=Package{9d2de260 com.example.testapp.first}
+    codePath=/data/app/com.example.testapp.first-1.apk
+    resourcePath=/data/app/com.example.testapp.first-1.apk
+    nativeLibraryPath=/data/app-lib/com.example.testapp.first-1
+    versionCode=1 targetSdk=24
+    versionName=1.0
+    applicationInfo=ApplicationInfo{9d231af0 com.example.testapp.first}
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    dataDir=/data/data/com.example.testapp.first
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2016-11-05 12:16:06
+    firstInstallTime=2016-11-05 12:16:06
+    lastUpdateTime=2016-11-05 12:16:06
+    signatures=PackageSignatures{9d30e8a0 [9d233000]}
+    permissionsFixed=true haveGids=true installStatus=1
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    User 0:  installed=true blocked=false stopped=true notLaunched=true enabled=0

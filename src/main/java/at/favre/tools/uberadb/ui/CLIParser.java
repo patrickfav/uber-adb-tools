@@ -11,6 +11,7 @@ public class CLIParser {
     static final String ARG_DEVICE_SERIAL = "s";
     static final String ARG_FORCE_STOP = "p";
     static final String ARG_CLEAR_DATA = "c";
+    static final String ARG_APPINFO = "n";
 
     public static Arg parse(String[] args) {
         Options options = setupOptions();
@@ -54,6 +55,11 @@ public class CLIParser {
             if (commandLine.hasOption(ARG_CLEAR_DATA)) {
                 argument.mainArgument = commandLine.getOptionValues(ARG_CLEAR_DATA);
                 argument.mode = Arg.Mode.CLEAR;
+                mainArgCount++;
+            }
+            if (commandLine.hasOption(ARG_APPINFO)) {
+                argument.mainArgument = commandLine.getOptionValues(ARG_APPINFO);
+                argument.mode = Arg.Mode.INFO;
                 mainArgCount++;
             }
 
@@ -109,6 +115,7 @@ public class CLIParser {
         Option mainBugReport = Option.builder(ARG_BUGREPORT).longOpt("bugreport").argName("out folder").hasArg().optionalArg(true).desc("Creates a generic bug report (including eg. logcat and screenshot) from all connected devices and zips it to the folder given as arg. If no folder is given tries to zips it in the location of the .jar.").build();
         Option mainForceStop = Option.builder(ARG_FORCE_STOP).longOpt("force-stop").argName("package filter").hasArgs().desc("Will stop the process of given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
         Option mainClearAppData = Option.builder(ARG_CLEAR_DATA).longOpt("clear").argName("package filter").hasArgs().desc("Will clear app data for given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
+        Option mainInfoAppData = Option.builder(ARG_APPINFO).longOpt("appinfo").argName("package filter").hasArgs().desc("Will show additional information (like version, install-time of the apps matching the argument). Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
 
         Option adbPathOpt = Option.builder().longOpt("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this is omitted the tool tries to find adb in PATH env variable.").build();
         Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).longOpt("serial").argName("device serial").hasArg(true).desc("If this is set, will only use given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
@@ -131,7 +138,7 @@ public class CLIParser {
         Option version = Option.builder("v").longOpt("version").desc("Prints current version.").build();
 
         OptionGroup mainArgs = new OptionGroup();
-        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(mainBugReport).addOption(mainForceStop).addOption(mainClearAppData).addOption(help).addOption(version);
+        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(mainBugReport).addOption(mainForceStop).addOption(mainClearAppData).addOption(help).addOption(version).addOption(mainInfoAppData);
         mainArgs.setRequired(true);
 
         options.addOptionGroup(mainArgs);
@@ -148,6 +155,6 @@ public class CLIParser {
         help.setWidth(120);
         help.setLeftPadding(4);
         help.setDescPadding(3);
-        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | -" + ARG_FORCE_STOP + " <package filter> | -" + ARG_CLEAR_DATA + " <package filter> | --help", "Version:" + CmdUtil.jarVersion(), options, " ", false);
+        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | -" + ARG_FORCE_STOP + " <package filter> | -" + ARG_CLEAR_DATA + " <package filter> | " + ARG_APPINFO + " <package filter> | --help", "Version:" + CmdUtil.jarVersion(), options, " ", false);
     }
 }

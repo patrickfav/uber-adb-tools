@@ -9,15 +9,19 @@ Main features:
 * Installing/Uninstalling on all connected devices
 * Creating a bug report in zip format including screenshot and logcats
 * Starting custom activities to log additional information with bug report
-* force process and clear data of given (multiple) packages on all devices
+* Force stop process, show app info and clear data of given (multiple) packages on all devices
 
 Basic usage:
 
     java -jar uber-adb-tools.jar --install /folder/apks/
     java -jar uber-adb-tools.jar --uninstall com.your.packa*
     java -jar uber-adb-tools.jar --bugreport ~/adb-logs/
+    
+More:
+    
     java -jar uber-adb-tools.jar --force-stop com.your.packa*
     java -jar uber-adb-tools.jar --clear com.your.packa*
+    java -jar uber-adb-tools.jar --appinfo com.your.packa*
 
 This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
 be either set in `PATH` or `ANDROID_HOME` should be set.
@@ -68,6 +72,11 @@ The documentation of all possible parameters
                                                 arguments e.g. '/apks apk1.apk apk2.apk'
        --keepData                               Only for uninstall: Uses the '-k' param on 'adb uninstall' to keep data
                                                 and caches of the app.
+    -n,--appinfo <package filter>               Will show additional information (like version, install-time of the apps
+                                                matching the argument). Argument is the filter string that has to be a
+                                                package name or part of it containing wildcards '*'. Can be multiple
+                                                filter Strings space separated. Example: 'com.android.*' or
+                                                'com.android.* com.google.*'.
     -p,--force-stop <package filter>            Will stop the process of given packages. Argument is the filter string
                                                 that has to be a package name or part of it containing wildcards '*'.
                                                 Can be multiple filter Strings space separated. Example: 'com.android.*'
@@ -208,6 +217,19 @@ Now we might have the problem when using multiple flavours, that you want to use
 
     java -jar uber-adb-tools.jar --bugreport --reportDebugIntent your.package.* start -n ${package}/com.company.app.DebugLogActivity --ez HEADLESS true
 
+### Additional Features
+
+Clear app data & caches of all matching apps
+
+    java -jar uber-adb-tools.jar --clear com.example.*
+
+Force stop all matching apps
+
+    java -jar uber-adb-tools.jar --force-stop com.example.*
+
+Show app info (version, install time, etc.) of matched apps
+
+    java -jar uber-adb-tools.jar --appinfo com.example.*
 
 ### Process Return Value
 

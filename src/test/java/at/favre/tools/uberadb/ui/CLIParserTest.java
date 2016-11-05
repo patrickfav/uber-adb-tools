@@ -52,6 +52,17 @@ public class CLIParserTest {
     }
 
     @Test
+    public void testSimpleInfo() throws Exception {
+        Arg parsedArg = CLIParser.parse(asArgArray("-" + CLIParser.ARG_APPINFO + " com.mndroid.*"));
+        Arg expectedArg = new Arg(new String[]{"com.mndroid.*"}, null, null, null, null, false, false, false, false, false, false, false, false, Arg.Mode.INFO);
+        assertEquals(expectedArg, parsedArg);
+
+        Arg parsedArg1 = CLIParser.parse(asArgArray("-" + CLIParser.ARG_APPINFO + " com.kandrid.* com.lgoogle.*"));
+        Arg expectedArg1 = new Arg(new String[]{"com.kandrid.*", "com.lgoogle.*"}, null, null, null, null, false, false, false, false, false, false, false, false, Arg.Mode.INFO);
+        assertEquals(parsedArg1, expectedArg1);
+    }
+
+    @Test
     public void testSimpleClear() throws Exception {
         Arg parsedArg = CLIParser.parse(asArgArray("-" + CLIParser.ARG_CLEAR_DATA + " com.madroid.*"));
         Arg expectedArg = new Arg(new String[]{"com.madroid.*"}, null, null, null, null, false, false, false, false, false, false, false, false, Arg.Mode.CLEAR);

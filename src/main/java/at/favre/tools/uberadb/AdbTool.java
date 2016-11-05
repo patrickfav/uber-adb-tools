@@ -117,7 +117,7 @@ public class AdbTool {
                                                           CmdProvider cmdProvider, List<File> installFiles, boolean preview) throws Exception {
         Commons.ActionResult actionResult = new Commons.ActionResult();
 
-        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP)) {
+        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.INFO)) {
             return new Commons.IterationResult(actionResult, true);
         }
 
@@ -152,7 +152,7 @@ public class AdbTool {
                         BugReport.create(adbLocation, arguments, cmdProvider, device, allPackages);
                     } else if (arguments.mode == Arg.Mode.INSTALL) {
                         Install.execute(adbLocation, arguments, cmdProvider, installFiles, preview, actionResult, device);
-                    } else if (arguments.mode == Arg.Mode.UNINSTALL || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.CLEAR) {
+                    } else if (arguments.mode == Arg.Mode.UNINSTALL || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.CLEAR || arguments.mode == Arg.Mode.INFO) {
                         PackageAction.execute(adbLocation, arguments, cmdProvider, preview, actionResult, device, allPackages);
                     }
                 }
@@ -170,7 +170,7 @@ public class AdbTool {
 
         if (preview) {
             if (actionResult.successCount == 0) {
-                Commons.logLoud("No apps " + Commons.getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report.", " stopped.", "cleared."));
+                Commons.logLoud("No apps " + Commons.getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report.", " stopped.", "cleared.", "found."));
                 return new Commons.IterationResult(actionResult, false);
             } else {
                 return new Commons.IterationResult(actionResult, promptUser(actionResult, arguments));
@@ -185,7 +185,7 @@ public class AdbTool {
     }
 
     private static boolean promptUser(Commons.ActionResult actionResult, Arg arguments) {
-        Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared")
+        Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "", "", "cleared", "")
                 + " on " + actionResult.deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             String rawInput = br.readLine();
@@ -196,7 +196,7 @@ public class AdbTool {
             boolean cont = input.equals("y") || input.equals("yes");
 
             if (!cont) {
-                Commons.log("cancel", arguments);
+                Commons.log("canceled", arguments);
             }
             return cont;
         } catch (IOException e) {
@@ -226,9 +226,9 @@ public class AdbTool {
         if (mode == Arg.Mode.BUGREPORT) {
             report += String.format(Locale.US, "Bug reports generated from %d device(s).", deviceCount);
         } else {
-            report += String.format(Locale.US, "%d apps were " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared") + " on %d device(s).", successUninstallCount, deviceCount);
+            report += String.format(Locale.US, "%d apps were " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared", "found") + " on %d device(s).", successUninstallCount, deviceCount);
             if (failureUninstallCount > 0) {
-                report += String.format(Locale.US, " %d apps could not be " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared") + " due to errors.", failureUninstallCount);
+                report += String.format(Locale.US, " %d apps could not be " + Commons.getCorrectAction(mode, "installed", "uninstalled", "used for creating bug reports", "stopped", "cleared", "found") + " due to errors.", failureUninstallCount);
             }
         }
         report += " Took " + String.format(Locale.US, "%.2f", (double) executionDurationMs / 1000.0) + " seconds.";

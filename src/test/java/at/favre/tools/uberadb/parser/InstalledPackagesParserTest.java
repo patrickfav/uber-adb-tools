@@ -8,9 +8,6 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 
-/**
- * Created by PatrickF on 10.09.2016.
- */
 public class InstalledPackagesParserTest {
     @Test
     public void testParseAdbOutput() throws Exception {
