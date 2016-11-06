@@ -12,10 +12,12 @@ import at.favre.tools.uberadb.ui.CLIParser;
 import at.favre.tools.uberadb.util.CmdUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class AdbTool {
 
@@ -49,7 +51,6 @@ public class AdbTool {
             CmdProvider.Result devicesCmdResult = Commons.runAdbCommand(new String[]{"devices", "-l"}, cmdProvider, adbLocation);
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
 
-            List<File> installFiles = new ArrayList<>();
 
             if (!devices.isEmpty()) {
                 Commons.checkSpecificDevice(devices, arguments);
@@ -58,7 +59,6 @@ public class AdbTool {
 
                 if (arguments.mode == Arg.Mode.INSTALL) {
                     statusLog += " Installing '" + CmdUtil.concat(arguments.mainArgument, ", ") + "'.";
-                    installFiles = Install.getFilesToInstall(arguments);
                     if (arguments.grantPermissions) {
                         statusLog += " Grant permissions.";
                     }
@@ -96,8 +96,8 @@ public class AdbTool {
                 Commons.logLoud(statusLog);
             }
 
-            if (iterateDevices(devices, adbLocation, arguments, cmdProvider, installFiles, true).proceed) {
-                result = iterateDevices(devices, adbLocation, arguments, cmdProvider, installFiles, false).result;
+            if (iterateDevices(devices, adbLocation, arguments, cmdProvider, true).proceed) {
+                result = iterateDevices(devices, adbLocation, arguments, cmdProvider, false).result;
             }
 
             if (arguments.debug) {
@@ -119,7 +119,7 @@ public class AdbTool {
 
 
     private static Commons.IterationResult iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
-                                                          CmdProvider cmdProvider, List<File> installFiles, boolean preview) throws Exception {
+                                                          CmdProvider cmdProvider, boolean preview) throws Exception {
         Commons.ActionResult actionResult = new Commons.ActionResult();
 
         if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.INFO)) {
@@ -156,7 +156,7 @@ public class AdbTool {
                     if (arguments.mode == Arg.Mode.BUGREPORT) {
                         BugReport.create(adbLocation, arguments, cmdProvider, device, allPackages);
                     } else if (arguments.mode == Arg.Mode.INSTALL) {
-                        Install.execute(adbLocation, arguments, cmdProvider, installFiles, preview, actionResult, device);
+                        Install.execute(adbLocation, arguments, cmdProvider, preview, actionResult, device);
                     } else if (arguments.mode == Arg.Mode.UNINSTALL || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.CLEAR || arguments.mode == Arg.Mode.INFO) {
                         PackageAction.execute(adbLocation, arguments, cmdProvider, preview, actionResult, device, allPackages);
                     }
