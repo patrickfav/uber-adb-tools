@@ -7,7 +7,7 @@ public class DumpsysPackageParser {
 
     public PackageInfo parseSingleDumpsysPackage(String packageName, String dumpsysOut) {
         try {
-            String versionName, codePath, installTime, updateTime;
+            String versionName, codePath, installTime, updateTime, pkgHash;
             int versionCode;
 
             versionCode = Integer.valueOf(find("versionCode=(\\d+?)\\s", dumpsysOut));
@@ -15,8 +15,8 @@ public class DumpsysPackageParser {
             codePath = find("codePath=(.+?)\\s", dumpsysOut);
             installTime = find("firstInstallTime=(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s", dumpsysOut);
             updateTime = find("lastUpdateTime=(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s", dumpsysOut);
-
-            return new PackageInfo(packageName, versionCode, versionName.trim(), codePath, installTime, updateTime);
+            pkgHash = find("\\s+Package \\[" + Pattern.quote(packageName) + "\\] \\((.+?)\\):\\s", dumpsysOut);
+            return new PackageInfo(packageName, versionCode, versionName.trim(), codePath, installTime, updateTime, pkgHash);
         } catch (Exception e) {
             return null;
         }
@@ -35,14 +35,16 @@ public class DumpsysPackageParser {
         public final String codePath;
         public final String firstInstallTime;
         public final String updateTime;
+        public final String pkgHash;
 
-        public PackageInfo(String packageName, int versionCode, String versionName, String codePath, String firstInstallTime, String updateTime) {
+        public PackageInfo(String packageName, int versionCode, String versionName, String codePath, String firstInstallTime, String updateTime, String pkgHash) {
             this.packageName = packageName;
             this.versionCode = versionCode;
             this.versionName = versionName;
             this.codePath = codePath;
             this.firstInstallTime = firstInstallTime;
             this.updateTime = updateTime;
+            this.pkgHash = pkgHash;
         }
 
         @Override
@@ -58,7 +60,8 @@ public class DumpsysPackageParser {
             if (codePath != null ? !codePath.equals(that.codePath) : that.codePath != null) return false;
             if (firstInstallTime != null ? !firstInstallTime.equals(that.firstInstallTime) : that.firstInstallTime != null)
                 return false;
-            return updateTime != null ? updateTime.equals(that.updateTime) : that.updateTime == null;
+            if (updateTime != null ? !updateTime.equals(that.updateTime) : that.updateTime != null) return false;
+            return pkgHash != null ? pkgHash.equals(that.pkgHash) : that.pkgHash == null;
 
         }
 
@@ -70,6 +73,7 @@ public class DumpsysPackageParser {
             result = 31 * result + (codePath != null ? codePath.hashCode() : 0);
             result = 31 * result + (firstInstallTime != null ? firstInstallTime.hashCode() : 0);
             result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
+            result = 31 * result + (pkgHash != null ? pkgHash.hashCode() : 0);
             return result;
         }
 
@@ -82,6 +86,7 @@ public class DumpsysPackageParser {
                     ", codePath='" + codePath + '\'' +
                     ", firstInstallTime='" + firstInstallTime + '\'' +
                     ", updateTime='" + updateTime + '\'' +
+                    ", pkgHash='" + pkgHash + '\'' +
                     '}';
         }
     }

@@ -14,11 +14,12 @@ public class DumpsysPackageParserTest {
     private String dumpsysExample2Content;
     private String dumpsysExample3Content;
     private String dumpsysExample4Content;
-    private String testPackage = "com.example.testapp";
+    private String dumpsysExample5Content;
+    private String testPackage = "com.example.testapp.first";
 
     @Before
     public void setup() throws Exception {
-        File dumpsysExample1 = new File(getClass().getClassLoader().getResource("test-files/dumpsys-package-nexus6p.txt").toURI().getPath());
+        File dumpsysExample1 = new File(getClass().getClassLoader().getResource("test-files/dumpsys-packages-nexus6p.txt").toURI().getPath());
         dumpsysExample1Content = new String(Files.readAllBytes(dumpsysExample1.toPath()), "UTF-8");
         File dumpsysExample2 = new File(getClass().getClassLoader().getResource("test-files/dumpsys-packages-emu-android18.txt").toURI().getPath());
         dumpsysExample2Content = new String(Files.readAllBytes(dumpsysExample2.toPath()), "UTF-8");
@@ -26,35 +27,43 @@ public class DumpsysPackageParserTest {
         dumpsysExample3Content = new String(Files.readAllBytes(dumpsysExample3.toPath()), "UTF-8");
         File dumpsysExample4 = new File(getClass().getClassLoader().getResource("test-files/dumpsys-packages-emu-android23.txt").toURI().getPath());
         dumpsysExample4Content = new String(Files.readAllBytes(dumpsysExample4.toPath()), "UTF-8");
+        File dumpsysExample5 = new File(getClass().getClassLoader().getResource("test-files/dumpsys-packages-moto-g1.txt").toURI().getPath());
+        dumpsysExample5Content = new String(Files.readAllBytes(dumpsysExample5.toPath()), "UTF-8");
     }
 
     @Test
     public void testExample1() throws Exception {
         DumpsysPackageParser packageParser = new DumpsysPackageParser();
         DumpsysPackageParser.PackageInfo info = packageParser.parseSingleDumpsysPackage(testPackage, dumpsysExample1Content);
-        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1", "2016-11-03 01:12:09", "2016-11-03 01:12:09"), info);
+        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1", "2016-11-03 01:12:09", "2016-11-03 01:12:09", "2036fd1"), info);
     }
 
     @Test
     public void testExample2() throws Exception {
         DumpsysPackageParser packageParser = new DumpsysPackageParser();
         DumpsysPackageParser.PackageInfo info = packageParser.parseSingleDumpsysPackage(testPackage, dumpsysExample2Content);
-        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1.apk", "2016-11-05 12:10:40", "2016-11-05 12:10:40"), info);
+        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1.apk", "2016-11-05 12:10:40", "2016-11-05 12:10:40", "a572e278"), info);
     }
 
     @Test
     public void testExample3() throws Exception {
         DumpsysPackageParser packageParser = new DumpsysPackageParser();
         DumpsysPackageParser.PackageInfo info = packageParser.parseSingleDumpsysPackage(testPackage, dumpsysExample3Content);
-        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1.apk", "2016-11-05 12:16:06", "2016-11-05 12:16:06"), info);
+        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1.apk", "2016-11-05 12:16:06", "2016-11-05 12:16:06", "9d30e7d8"), info);
     }
 
     @Test
     public void testExample4() throws Exception {
         DumpsysPackageParser packageParser = new DumpsysPackageParser();
         DumpsysPackageParser.PackageInfo info = packageParser.parseSingleDumpsysPackage(testPackage, dumpsysExample4Content);
-        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1", "2016-11-05 16:22:57", "2016-11-05 16:22:57"), info);
+        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1", "2016-11-05 16:22:57", "2016-11-05 16:22:57", "da815d4"), info);
     }
 
+    @Test
+    public void testExample5() throws Exception {
+        DumpsysPackageParser packageParser = new DumpsysPackageParser();
+        DumpsysPackageParser.PackageInfo info = packageParser.parseSingleDumpsysPackage(testPackage, dumpsysExample5Content);
+        assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1", "2016-11-10 18:41:03", "2016-11-10 18:41:03", "2269261d"), info);
+    }
 
 }

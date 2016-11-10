@@ -97,11 +97,15 @@ public class BugReport {
         if (!arguments.simpleBugReport) {
             tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("misc", createInstalledAppsFile(tmpFolder, dateTimeString, device, allPackages, arguments)));
             tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("misc", createRunningAppsFile(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments)));
-            tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("misc", createFeaturesAndLibs(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments)));
 
-            List<File> dumpsysFiles = createSelectedDumpSysFile(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
+            List<File> dumpsysFiles = createDumpSysFiles(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
             for (File dumpsysFile : dumpsysFiles) {
                 tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("dumpsys", dumpsysFile));
+            }
+
+            List<File> pmFiles = createPackageManagerDebugFiles(tmpFolder, dateTimeString, device, adbLocation, cmdProvider, arguments);
+            for (File pmFile : pmFiles) {
+                tempFilesToZip.add(new MiscUtil.ZipFileDescriptor("pm", pmFile));
             }
         }
         for (BugReportDeviceFileAction action : actions) {
@@ -140,17 +144,24 @@ public class BugReport {
         return localTempFile;
     }
 
-    private static File createFeaturesAndLibs(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
-        CmdProvider.Result result1 = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm", "list", "features"}, cmdProvider, adbLocation);
-        CmdProvider.Result result2 = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm", "list", "libraries"}, cmdProvider, adbLocation);
-        File file = new File(tmpFolder, "features_libs-" + dateTimeString + "-" + device.model + ".txt");
+    private static List<File> createPackageManagerDebugFiles(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
 
-        if (!file.exists()) {
-            file.createNewFile();
+        List<String> pmCmds = Arrays.asList("libraries", "features", "users", "permission-groups", "packages");
+        List<File> files = new ArrayList<>();
+        int size = 0;
+        for (String pmCmd : pmCmds) {
+            CmdProvider.Result result = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm", "list", pmCmd}, cmdProvider, adbLocation);
+            File file = new File(tmpFolder, "pm_list_" + pmCmd + "-" + dateTimeString + "-" + device.model + ".txt");
+
+            if (file.exists()) {
+                file.createNewFile();
+            }
+            Files.write(file.toPath(), result.toString().getBytes("UTF-8"));
+            size += file.length();
+            files.add(file);
         }
-        Files.write(file.toPath(), Arrays.asList(new String[]{result1.toString(), result2.toString()}), Charset.forName("UTF-8"));
-        Commons.log(String.format(Locale.US, "\tcreate features and libs file (%.2fkB)", (double) file.length() / 1024.0), arguments);
-        return file;
+        Commons.log(String.format(Locale.US, "\tcreate pm files (%.2fkB)", (double) size / 1024.0), arguments);
+        return files;
     }
 
     private static File createRunningAppsFile(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
@@ -164,14 +175,15 @@ public class BugReport {
         return file;
     }
 
-    private static List<File> createSelectedDumpSysFile(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
+    private static List<File> createDumpSysFiles(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
 
         List<File> files = new ArrayList<>();
         List<String> types;
+        int size = 0;
         if (arguments.dumpsysServices != null) {
             types = Arrays.asList(arguments.dumpsysServices);
         } else {
-            types = Arrays.asList("battery", "device_policy", "permission", "connectivity", "package", "notification", "activity", "cpuinfo", "nfc", "android.security.keystore");
+            types = Arrays.asList("battery", "device_policy", "permission", "connectivity", "package", "notification", "activity", "cpuinfo", "nfc", "android.security.keystore", "-l");
         }
 
         for (String type : types) {
@@ -182,10 +194,11 @@ public class BugReport {
                 file.createNewFile();
             }
             Files.write(file.toPath(), dumpsys.getBytes("UTF-8"));
+            size += file.length();
             files.add(file);
         }
 
-        Commons.log("\tcreate dumpsys files", arguments);
+        Commons.log(String.format(Locale.US, "\tcreate dumpsys files (%.2fkB)", (double) size / 1024.0), arguments);
         return files;
     }
 

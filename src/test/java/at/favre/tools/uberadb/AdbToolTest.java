@@ -36,6 +36,7 @@ public class AdbToolTest {
                 new AdbDevice("emulator-5154", AdbDevice.Status.OK, "Android_SDK_built_for_x86", "sdk_google_phone_x86", true));
         adbMockCmdProviderMultiDevices = new MockAdbCmdProvider(adbDevices, installedPackages, true);
         adbMockCmdProviderSingleDevice = new MockAdbCmdProvider(Collections.singletonList(adbDevices.get(0)), installedPackages, true);
+        apks = new File(getClass().getClassLoader().getResource("apks").toURI().getPath());
     }
 
     @After
