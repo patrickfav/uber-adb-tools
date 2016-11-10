@@ -7,13 +7,18 @@ import at.favre.tools.uberadb.parser.DumpsysPackageParser;
 import at.favre.tools.uberadb.parser.InstalledPackagesParser;
 import at.favre.tools.uberadb.parser.PackageMatcher;
 import at.favre.tools.uberadb.ui.Arg;
+import at.favre.tools.uberadb.util.MiscUtil;
 
 import java.util.List;
 
-public class PackageAction {
+public class PackageDependentAction {
 
     public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, boolean preview, Commons.ActionResult actionResult, AdbDevice device, List<String> allPackages) {
         List<String> filteredPackages = new PackageMatcher(allPackages).findMatches(arguments.mainArgument);
+
+        if (arguments.mode == Arg.Mode.START_ACTIVITY || arguments.mode == Arg.Mode.FORCE_STOP) {
+            Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, cmdProvider, adbLocation);
+        }
 
         for (String filteredPackage : filteredPackages) {
             DumpsysPackageParser.PackageInfo packageInfo = getPackageInfo(device, filteredPackage, cmdProvider, adbLocation);
@@ -39,6 +44,10 @@ public class PackageAction {
                     } else if (arguments.mode == Arg.Mode.INFO) {
                         packgeActionLog += "\n" + getFullPackageInfo(packageInfo);
                         actionResult.successCount++;
+                    } else if (arguments.mode == Arg.Mode.START_ACTIVITY) {
+                        packgeActionLog += "\tstarting app";
+                        Commons.runAdbCommand(new String[]{"shell", "monkey", "-p", filteredPackage, "-c", "android.intent.category.LAUNCHER", "1"}, cmdProvider, adbLocation);
+                        actionResult.successCount++;
                     }
                 } else {
                     actionResult.successCount++;
@@ -47,6 +56,10 @@ public class PackageAction {
                 packgeActionLog += "\tskip";
             }
             Commons.log(packgeActionLog, arguments);
+
+            if (arguments.mode == Arg.Mode.START_ACTIVITY) {
+                MiscUtil.wait(arguments.delayStartActivitySec);
+            }
         }
 
         if (filteredPackages.isEmpty()) {

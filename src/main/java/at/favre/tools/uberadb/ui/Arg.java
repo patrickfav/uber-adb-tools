@@ -4,7 +4,7 @@ package at.favre.tools.uberadb.ui;
 import java.util.Arrays;
 
 public class Arg {
-    public enum Mode {INSTALL, UNINSTALL, BUGREPORT, FORCE_STOP, CLEAR, INFO}
+    public enum Mode {INSTALL, UNINSTALL, BUGREPORT, FORCE_STOP, CLEAR, INFO, START_ACTIVITY}
 
     public String[] mainArgument;
 
@@ -12,6 +12,7 @@ public class Arg {
     public String device;
     public String[] reportFilterIntent;
     public String[] dumpsysServices;
+    public int delayStartActivitySec;
 
     public boolean dryRun = false;
     public boolean skipEmulators = false;
@@ -28,12 +29,13 @@ public class Arg {
     public Arg() {
     }
 
-    public Arg(String[] mainArgument, String adbPath, String device, String[] reportFilterIntent, String[] dumpsysServices, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, boolean grantPermissions, boolean simpleBugReport, boolean waitForDevice, Mode mode) {
+    public Arg(String[] mainArgument, String adbPath, String device, String[] reportFilterIntent, String[] dumpsysServices, int delayStartActivitySec, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, boolean grantPermissions, boolean simpleBugReport, boolean waitForDevice, Mode mode) {
         this.mainArgument = mainArgument;
         this.adbPath = adbPath;
         this.device = device;
         this.reportFilterIntent = reportFilterIntent;
         this.dumpsysServices = dumpsysServices;
+        this.delayStartActivitySec = delayStartActivitySec;
         this.dryRun = dryRun;
         this.skipEmulators = skipEmulators;
         this.keepData = keepData;

@@ -1,6 +1,7 @@
 package at.favre.tools.uberadb.ui;
 
 import at.favre.tools.uberadb.util.CmdUtil;
+import at.favre.tools.uberadb.util.MiscUtil;
 import org.apache.commons.cli.*;
 
 public class CLIParser {
@@ -12,6 +13,9 @@ public class CLIParser {
     static final String ARG_FORCE_STOP = "force-stop";
     static final String ARG_CLEAR_DATA = "clear";
     static final String ARG_APPINFO = "appinfo";
+    static final String ARG_START_ACTIVITY = "start";
+
+    static final int DEFAULT_DELAY_SEC = 2;
 
     public static Arg parse(String[] args) {
         Options options = setupOptions();
@@ -62,6 +66,12 @@ public class CLIParser {
                 argument.mode = Arg.Mode.INFO;
                 mainArgCount++;
             }
+            if (commandLine.hasOption(ARG_START_ACTIVITY)) {
+                argument.mainArgument = MiscUtil.getPackagesWithoutDelayValue(commandLine.getOptionValues(ARG_START_ACTIVITY));
+                argument.delayStartActivitySec = MiscUtil.getIntInLastElement(commandLine.getOptionValues(ARG_START_ACTIVITY), DEFAULT_DELAY_SEC);
+                argument.mode = Arg.Mode.START_ACTIVITY;
+                mainArgCount++;
+            }
 
             if (commandLine.hasOption("reportDebugIntent")) {
                 String[] reportArgs = commandLine.getOptionValues("reportDebugIntent");
@@ -74,6 +84,10 @@ public class CLIParser {
 
             if (mainArgCount != 1) {
                 throw new IllegalArgumentException("Must either provide either " + ARG_INSTALL + ", " + ARG_UNINSTALL + ", " + ARG_BUGREPORT + ", " + ARG_FORCE_STOP + " or " + ARG_CLEAR_DATA + " argument");
+            }
+
+            if (argument.mode == Arg.Mode.START_ACTIVITY && (argument.delayStartActivitySec <= 0 || argument.delayStartActivitySec > 500)) {
+                throw new IllegalArgumentException("Delay must be between 1 and 500 seconds (found " + argument.delayStartActivitySec + ")");
             }
 
             if (commandLine.hasOption("adbPath")) {
@@ -117,7 +131,8 @@ public class CLIParser {
         Option mainBugReport = Option.builder(ARG_BUGREPORT).longOpt("bugreport").argName("out folder").hasArg().optionalArg(true).desc("Creates a generic bug report (including eg. logcat and screenshot) from all connected devices and zips it to the folder given as arg. If no folder is given tries to zips it in the location of the .jar.").build();
         Option mainForceStop = Option.builder().longOpt(ARG_FORCE_STOP).argName("package filter").hasArgs().desc("Will stop the process of given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
         Option mainClearAppData = Option.builder().longOpt(ARG_CLEAR_DATA).argName("package filter").hasArgs().desc("Will clear app data for given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
-        Option mainInfoAppData = Option.builder().longOpt(ARG_APPINFO).argName("package filter").hasArgs().desc("Will show additional information (like version, install-time of the apps matching the argument). Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
+        Option mainInfoAppData = Option.builder().longOpt(ARG_APPINFO).argName("package filter").hasArgs().desc("Will show additional information for like version, install-time, etc of the apps matching the argument. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
+        Option mainStartActivityData = Option.builder().longOpt(ARG_START_ACTIVITY).argName("package filter> <[seconds]").hasArgs().desc("Will start the launcher activity of this app. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'. The last argument may be a int in seconds which represents the wait time between the apps eg.: 'com.exmaple.* 10' will have a 10 sec delay between starts.").build();
 
         Option adbPathOpt = Option.builder().longOpt("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this is omitted the tool tries to find adb in PATH env variable.").build();
         Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).longOpt("serial").argName("device serial").hasArg(true).desc("If this is set, will only use given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
@@ -140,14 +155,14 @@ public class CLIParser {
         Option version = Option.builder("v").longOpt("version").desc("Prints current version.").build();
 
         OptionGroup mainArgs = new OptionGroup();
-        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(mainBugReport).addOption(mainForceStop).addOption(mainClearAppData).addOption(help).addOption(version).addOption(mainInfoAppData);
+        mainArgs.addOption(mainUninstall).addOption(mainInstall).addOption(mainBugReport).addOption(mainForceStop).addOption(mainClearAppData).addOption(help).addOption(version).addOption(mainInfoAppData).addOption(mainStartActivityData);
         mainArgs.setRequired(true);
 
         options.addOptionGroup(mainArgs);
 
         options.addOption(adbPathOpt).addOption(deviceOpt).addOption(dryRunOpt).addOption(skipEmuOpt).addOption(keepDataOpt)
                 .addOption(quietOpt).addOption(debugOpt).addOption(forceOpt).addOption(upgradeOpt).addOption(reportFilter)
-                .addOption(grantOpt).addOption(simpleBugreportOpt).addOption(dumpsysOpt).addOption(waitForDeviceOpt);
+                .addOption(grantOpt).addOption(simpleBugreportOpt).addOption(dumpsysOpt).addOption(waitForDeviceOpt).addOption(mainStartActivityData);
 
         return options;
     }
