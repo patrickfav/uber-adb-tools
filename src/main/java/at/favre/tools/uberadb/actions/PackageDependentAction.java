@@ -77,7 +77,7 @@ public class PackageDependentAction {
     private static String getFullPackageInfo(DumpsysPackageParser.PackageInfo info) {
         StringBuilder sb = new StringBuilder();
         if (info != null) {
-            sb.append("\t\tversionCode: ").append(info.versionCode).append("\n");
+            sb.append("\t\tversionCode: ").append(info.versionCode).append(" (").append(info.pkgHash).append(")\n");
             sb.append("\t\tpath: ").append(info.codePath).append("\n");
             sb.append("\t\tinstallTime: ").append(info.firstInstallTime).append("\n");
         } else {
