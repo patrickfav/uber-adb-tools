@@ -3,19 +3,17 @@ A simple tool that makes it more convenient to **install, uninstall and creating
 
 Main features:
 
-* Wildcard support for package names when uninstalling at the end or middle of the filter string: `com.android.*` or `com.android.*e`
-* Possible to provide multiple packages to uninstall: `com.android.* com.google.* org.wiki*`
-* Installing multiple apks with one command
-* Installing/Uninstalling on all connected devices
-* Creating a bug report in zip format including screenshot and logcats
+* Process multiple apps with wildcard support for package matching (e.g. `com.android.*` or `com.android.*e`) for features like: uninstalling, stopping, starting, clearing and showing app info
+* Installing multiple apks from different locations with one command
+* All commands can be executed on all connected devices simultaneously
+* Fast and easy bug report features with screenshot, logcats, customizable dumpsys logs, pm and more 
 * Starting custom activities to log additional information with bug report
-* Force stop process, show app info and clear data of given (multiple) packages on all devices
 
 Basic usage:
 
     java -jar uber-adb-tools.jar --install /folder/apks/
     java -jar uber-adb-tools.jar --uninstall com.your.packa*
-    java -jar uber-adb-tools.jar --bugreport ~/adb-logs/
+    java -jar uber-adb-tools.jar --bugreport
     
 More features:
     
@@ -180,7 +178,7 @@ A full bugreport will contain the following data:
 * a screenshot (downscaled if bigger than 2MB)
 * logcats (normal, radio and event)
 * some dumpsys services logs (either a default list is used or the ones provided with `--dumpsysServices`)
-* infos from packagemanger (`adb shell pm ...`)
+* info from packagemanger (`adb shell pm ...`)
 * misc data like running processes
 
 #### Examples
