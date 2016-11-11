@@ -24,8 +24,7 @@ More features:
     java -jar uber-adb-tools.jar --appinfo com.your.packa*
     java -jar uber-adb-tools.jar --start com.your.packa*
 
-This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
-be either set in `PATH` or `ANDROID_HOME` should be set.
+This should run on any Windows, Mac or Linux machine,
 
 ### Requirements
 
@@ -148,7 +147,7 @@ Provide more than one package filter:
 
     java -jar uber-adb-tools.jar --uninstall com.your.packa* com.their.packa* com.third.*
 
-#### Wildcard Support for Uninstall
+#### Wildcard Support for Package Filter
 
 It is possible to just use the full package name like using `adb uninstall com.mypackage.app`. 
 To take advantage of the enhance features wildcards are supported:
