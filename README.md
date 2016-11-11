@@ -17,11 +17,12 @@ Basic usage:
     java -jar uber-adb-tools.jar --uninstall com.your.packa*
     java -jar uber-adb-tools.jar --bugreport ~/adb-logs/
     
-More:
+More features:
     
     java -jar uber-adb-tools.jar --force-stop com.your.packa*
     java -jar uber-adb-tools.jar --clear com.your.packa*
     java -jar uber-adb-tools.jar --appinfo com.your.packa*
+    java -jar uber-adb-tools.jar --start com.your.packa*
 
 This should run on any Windows, Mac or Linux machine where Java7+ is installed. Adb must be installed (comes with [Android SDK](https://developer.android.com/studio/index.html)) and should
 be either set in `PATH` or `ANDROID_HOME` should be set.
@@ -45,10 +46,10 @@ The documentation of all possible parameters
 
        --adbPath <path>                         Full path to adb executable. If this is omitted the tool tries to find
                                                 adb in PATH env variable.
-       --appinfo <package filter>               Will show additional information (like version, install-time of the apps
-                                                matching the argument). Argument is the filter string that has to be a
-                                                package name or part of it containing wildcards '*'. Can be multiple
-                                                filter Strings space separated. Example: 'com.android.*' or
+       --appinfo <package filter>               Will show additional information for like version, install-time, etc of
+                                                the apps matching the argument. Argument is the filter string that has
+                                                to be a package name or part of it containing wildcards '*'. Can be
+                                                multiple filter Strings space separated. Example: 'com.android.*' or
                                                 'com.android.* com.google.*'.
     -b,--bugreport <out folder>                 Creates a generic bug report (including eg. logcat and screenshot) from
                                                 all connected devices and zips it to the folder given as arg. If no
@@ -91,6 +92,12 @@ The documentation of all possible parameters
                                                 devices. Device id is the same that is given by 'adb devices'
        --simpleBugreport                        Only for bugreport: report will only contain the most essential data
        --skipEmulators                          Skips device emulators for install/uninstall.
+       --start <package filter> <[seconds]>     Will start the launcher activity of this app. Argument is the filter
+                                                string that has to be a package name or part of it containing wildcards
+                                                '*'. Can be multiple filter Strings space separated. Example:
+                                                'com.android.*' or 'com.android.* com.google.*'. The last argument may
+                                                be a int in seconds which represents the wait time between the apps eg.:
+                                                'com.exmaple.* 10' will have a 10 sec delay between starts.
     -u,--uninstall <package filter>             Filter string that has to be a package name or part of it containing
                                                 wildcards '*' for uninstalling. Can be multiple filter Strings space
                                                 separated. Example: 'com.android.*' or 'com.android.* com.google.*'.
@@ -165,9 +172,27 @@ Note: Wildcard is not supported at the beginning of the package filter
 
 ### Bugreport
 
-Omit the location param to use the same folder as the executable
+The idea behind this is to get a smaller faster version of the default `adb bugreport` that is easier to read and understand as well as customizable and more practical for the "every-day-bug".
 
-    java -jar uber-adb-tools.jar --bugreport --skipEmulators
+#### Content
+
+A full bugreport will contain the following data:
+
+* a screenshot (downscaled if bigger than 2MB)
+* logcats (normal, radio and event)
+* some dumpsys services logs (either a default list is used or the ones provided with `--dumpsysServices`)
+* infos from packagemanger (`adb shell pm ...`)
+* misc data like running processes
+
+#### Examples
+
+Provide your own dumpsys services 
+
+    java -jar uber-adb-tools.jar --bugreport --dumpsysServices package nfc battery
+
+Only log the most essential
+
+    java -jar uber-adb-tools.jar --bugreport --simpleBugreport
 
 Provide a activity intent to start before logcat will be pulled for request apps (packages) while using package placeholder:
 
@@ -231,6 +256,10 @@ Force stop all matching apps
 Show app info (version, install time, etc.) of matched apps
 
     java -jar uber-adb-tools.jar --appinfo com.example.*
+
+Start all matching apps (launcher activity) with start delay of 9 seconds:
+
+    java -jar uber-adb-tools.jar --start com.your.packa* 9
 
 ### Process Return Value
 

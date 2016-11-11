@@ -83,7 +83,7 @@ public class CLIParser {
             }
 
             if (mainArgCount != 1) {
-                throw new IllegalArgumentException("Must either provide either " + ARG_INSTALL + ", " + ARG_UNINSTALL + ", " + ARG_BUGREPORT + ", " + ARG_FORCE_STOP + " or " + ARG_CLEAR_DATA + " argument");
+                throw new IllegalArgumentException("Must either provide either one of " + ARG_INSTALL + ", " + ARG_UNINSTALL + ", " + ARG_BUGREPORT + ", " + ARG_FORCE_STOP + ", " + ARG_CLEAR_DATA + " or " + ARG_START_ACTIVITY + " argument");
             }
 
             if (argument.mode == Arg.Mode.START_ACTIVITY && (argument.delayStartActivitySec <= 0 || argument.delayStartActivitySec > 500)) {

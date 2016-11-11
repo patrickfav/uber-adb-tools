@@ -86,11 +86,12 @@ public class BugReport {
         Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"}, cmdProvider, adbLocation);
 
         for (BugReportDeviceFileAction action : actions) {
+            long start = System.currentTimeMillis();
             Commons.runAdbCommand(CmdUtil.concat(new String[]{"-s", device.serial}, action.command), cmdProvider, adbLocation);
             Commons.runAdbCommand(new String[]{"-s", device.serial, "pull", action.deviceTempFile, action.localTempFile.getAbsolutePath()}, cmdProvider, adbLocation);
             Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "rm", "-f", action.deviceTempFile}, cmdProvider, adbLocation);
             action.localTempFile = downscaleIfNeeded(action.localTempFile, arguments);
-            Commons.log(String.format(Locale.US, action.log + " (%.2fkB)", (double) action.localTempFile.length() / 1024.0), arguments);
+            Commons.log(String.format(Locale.US, action.log + " (%.2fkB) (%d ms)", (double) action.localTempFile.length() / 1024.0, System.currentTimeMillis() - start), arguments);
         }
 
         List<MiscUtil.ZipFileDescriptor> tempFilesToZip = new ArrayList<>();
@@ -144,24 +145,15 @@ public class BugReport {
         return localTempFile;
     }
 
-    private static List<File> createPackageManagerDebugFiles(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
-
-        List<String> pmCmds = Arrays.asList("libraries", "features", "users", "permission-groups", "packages");
-        List<File> files = new ArrayList<>();
-        int size = 0;
-        for (String pmCmd : pmCmds) {
-            CmdProvider.Result result = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm", "list", pmCmd}, cmdProvider, adbLocation);
-            File file = new File(tmpFolder, "pm_list_" + pmCmd + "-" + dateTimeString + "-" + device.model + ".txt");
-
-            if (file.exists()) {
-                file.createNewFile();
-            }
-            Files.write(file.toPath(), result.toString().getBytes("UTF-8"));
-            size += file.length();
-            files.add(file);
+    private static File createInstalledAppsFile(File tmpFolder, String dateTimeString, AdbDevice device, List<String> allPackages, Arg arguments) throws IOException {
+        File file = new File(tmpFolder, "installed_packages-" + dateTimeString + "-" + device.model + ".txt");
+        Collections.sort(allPackages);
+        if (!file.exists()) {
+            file.createNewFile();
         }
-        Commons.log(String.format(Locale.US, "\tcreate pm files (%.2fkB)", (double) size / 1024.0), arguments);
-        return files;
+        Files.write(file.toPath(), allPackages, Charset.forName("UTF-8"));
+        Commons.log(String.format(Locale.US, "\tcreate installed packages file (%.2fkB)", (double) file.length() / 1024.0), arguments);
+        return file;
     }
 
     private static File createRunningAppsFile(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
@@ -179,11 +171,13 @@ public class BugReport {
 
         List<File> files = new ArrayList<>();
         List<String> types;
+        long start = System.currentTimeMillis();
+
         int size = 0;
         if (arguments.dumpsysServices != null) {
             types = Arrays.asList(arguments.dumpsysServices);
         } else {
-            types = Arrays.asList("battery", "device_policy", "permission", "connectivity", "package", "notification", "activity", "cpuinfo", "nfc", "android.security.keystore", "-l");
+            types = Arrays.asList("battery", "device_policy", "permission", "connectivity", "notification", "activity", "cpuinfo", "nfc", "-l");
         }
 
         for (String type : types) {
@@ -198,27 +192,38 @@ public class BugReport {
             files.add(file);
         }
 
-        Commons.log(String.format(Locale.US, "\tcreate dumpsys files (%.2fkB)", (double) size / 1024.0), arguments);
+        Commons.log(String.format(Locale.US, "\tcreate dumpsys files (%.2fkB) (%d ms)", (double) size / 1024.0, System.currentTimeMillis() - start), arguments);
         return files;
     }
 
-    private static File createInstalledAppsFile(File tmpFolder, String dateTimeString, AdbDevice device, List<String> allPackages, Arg arguments) throws IOException {
-        File file = new File(tmpFolder, "installed_packages-" + dateTimeString + "-" + device.model + ".txt");
-        Collections.sort(allPackages);
-        if (!file.exists()) {
-            file.createNewFile();
+    private static List<File> createPackageManagerDebugFiles(File tmpFolder, String dateTimeString, AdbDevice device, AdbLocationFinder.LocationResult adbLocation, CmdProvider cmdProvider, Arg arguments) throws IOException {
+
+        List<String> pmCmds = Arrays.asList("libraries", "features", "users", "permission-groups", "packages");
+        List<File> files = new ArrayList<>();
+        long start = System.currentTimeMillis();
+
+        int size = 0;
+        for (String pmCmd : pmCmds) {
+            CmdProvider.Result result = Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm", "list", pmCmd}, cmdProvider, adbLocation);
+            File file = new File(tmpFolder, "pm_list_" + pmCmd + "-" + dateTimeString + "-" + device.model + ".txt");
+
+            if (file.exists()) {
+                file.createNewFile();
+            }
+            Files.write(file.toPath(), result.toString().getBytes("UTF-8"));
+            size += file.length();
+            files.add(file);
         }
-        Files.write(file.toPath(), allPackages, Charset.forName("UTF-8"));
-        Commons.log(String.format(Locale.US, "\tcreate installed packages file (%.2fkB)", (double) file.length() / 1024.0), arguments);
-        return file;
+        Commons.log(String.format(Locale.US, "\tcreate pm files (%.2fkB) (%d ms)", (double) size / 1024.0, System.currentTimeMillis() - start), arguments);
+        return files;
     }
 
     private static class BugReportDeviceFileAction {
         final String deviceTempFile;
-        File localTempFile;
         final String[] command;
         final String log;
         final String zipSubFolder;
+        File localTempFile;
 
         BugReportDeviceFileAction(String log, String deviceTempFile, File localTempFile, String[] command, String zipSubFolder) {
             this.deviceTempFile = deviceTempFile;
