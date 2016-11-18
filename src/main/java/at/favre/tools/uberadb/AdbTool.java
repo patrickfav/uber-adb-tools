@@ -194,7 +194,7 @@ public class AdbTool {
 
     private static boolean promptUser(Commons.ActionResult actionResult, Arg arguments) {
         Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "", "", "cleared", "", "")
-                + " on " + actionResult.deviceCount + " device(s). Use '-force' to omit this prompt. Continue? [y/n]");
+                + " on " + actionResult.deviceCount + " device(s). Use '--force' to omit this prompt. Continue? [y/n]");
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             String rawInput = br.readLine();
             if (rawInput == null) {
