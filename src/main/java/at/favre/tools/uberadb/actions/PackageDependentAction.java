@@ -34,11 +34,11 @@ public class PackageDependentAction {
                             actionResult.failureCount++;
                         }
                     } else if (arguments.mode == Arg.Mode.FORCE_STOP) {
-                        Commons.runAdbCommand(new String[]{"shell", "am", "force-stop", filteredPackage}, cmdProvider, adbLocation);
+                        Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "am", "force-stop", filteredPackage}, cmdProvider, adbLocation);
                         packgeActionLog += "\tstopped";
                         actionResult.successCount++;
                     } else if (arguments.mode == Arg.Mode.CLEAR) {
-                        Commons.runAdbCommand(new String[]{"shell", "pm", "clear", filteredPackage}, cmdProvider, adbLocation);
+                        Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "pm", "clear", filteredPackage}, cmdProvider, adbLocation);
                         packgeActionLog += "\tdata cleared";
                         actionResult.successCount++;
                     } else if (arguments.mode == Arg.Mode.INFO) {
@@ -46,7 +46,7 @@ public class PackageDependentAction {
                         actionResult.successCount++;
                     } else if (arguments.mode == Arg.Mode.START_ACTIVITY) {
                         packgeActionLog += "\tstarting app";
-                        Commons.runAdbCommand(new String[]{"shell", "monkey", "-p", filteredPackage, "-c", "android.intent.category.LAUNCHER", "1"}, cmdProvider, adbLocation);
+                        Commons.runAdbCommand(new String[]{"-s", device.serial, "shell", "monkey", "-p", filteredPackage, "-c", "android.intent.category.LAUNCHER", "1"}, cmdProvider, adbLocation);
                         actionResult.successCount++;
                     }
                 } else {
