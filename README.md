@@ -1,6 +1,8 @@
 # Uber Adb Tools for Android
 A simple tool that makes it more convenient to **install, uninstall and creating bug reports and more for multiple apps on multiple devices** with one command. Additionally uninstalling allows to use **wildcards as package name**. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
 
+[![Build Status](https://travis-ci.org/patrickfav/uber-adb-tools.svg?branch=master)](https://travis-ci.org/patrickfav/uber-adb-tools)
+
 Main features:
 
 * Process multiple apps with wildcard support for package matching (e.g. `com.android.*` or `com.android.*e`) for features like: uninstalling, stopping, starting, clearing and showing app info
