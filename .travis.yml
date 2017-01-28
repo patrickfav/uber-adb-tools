@@ -1,0 +1,24 @@
+language: java
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+
+script:
+    - mvn clean test
+    - mvn package
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: "Y43tHaZXsc1K+FT1C8MO3A9BnjqYmfySXoC9CDEZvR6bzV71+rP/1hk4h4sRGqD1S6b5K0+TdGrpfWa1Isf1XOtHSPjp5qMvsQ+suydMlVh6wCE2l08m747/9Cq2LKT+c7uxNgq8ySZwuCWyinXDQpwxS2FThbs09XNu8GSH6eg++BAGAuLAwWctuyY9xYw1R5RPPUCDziWQE45xHxOK/HE1LHs3X4843DBZlN2tpJlUbQgCzSBgy+KdaCU5jC1pxH+haKBKUsCqVQFPaBoZT2UQAP7XmwSD7pxjevAn5+j8KrRU2dlCKgHqlf9ZrqA1sfC+Hv4lAbPdPaLL7s+qhtPDQn5SoNdTLvG0nIh1hvsOmT+9mYWxD45Ujbib20CReicwSlQX3t+4jkQGIEawBpozjZMKWyWksA0WMDuXZwWkCp/GA44Bcjbb8fjJp4K70COtQziphLTl9BAfb24kLxCaJ83Vo60aAp03KUChk+u5q9jqFvl7n0DGoUqhfiYyguG3yBfNGoFDTbz39DRsaf9QGaxBkIaBemw77Q7PnZEuhDIShSPconWZBOZb1KSgIugPzw2SQp1PuFvZYNYd2yg6PvyNVjl1OMrFY5pwyeJHrcE/7rwNQTnA1QeINOn8WRNr/eUlMHeTvpj3DW/f6OhTdW3meVzWoCqG5fvGw1k="
+    file_glob: true
+    file: "target/uber-adb-tools-*.jar"
+    skip_cleanup: true
+    on:
+      branch: master
+      tags: true
+
+notifications:
+  slack:
+    secure: "hp09fUWRqUe/OH8A2/9Tp7KO9v568UG3RW7NPBvQH4vpFKb7HMgP6p+r1x0QdiioapIva/Mntzsd1TM11kSzmWX8dTS9UqYBFMpdxEBu+CILu4ttiQwEVqcwt95Igl7ZtSgjJrn/Z/s2YsGNtU2RS1GrmCZLlpT7ym2ILlgtfx1PNkCHgTZlxk1hmtbFPk/CoC5eg2mUnyPw/ssP76vYvyWc6y3UrIFAkh5UFIK/74rOKsAEsHPOPwPKbISVM5YsM/TQz3018X4np1EjWwEgLIqYtn6CPsJdQHzSAGkwJ8gsLHKizezyj0/MW1DV/U0WQgsywqTPoDqIikrhWk7lPqdD5cHmJMVkkO1axCSu4pXbKfYd+NOGWBciRkpLqevpOjOvcgBg2MEY3mUxEb99Aq7WGaWzgYGqghgZoPHPawQ4dz5+oIBb5KN7sTaXhvDPYTZh6pzgm125Vsquc27b/mo9ma2bgjXI0MV7E2fkXN1oZXe9GxPYnWFK8WdlxA+t6kp5/9d/FTtIbTgdd2k0JRozV+n4j0Kq3pNLJCQ/cvJar+w/Xo9R/iixbHfBVOGIJv5Rk+DqUJFzKJ/95B+EOW5+1R/oyq4lrHBUDJHXIicDhepBWzbBoL+kV5zSrF+R03iLWUMineSOXJpvbJhC28+xE/GRQGImoaU6KgB6stw="
+  email: false
