@@ -25,7 +25,7 @@ public class AdbTool {
         Arg arguments = CLIParser.parse(args);
 
         if (arguments != null) {
-            Commons.ActionResult result = execute(arguments, new CmdProvider.DefaultCmdProvider());
+            Commons.ActionResult result = execute(arguments, new CmdProvider.DefaultCmdProvider(), new AdbLocationFinderImpl());
 
             if (result == null) {
                 System.exit(1);
@@ -35,11 +35,11 @@ public class AdbTool {
         }
     }
 
-    static Commons.ActionResult execute(Arg arguments, CmdProvider cmdProvider) {
+    static Commons.ActionResult execute(Arg arguments, CmdProvider cmdProvider, AdbLocationFinder locationFinder) {
         Commons.ActionResult result = null;
 
         try {
-            AdbLocationFinder.LocationResult adbLocation = new AdbLocationFinder().find(cmdProvider, arguments.adbPath);
+            AdbLocationFinder.LocationResult adbLocation = locationFinder.find(cmdProvider, arguments.adbPath);
 
             Commons.runAdbCommand(new String[]{"start-server"}, cmdProvider, adbLocation);
 
