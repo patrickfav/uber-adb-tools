@@ -95,7 +95,7 @@ public class AdbToolTest {
     @Test
     public void testSimpleInstallOneDevice() throws Exception {
         Arg arg = new Arg(new String[]{apks.getAbsolutePath()}, null, null, null, null, 0, false, false, false, false, false, true, false, false, false, Arg.Mode.INSTALL);
-        Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderSingleDevice, new AdbLocationFinderImpl());
+        Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderSingleDevice, mockAdbLocationFinder);
         check(result, apks.listFiles().length, 0, adbMockCmdProviderSingleDevice.deviceCount());
     }
 

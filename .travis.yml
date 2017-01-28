@@ -4,8 +4,7 @@ jdk:
   - oraclejdk7
 
 script:
-    - mvn clean test
-    - mvn package
+    - mvn clean package
 
 deploy:
   - provider: releases
