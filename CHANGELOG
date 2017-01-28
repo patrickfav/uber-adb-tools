@@ -1,0 +1,54 @@
+# Releases
+
+## v0.9.1
+* fixes bug where 'clear', 'force-stop' and 'start-activity' would not work if more than 1 device was connected
+
+## v0.9.0
+* adds start activity feature
+* downscales bug report screenshots if they are too big (>2MB)
+* more bug report logs
+* more app info output (hash)
+
+## v0.8.0
+* adds wait-for-device feature
+* adds app-info feature
+* adds clear app data feature
+* adds force stop feature
+* adds dumpsys options for bugreport and simple bugreport flag
+* adds multi file/folder arg for install
+* changes multi package syntax to use space seperated list instead of comma
+
+## v0.7.0
+* fix bug in adb location finding
+* fix bug in os selector
+* adds test for adb tool
+* bugreport includes dumsys, installed apps and current processes
+* process returns different ints depending on state
+* better adb error parsing
+
+## v0.6.0
+* adds 'bugreports' feature with custom intent support
+*changes most command line arguments to use 2 hyphens including additional short cmd versions
+
+## v0.5.0
+* adds -install & -uninstall argument
+* install can use folder or file as source
+* new -upgrade argument to be able to reinstall apps
+* renaming of the the tool to 'uber-adbtools'
+
+## v0.3.0
+* fixes '-k' option bug
+* adds ask/force option
+* small changes in output
+
+## v0.2.0
+* tested & fixed with ubunut + mac
+* new -debug flag
+* new default locations including `ANDROID_HOME`
+
+## v0.1.0
+* wildcard support
+* multi device support
+* multi package support
+
+Untested on Linux/Mac
