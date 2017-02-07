@@ -6,7 +6,7 @@ import org.apache.commons.cli.*;
 
 public class CLIParser {
 
-    static final String ARG_INSTALL = "i";
+    public static final String ARG_INSTALL = "i";
     static final String ARG_UNINSTALL = "u";
     static final String ARG_BUGREPORT = "b";
     static final String ARG_DEVICE_SERIAL = "s";

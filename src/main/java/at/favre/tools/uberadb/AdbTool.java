@@ -12,6 +12,7 @@ import at.favre.tools.uberadb.ui.CLIParser;
 import at.favre.tools.uberadb.util.CmdUtil;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -22,7 +23,11 @@ import java.util.Locale;
 public class AdbTool {
 
     public static void main(String[] args) {
-        Arg arguments = CLIParser.parse(args);
+        Arg arguments = checkIfIsQuickInstall(args);
+
+        if (arguments == null) {
+            arguments = CLIParser.parse(args);
+        }
 
         if (arguments != null) {
             Commons.ActionResult result = execute(arguments, new CmdProvider.DefaultCmdProvider(), new AdbLocationFinderImpl());
@@ -33,6 +38,18 @@ public class AdbTool {
                 System.exit(2);
             }
         }
+    }
+
+    private static Arg checkIfIsQuickInstall(String[] args) {
+        Arg arguments = null;
+        if (args.length == 1 && args[0].toLowerCase().endsWith(".apk") && (new File(args[0])).isFile()) {
+            arguments = new Arg();
+            arguments.mainArgument = args;
+            arguments.force = true;
+            arguments.waitForDevice = true;
+            arguments.mode = Arg.Mode.INSTALL;
+        }
+        return arguments;
     }
 
     static Commons.ActionResult execute(Arg arguments, CmdProvider cmdProvider, AdbLocationFinder locationFinder) {
