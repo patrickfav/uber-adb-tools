@@ -1,9 +1,10 @@
+sudo: required
 language: java
 jdk:
   - oraclejdk8
   - oraclejdk7
 
-sudo: required
+#required for launch4j to run
 before_script:
   - sudo apt-get update
   - sudo apt-get install libc6:i386 libstdc++6:i386
