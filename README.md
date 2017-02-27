@@ -2,6 +2,7 @@
 A simple tool that makes it more convenient to **install, uninstall and creating bug reports and more for multiple apps on multiple devices** with one command. Additionally uninstalling allows to use **wildcards as package name**. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
 
 [![Build Status](https://travis-ci.org/patrickfav/uber-adb-tools.svg?branch=master)](https://travis-ci.org/patrickfav/uber-adb-tools)
+[![Coverage Status](https://coveralls.io/repos/github/patrickfav/uber-adb-tools/badge.svg)](https://coveralls.io/github/patrickfav/uber-adb-tools)
 
 Main features:
 
