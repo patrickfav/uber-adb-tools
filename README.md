@@ -26,6 +26,8 @@ More features:
 
 This should run on any Windows, Mac or Linux machine,
 
+**Note:** it is possible to use the Windows `*.exe` launcher which is just a wrapper around java jar. I use [Launch4J](http://launch4j.sourceforge.net/) for creating the executable.
+
 ### Requirements
 
 * JDK 7
@@ -294,6 +296,10 @@ Use maven (3.1+) to create a jar including all dependencies
 
 * Java 7
 * Maven
+
+# Credits
+
+* [Icon for launcher by Yaroslav Shevchuk](https://material.uplabs.com/posts/material-terminal-android-icon)
 
 # License
 

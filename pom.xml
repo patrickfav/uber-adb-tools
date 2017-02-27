@@ -77,6 +77,7 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>target/uadb.exe</outfile>
+                            <icon>icon.ico</icon>
                             <jar>target/uber-adb-tools-${project.version}.jar</jar>
                             <errTitle>uadb</errTitle>
                             <classPath>
@@ -91,15 +92,17 @@
                                 </opts>
                             </jre>
                             <versionInfo>
-                                <fileVersion>1.2.3.4</fileVersion>
-                                <txtFileVersion>txt file version?</txtFileVersion>
-                                <fileDescription>a description</fileDescription>
-                                <copyright>my copyright</copyright>
-                                <productVersion>4.3.2.1</productVersion>
-                                <txtProductVersion>txt product version</txtProductVersion>
-                                <productName>E-N-C-C</productName>
-                                <internalName>ccne</internalName>
-                                <originalFilename>original.exe</originalFilename>
+                                <fileVersion>0.0.0.1</fileVersion>
+                                <txtFileVersion>0.0.0.1</txtFileVersion>
+                                <fileDescription>A tool that enables advanced features through adb
+                                </fileDescription>
+                                <copyright>Patrick Favre-Bulle, 2016</copyright>
+                                <productVersion>${project.version}.0</productVersion>
+                                <txtProductVersion>${project.version}</txtProductVersion>
+                                <productName>Uber Adb Tools</productName>
+                                <internalName>uber-adb-tools</internalName>
+                                <originalFilename>uadb.exe</originalFilename>
+                                <language>EN</language>
                             </versionInfo>
                         </configuration>
                     </execution>

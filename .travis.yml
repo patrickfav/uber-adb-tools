@@ -19,7 +19,9 @@ deploy:
     api_key:
       secure: "Y43tHaZXsc1K+FT1C8MO3A9BnjqYmfySXoC9CDEZvR6bzV71+rP/1hk4h4sRGqD1S6b5K0+TdGrpfWa1Isf1XOtHSPjp5qMvsQ+suydMlVh6wCE2l08m747/9Cq2LKT+c7uxNgq8ySZwuCWyinXDQpwxS2FThbs09XNu8GSH6eg++BAGAuLAwWctuyY9xYw1R5RPPUCDziWQE45xHxOK/HE1LHs3X4843DBZlN2tpJlUbQgCzSBgy+KdaCU5jC1pxH+haKBKUsCqVQFPaBoZT2UQAP7XmwSD7pxjevAn5+j8KrRU2dlCKgHqlf9ZrqA1sfC+Hv4lAbPdPaLL7s+qhtPDQn5SoNdTLvG0nIh1hvsOmT+9mYWxD45Ujbib20CReicwSlQX3t+4jkQGIEawBpozjZMKWyWksA0WMDuXZwWkCp/GA44Bcjbb8fjJp4K70COtQziphLTl9BAfb24kLxCaJ83Vo60aAp03KUChk+u5q9jqFvl7n0DGoUqhfiYyguG3yBfNGoFDTbz39DRsaf9QGaxBkIaBemw77Q7PnZEuhDIShSPconWZBOZb1KSgIugPzw2SQp1PuFvZYNYd2yg6PvyNVjl1OMrFY5pwyeJHrcE/7rwNQTnA1QeINOn8WRNr/eUlMHeTvpj3DW/f6OhTdW3meVzWoCqG5fvGw1k="
     file_glob: true
-    file: "target/uber-adb-tools-*.jar"
+    file:
+      - "target/uber-adb-tools-*.jar"
+      - "target/uadb.exe"
     skip_cleanup: true
     on:
       branch: master
