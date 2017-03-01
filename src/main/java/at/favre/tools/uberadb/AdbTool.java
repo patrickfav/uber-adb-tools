@@ -30,7 +30,7 @@ public class AdbTool {
         }
 
         if (arguments != null) {
-            Commons.ActionResult result = execute(arguments, new CmdProvider.DefaultCmdProvider(), new AdbLocationFinderImpl());
+            Commons.ActionResult result = execute(arguments, new CmdProvider.DefaultCmdProvider(), new AdbLocationFinderImpl(), new CliUserPromptHandler());
 
             if (result == null) {
                 System.exit(1);
@@ -52,7 +52,7 @@ public class AdbTool {
         return arguments;
     }
 
-    static Commons.ActionResult execute(Arg arguments, CmdProvider cmdProvider, AdbLocationFinder locationFinder) {
+    static Commons.ActionResult execute(Arg arguments, CmdProvider cmdProvider, AdbLocationFinder locationFinder, UserPromptHandler promptHandler) {
         Commons.ActionResult result = null;
 
         try {
@@ -116,8 +116,8 @@ public class AdbTool {
                 Commons.logLoud(statusLog.toString());
             }
 
-            if (iterateDevices(devices, adbLocation, arguments, cmdProvider, true).proceed) {
-                result = iterateDevices(devices, adbLocation, arguments, cmdProvider, false).result;
+            if (iterateDevices(devices, adbLocation, arguments, cmdProvider, promptHandler, true).proceed) {
+                result = iterateDevices(devices, adbLocation, arguments, cmdProvider, promptHandler, false).result;
             }
 
             if (arguments.debug) {
@@ -139,7 +139,7 @@ public class AdbTool {
 
 
     private static Commons.IterationResult iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
-                                                          CmdProvider cmdProvider, boolean preview) throws Exception {
+                                                          CmdProvider cmdProvider, UserPromptHandler promptHandler, boolean preview) throws Exception {
         Commons.ActionResult actionResult = new Commons.ActionResult();
 
         if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.INFO || arguments.mode == Arg.Mode.START_ACTIVITY || (arguments.mode == Arg.Mode.INSTALL && devices.size() == 1 && Install.isSingleFile(arguments)))) {
@@ -198,7 +198,7 @@ public class AdbTool {
                 Commons.logLoud("No apps " + Commons.getCorrectAction(arguments.mode, "installed.", "uninstalled.", "found for bug report.", " stopped.", "cleared.", "found.", "found."));
                 return new Commons.IterationResult(actionResult, false);
             } else {
-                return new Commons.IterationResult(actionResult, promptUser(actionResult, arguments));
+                return new Commons.IterationResult(actionResult, promptHandler.promptUser(actionResult, arguments));
             }
         } else {
             if (actionResult.deviceCount > 0) {
@@ -207,26 +207,6 @@ public class AdbTool {
         }
 
         return new Commons.IterationResult(actionResult, true);
-    }
-
-    private static boolean promptUser(Commons.ActionResult actionResult, Arg arguments) {
-        Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "", "", "cleared", "", "")
-                + " on " + actionResult.deviceCount + " device(s). Use '--force' to omit this prompt. Continue? [y/n]");
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            String rawInput = br.readLine();
-            if (rawInput == null) {
-                return false;
-            }
-            String input = rawInput.trim().toLowerCase();
-            boolean cont = input.equals("y") || input.equals("yes");
-
-            if (!cont) {
-                Commons.log("canceled", arguments);
-            }
-            return cont;
-        } catch (IOException e) {
-            throw new IllegalStateException("could not read form console", e);
-        }
     }
 
     private static boolean hasUnauthorizedDevices(List<AdbDevice> devices) {
@@ -258,5 +238,28 @@ public class AdbTool {
         }
         report += " Took " + String.format(Locale.US, "%.2f", (double) executionDurationMs / 1000.0) + " seconds.";
         return report;
+    }
+
+    private static class CliUserPromptHandler implements UserPromptHandler {
+        @Override
+        public boolean promptUser(Commons.ActionResult actionResult, Arg arguments) {
+            Commons.logLoud(actionResult.successCount + " apps would be " + Commons.getCorrectAction(arguments.mode, "installed", "uninstalled", "", "", "cleared", "", "")
+                    + " on " + actionResult.deviceCount + " device(s). Use '--force' to omit this prompt. Continue? [y/n]");
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+                String rawInput = br.readLine();
+                if (rawInput == null) {
+                    return false;
+                }
+                String input = rawInput.trim().toLowerCase();
+                boolean cont = input.equals("y") || input.equals("yes");
+
+                if (!cont) {
+                    Commons.log("canceled", arguments);
+                }
+                return cont;
+            } catch (IOException e) {
+                throw new IllegalStateException("could not read form console", e);
+            }
+        }
     }
 }
