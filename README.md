@@ -1,6 +1,7 @@
 # Uber Adb Tools for Android
 A simple tool that makes it more convenient to **install, uninstall and creating bug reports and more for multiple apps on multiple devices** with one command. Additionally uninstalling allows to use **wildcards as package name**. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
 
+[![GitHub release](https://img.shields.io/github/release/patrickfav/uber-adb-tools.svg)](https://github.com/patrickfav/uber-adb-tools/releases/latest)
 [![Build Status](https://travis-ci.org/patrickfav/uber-adb-tools.svg?branch=master)](https://travis-ci.org/patrickfav/uber-adb-tools)
 [![Coverage Status](https://coveralls.io/repos/github/patrickfav/uber-adb-tools/badge.svg)](https://coveralls.io/github/patrickfav/uber-adb-tools)
 
@@ -27,8 +28,6 @@ More features:
 
 This should run on any Windows, Mac or Linux machine,
 
-**Note:** it is possible to use the Windows `*.exe` launcher which is just a wrapper around java jar. I use [Launch4J](http://launch4j.sourceforge.net/) for creating the executable.
-
 ### Requirements
 
 * JDK 7
@@ -37,6 +36,10 @@ This should run on any Windows, Mac or Linux machine,
 ## Download
 
 **[Grab jar from latest Release](https://github.com/patrickfav/uber-adb-tools/releases/latest)**
+
+### Using the *.exe Launcher
+
+[Launch4J](http://launch4j.sourceforge.net/) is used to wrap the `.jar` into an Windows executable. It should automatically download the needed JRE if required. If a single argument will be passed (ie. a path) the tool will automatically install if it is an `.apk` (or folder with apks), so you can use it to drag an `.apk` over the `.exe` or use it to "Open with..." to automatically install an apk if double clicked.
 
 ## Demo
 
