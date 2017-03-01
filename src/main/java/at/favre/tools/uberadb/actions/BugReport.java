@@ -31,7 +31,7 @@ public class BugReport {
         if (arguments.mainArgument != null && arguments.mainArgument.length != 0) {
             outFolder = new File(arguments.mainArgument[0]);
             if (!outFolder.exists() && !outFolder.mkdirs()) {
-                throw new IllegalStateException("could not create directory " + arguments.mainArgument);
+                throw new IllegalStateException("could not create directory " + Arrays.toString(arguments.mainArgument));
             }
         } else {
             outFolder = new File(AdbTool.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
