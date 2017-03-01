@@ -15,24 +15,27 @@ public class CmdUtil {
     }
 
     public static File checkAndGetFromPATHEnvVar(CmdProvider provider, final String matchesExecutable) {
-        String[] pathParts = System.getenv("PATH").split(File.pathSeparator);
-        for (String pathPart : pathParts) {
-            File pathFile = new File(pathPart);
+        String pathEnv = System.getenv("PATH");
+        if (pathEnv != null) {
+            String[] pathParts = pathEnv.split(File.pathSeparator);
+            for (String pathPart : pathParts) {
+                File pathFile = new File(pathPart);
 
-            if (pathFile.isFile() && pathFile.getName().toLowerCase().contains(matchesExecutable)) {
-                return pathFile;
-            } else if (pathFile.isDirectory()) {
-                File[] matchedFiles = pathFile.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File pathname) {
-                        return FileUtil.getFileNameWithoutExtension(pathname).toLowerCase().equals(matchesExecutable);
-                    }
-                });
+                if (pathFile.isFile() && pathFile.getName().toLowerCase().contains(matchesExecutable)) {
+                    return pathFile;
+                } else if (pathFile.isDirectory()) {
+                    File[] matchedFiles = pathFile.listFiles(new FileFilter() {
+                        @Override
+                        public boolean accept(File pathname) {
+                            return FileUtil.getFileNameWithoutExtension(pathname).toLowerCase().equals(matchesExecutable);
+                        }
+                    });
 
-                if (matchedFiles != null) {
-                    for (File matchedFile : matchedFiles) {
-                        if (provider.canRunCmd(new String[]{matchedFile.getAbsolutePath()})) {
-                            return matchedFile;
+                    if (matchedFiles != null) {
+                        for (File matchedFile : matchedFiles) {
+                            if (provider.canRunCmd(new String[]{matchedFile.getAbsolutePath()})) {
+                                return matchedFile;
+                            }
                         }
                     }
                 }

@@ -1,5 +1,11 @@
 # Releases
 
+## v0.9.3
+* will not prompt user on install if only 1 device present and only 1 apk to install
+
+## v0.9.2
+* adds .exe launcher
+
 ## v0.9.1
 * fixes bug where 'clear', 'force-stop' and 'start-activity' would not work if more than 1 device was connected
 

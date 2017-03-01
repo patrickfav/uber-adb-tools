@@ -142,7 +142,7 @@ public class AdbTool {
                                                           CmdProvider cmdProvider, boolean preview) throws Exception {
         Commons.ActionResult actionResult = new Commons.ActionResult();
 
-        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.INFO || arguments.mode == Arg.Mode.START_ACTIVITY)) {
+        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.INFO || arguments.mode == Arg.Mode.START_ACTIVITY || (arguments.mode == Arg.Mode.INSTALL && devices.size() == 1 && Install.isSingleFile(arguments)))) {
             return new Commons.IterationResult(actionResult, true);
         }
 

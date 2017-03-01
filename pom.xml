@@ -6,7 +6,7 @@
 
     <groupId>at.favre.tools</groupId>
     <artifactId>uber-adb-tools</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
 
     <prerequisites>
         <maven>3.1.0</maven>

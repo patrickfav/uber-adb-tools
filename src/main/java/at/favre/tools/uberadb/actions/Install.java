@@ -14,8 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Install {
+    private static final String EXTENSION_APK = "apk";
+
     public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, boolean preview, Commons.ActionResult actionResult, AdbDevice device) {
-        List<File> installFiles = new FileArgParser().parseAndSortUniqueFilesNonRecursive(arguments.mainArgument, "apk");
+        List<File> installFiles = new FileArgParser().parseAndSortUniqueFilesNonRecursive(arguments.mainArgument, EXTENSION_APK);
 
         if (installFiles.isEmpty()) {
             throw new IllegalStateException("could not find any apk files in " + Arrays.toString(arguments.mainArgument) + " to install");
@@ -44,6 +46,11 @@ public class Install {
             }
             Commons.log(installStatus, arguments);
         }
+    }
+
+    public static boolean isSingleFile(Arg arguments) {
+        List<File> installFiles = new FileArgParser().parseAndSortUniqueFilesNonRecursive(arguments.mainArgument, EXTENSION_APK);
+        return installFiles.size() == 1 && installFiles.get(0).isFile();
     }
 
     private static String[] createInstallCmd(AdbDevice device, String absolutePath, Arg arguments) {
