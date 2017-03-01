@@ -4,8 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AdbDeviceParserTest {
     @Test
@@ -59,5 +58,12 @@ public class AdbDeviceParserTest {
         AdbDevicesParser parser = new AdbDevicesParser();
         List<AdbDevice> devices = parser.parse("List of devices attached\n");
         assertTrue(devices.isEmpty());
+    }
+
+    @Test
+    public void testDeviceToStringAndHashCode() {
+        AdbDevice device = new AdbDevice("emulator-5154", AdbDevice.Status.OFFLINE, null, null, true);
+        assertTrue(device.hashCode() != 0);
+        assertNotNull(device.toString());
     }
 }

@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.io.File;
 import java.nio.file.Files;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 public class DumpsysPackageParserTest {
 
@@ -66,4 +66,10 @@ public class DumpsysPackageParserTest {
         assertEquals(new DumpsysPackageParser.PackageInfo(testPackage, 1, "1.0", "/data/app/com.example.testapp.first-1", "2016-11-10 18:41:03", "2016-11-10 18:41:03", "2269261d"), info);
     }
 
+    @Test
+    public void testExample5toStringAndHashCode() throws Exception {
+        DumpsysPackageParser.PackageInfo info = new DumpsysPackageParser().parseSingleDumpsysPackage(testPackage, dumpsysExample5Content);
+        assertTrue(info.hashCode() != 0);
+        assertNotNull(info.toString());
+    }
 }
