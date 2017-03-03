@@ -3,7 +3,7 @@ A simple tool that makes it more convenient to **install, uninstall and creating
 
 [![GitHub release](https://img.shields.io/github/release/patrickfav/uber-adb-tools.svg)](https://github.com/patrickfav/uber-adb-tools/releases/latest)
 [![Build Status](https://travis-ci.org/patrickfav/uber-adb-tools.svg?branch=master)](https://travis-ci.org/patrickfav/uber-adb-tools)
-[![Coverage Status](https://coveralls.io/repos/github/patrickfav/uber-adb-tools/badge.svg)](https://coveralls.io/github/patrickfav/uber-adb-tools)
+[![Coverage Status](https://coveralls.io/repos/github/patrickfav/uber-adb-tools/badge.svg?branch=master)](https://coveralls.io/github/patrickfav/uber-adb-tools?branch=master)
 
 Main features:
 
