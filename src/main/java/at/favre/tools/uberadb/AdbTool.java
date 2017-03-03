@@ -40,7 +40,7 @@ public class AdbTool {
         }
     }
 
-    private static Arg checkIfIsQuickInstall(String[] args) {
+    static Arg checkIfIsQuickInstall(String[] args) {
         Arg arguments = null;
         if (args.length == 1 && args[0].toLowerCase().endsWith(".apk") && (new File(args[0])).isFile()) {
             arguments = new Arg();

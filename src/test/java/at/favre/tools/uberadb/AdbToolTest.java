@@ -22,6 +22,7 @@ public class AdbToolTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private MockAdbCmdProvider adbMockCmdProviderMultiDevices;
     private MockAdbCmdProvider adbMockCmdProviderSingleDevice;
+    private MockAdbCmdProvider adbMockCmdProviderNoDevice;
     private MockAdbLocationFinder mockAdbLocationFinder;
     private MockUserPromptHandler mockUserPromptHandler;
     private List<String> installedPackages;
@@ -37,6 +38,7 @@ public class AdbToolTest {
                 new AdbDevice("emulator-5154", AdbDevice.Status.OK, "Android_SDK_built_for_x86", "sdk_google_phone_x86", true));
         adbMockCmdProviderMultiDevices = new MockAdbCmdProvider(adbDevices, installedPackages, true);
         adbMockCmdProviderSingleDevice = new MockAdbCmdProvider(Collections.singletonList(adbDevices.get(0)), installedPackages, true);
+        adbMockCmdProviderNoDevice = new MockAdbCmdProvider(Collections.<AdbDevice>emptyList(), installedPackages, true);
         mockAdbLocationFinder = new MockAdbLocationFinder();
         mockUserPromptHandler = new MockUserPromptHandler();
         apks = new File(getClass().getClassLoader().getResource("apks").toURI().getPath());
@@ -129,7 +131,7 @@ public class AdbToolTest {
 
     @Test
     public void testSimpleUninstallMultiDevicesSelectSpecific() throws Exception {
-        Arg arg = new Arg(new String[]{"com.example.*"}, null, adbDevices.get(0).serial, null, null, 0, false, false, false, false, false, true, false, false, false, Arg.Mode.UNINSTALL);
+        Arg arg = new Arg(new String[]{"com.example.*"}, null, adbDevices.get(0).serial, null, null, 0, false, false, false, false, false, true, false, false, true, Arg.Mode.UNINSTALL);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices, mockAdbLocationFinder, mockUserPromptHandler);
         check(result, adbMockCmdProviderMultiDevices.installedCount(), 0, 1);
     }
@@ -185,7 +187,7 @@ public class AdbToolTest {
 
     @Test
     public void testSimpleStartActivityMultiDevices() throws Exception {
-        Arg arg = new Arg(new String[]{"com.example.*"}, null, null, null, null, 0, false, false, false, false, false, true, false, false, false, Arg.Mode.START_ACTIVITY);
+        Arg arg = new Arg(new String[]{"com.example.*"}, null, null, null, null, 0, false, false, false, false, false, true, false, false, true, Arg.Mode.START_ACTIVITY);
         Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderMultiDevices, mockAdbLocationFinder, mockUserPromptHandler);
         check(result, adbMockCmdProviderMultiDevices.installedCount() * adbMockCmdProviderMultiDevices.deviceCount(), 0, adbMockCmdProviderMultiDevices.deviceCount());
     }
@@ -211,6 +213,14 @@ public class AdbToolTest {
         assertNotNull(result);
         assertFalse(mockUserPromptHandler.isWasUserPrompted());
         check(result, 1, 0, adbMockCmdProviderSingleDevice.deviceCount());
+    }
+
+    @Test
+    public void testSimpleInstallNoDevices() throws Exception {
+        Arg arg = new Arg(new String[]{apks.getAbsolutePath()}, null, null, null, null, 0, false, false, false, false, true, false, false, false, true, Arg.Mode.INSTALL);
+        Commons.ActionResult result = AdbTool.execute(arg, adbMockCmdProviderNoDevice, mockAdbLocationFinder, mockUserPromptHandler);
+        assertNull(result);
+        assertFalse(mockUserPromptHandler.isWasUserPrompted());
     }
 
     private static void check(Commons.ActionResult result, int expectedSuccess, int expectedFail, int expectedDevices) {
