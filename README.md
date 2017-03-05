@@ -39,7 +39,9 @@ This should run on any Windows, Mac or Linux machine,
 
 ### Using the *.exe Launcher
 
-[Launch4J](http://launch4j.sourceforge.net/) is used to wrap the `.jar` into an Windows executable. It should automatically download the needed JRE if required. If a single argument will be passed (ie. a path) the tool will automatically install if it is an `.apk` (or folder with apks), so you can use it to drag an `.apk` over the `.exe` or use it to "Open with..." to automatically install an apk if double clicked.
+ ![logo](misc/icon_sm.png)
+
+ [Launch4J](http://launch4j.sourceforge.net/) is used to wrap the `.jar` into an Windows executable. It should automatically download the needed JRE if required. If a single argument will be passed (ie. a path) the tool will automatically install if it is an `.apk` (or folder with apks), so you can use it to drag an `.apk` over the `.exe` or use it to "Open with..." to automatically install an apk if double clicked.
 
 ## Demo
 

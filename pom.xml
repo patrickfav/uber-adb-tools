@@ -6,7 +6,7 @@
 
     <groupId>at.favre.tools</groupId>
     <artifactId>uber-adb-tools</artifactId>
-    <version>0.9.3</version>
+    <version>1.0.0</version>
 
     <prerequisites>
         <maven>3.1.0</maven>
@@ -113,7 +113,7 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>target/uadb.exe</outfile>
-                            <icon>icon.ico</icon>
+                            <icon>misc/icon.ico</icon>
                             <jar>target/uber-adb-tools-${project.version}.jar</jar>
                             <errTitle>uadb</errTitle>
                             <classPath>
