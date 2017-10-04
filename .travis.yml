@@ -4,6 +4,9 @@ install: true
 jdk:
   - oraclejdk8
 
+before_install:
+  - openssl aes-256-cbc -K $encrypted_b32b8095166d_key -iv $encrypted_b32b8095166d_iv -in keystore.jks.enc -out keystore.jks -d
+
 #required for launch4j to run
 before_script:
   - sudo apt-get update
@@ -11,7 +14,6 @@ before_script:
 
 script:
   - mvn install -X
-  - mvn clean package
 
 after_success:
   - mvn test jacoco:report coveralls:report
