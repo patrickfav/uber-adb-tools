@@ -18,6 +18,7 @@
 
 package at.favre.tools.uberadb.util;
 
+import at.favre.tools.uberadb.AdbTool;
 import at.favre.tools.uberadb.CmdProvider;
 
 import java.io.File;
@@ -90,6 +91,6 @@ public class CmdUtil {
     }
 
     public static String jarVersion() {
-        return CmdUtil.class.getPackage().getImplementationVersion();
+        return AdbTool.class.getPackage().getImplementationVersion();
     }
 }
