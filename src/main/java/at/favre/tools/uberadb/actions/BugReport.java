@@ -36,9 +36,12 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class BugReport {
+public final class BugReport {
 
     private static final int MAX_IMG_BYTE_SIZE = 1024 * 1024 * 2;
+
+    private BugReport() {
+    }
 
     public static void create(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, AdbDevice device, List<String> allPackages) throws Exception {
         Commons.logLoud("create bug report:");

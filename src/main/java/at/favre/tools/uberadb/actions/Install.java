@@ -31,8 +31,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Install {
+public final class Install {
     private static final String EXTENSION_APK = "apk";
+
+    private Install() {
+    }
 
     public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, boolean preview, Commons.ActionResult actionResult, AdbDevice device) {
         List<File> installFiles = new FileArgParser().parseAndSortUniqueFilesNonRecursive(arguments.mainArgument, EXTENSION_APK);

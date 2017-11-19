@@ -19,14 +19,15 @@
 package at.favre.tools.uberadb.parser;
 
 public class AdbDevice {
-    public enum Status {OK, OFFLINE, UNAUTHORIZED, BOOTLOADER, UNKOWN}
+    public enum Status {
+        OK, OFFLINE, UNAUTHORIZED, BOOTLOADER, UNKNOWN
+    }
 
     public final String serial;
     public final Status status;
     public final String model;
     public final String product;
     public final boolean isEmulator;
-
 
     public AdbDevice(String serial, Status status, String model, String product, boolean isEmulator) {
         this.serial = serial;

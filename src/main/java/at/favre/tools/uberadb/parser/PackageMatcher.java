@@ -28,10 +28,10 @@ public class PackageMatcher {
     }
 
     public static String[] parseFiltersArg(String arg) {
-        if(arg != null && !arg.isEmpty()) {
+        if (arg != null && !arg.isEmpty()) {
             return arg.split(",");
         }
-        throw new IllegalArgumentException("unexpected arg: "+arg);
+        throw new IllegalArgumentException("unexpected arg: " + arg);
     }
 
     public List<String> findMatches(String... moreFilters) {

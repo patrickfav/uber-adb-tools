@@ -18,12 +18,14 @@
 
 package at.favre.tools.uberadb.ui;
 
-
 import java.util.Arrays;
 
 public class Arg {
-    public enum Mode {INSTALL, UNINSTALL, BUGREPORT, FORCE_STOP, CLEAR, INFO, START_ACTIVITY}
+    public enum Mode {
+        INSTALL, UNINSTALL, BUGREPORT, FORCE_STOP, CLEAR, INFO, START_ACTIVITY
+    }
 
+    //CHECKSTYLE:OFF
     public String[] mainArgument;
 
     public String adbPath;
@@ -43,11 +45,13 @@ public class Arg {
     public boolean waitForDevice = false;
 
     public Mode mode;
+    //CHECKSTYLE:ON
 
     public Arg() {
     }
 
-    public Arg(String[] mainArgument, String adbPath, String device, String[] reportFilterIntent, String[] dumpsysServices, int delayStartActivitySec, boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, boolean grantPermissions, boolean simpleBugReport, boolean waitForDevice, Mode mode) {
+    public Arg(String[] mainArgument, String adbPath, String device, String[] reportFilterIntent, String[] dumpsysServices, int delayStartActivitySec,
+               boolean dryRun, boolean skipEmulators, boolean keepData, boolean quiet, boolean debug, boolean force, boolean grantPermissions, boolean simpleBugReport, boolean waitForDevice, Mode mode) {
         this.mainArgument = mainArgument;
         this.adbPath = adbPath;
         this.device = device;

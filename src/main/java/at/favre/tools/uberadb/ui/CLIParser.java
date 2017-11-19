@@ -22,9 +22,12 @@ import at.favre.tools.uberadb.util.CmdUtil;
 import at.favre.tools.uberadb.util.MiscUtil;
 import org.apache.commons.cli.*;
 
-public class CLIParser {
+public final class CLIParser {
 
-    public static final String ARG_INSTALL = "i";
+    private CLIParser() {
+    }
+
+    static final String ARG_INSTALL = "i";
     static final String ARG_UNINSTALL = "u";
     static final String ARG_BUGREPORT = "b";
     static final String ARG_DEVICE_SERIAL = "s";
@@ -144,19 +147,42 @@ public class CLIParser {
     private static Options setupOptions() {
         Options options = new Options();
 
-        Option mainInstall = Option.builder(ARG_INSTALL).longOpt("install").argName("apk file/folder").desc("Provide path to an apk file or folder containing apk files and the tool tries to install all of them to all connected devices (if not a specfic device is selected). It is possible to pass multiple files/folders as arguments e.g. '/apks apk1.apk apk2.apk'").hasArgs().build();
-        Option mainUninstall = Option.builder(ARG_UNINSTALL).longOpt("uninstall").argName("package filter").hasArgs().desc("Filter string that has to be a package name or part of it containing wildcards '*' for uninstalling. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
-        Option mainBugReport = Option.builder(ARG_BUGREPORT).longOpt("bugreport").argName("out folder").hasArg().optionalArg(true).desc("Creates a generic bug report (including eg. logcat and screenshot) from all connected devices and zips it to the folder given as arg. If no folder is given tries to zips it in the location of the .jar.").build();
-        Option mainForceStop = Option.builder().longOpt(ARG_FORCE_STOP).argName("package filter").hasArgs().desc("Will stop the process of given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
-        Option mainClearAppData = Option.builder().longOpt(ARG_CLEAR_DATA).argName("package filter").hasArgs().desc("Will clear app data for given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
-        Option mainInfoAppData = Option.builder().longOpt(ARG_APPINFO).argName("package filter").hasArgs().desc("Will show additional information for like version, install-time, etc of the apps matching the argument. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
-        Option mainStartActivityData = Option.builder().longOpt(ARG_START_ACTIVITY).argName("package filter> <[seconds]").hasArgs().desc("Will start the launcher activity of this app. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'. The last argument may be a int in seconds which represents the wait time between the apps eg.: 'com.exmaple.* 10' will have a 10 sec delay between starts.").build();
+        Option mainInstall = Option.builder(ARG_INSTALL).longOpt("install").argName("apk file/folder").desc("Provide path to an " +
+                "apk file or folder containing apk files and the tool tries to install all of them to all connected devices (if not" +
+                " a specfic device is selected). It is possible to pass multiple files/folders as arguments e.g. '/apks apk1.apk apk2.apk'").hasArgs().build();
+        Option mainUninstall = Option.builder(ARG_UNINSTALL).longOpt("uninstall").argName("package filter").hasArgs().desc("Filter" +
+                " string that has to be a package name or part of it containing wildcards '*' for uninstalling. Can be multiple filter" +
+                " Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
+        Option mainBugReport = Option.builder(ARG_BUGREPORT).longOpt("bugreport").argName("out folder").hasArg().optionalArg(true).desc("Creates" +
+                " a generic bug report (including eg. logcat and screenshot) from all connected devices and zips it to the folder given as arg." +
+                " If no folder is given tries to zips it in the location of the .jar.").build();
+        Option mainForceStop = Option.builder().longOpt(ARG_FORCE_STOP).argName("package filter").hasArgs().desc("Will stop the process " +
+                "of given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can" +
+                " be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
+        Option mainClearAppData = Option.builder().longOpt(ARG_CLEAR_DATA).argName("package filter").hasArgs().desc("Will clear app data " +
+                "for given packages. Argument is the filter string that has to be a package name or part of it containing wildcards '*'. Can" +
+                " be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'.").build();
+        Option mainInfoAppData = Option.builder().longOpt(ARG_APPINFO).argName("package filter").hasArgs().desc("Will show additional information " +
+                "for like version, install-time, etc of the apps matching the argument. Argument is the filter string that has to be a package " +
+                "name or part of it containing wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or " +
+                "'com.android.* com.google.*'.").build();
+        Option mainStartActivityData = Option.builder().longOpt(ARG_START_ACTIVITY).argName("package filter> <[seconds]").hasArgs().desc("Will " +
+                "start the launcher activity of this app. Argument is the filter string that has to be a package name or part of it containing " +
+                "wildcards '*'. Can be multiple filter Strings space separated. Example: 'com.android.*' or 'com.android.* com.google.*'. The " +
+                "last argument may be a int in seconds which represents the wait time between the apps eg.: 'com.exmaple.* 10' will have a 10 " +
+                "sec delay between starts.").build();
 
-        Option adbPathOpt = Option.builder().longOpt("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this is omitted the tool tries to find adb in PATH env variable.").build();
-        Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).longOpt("serial").argName("device serial").hasArg(true).desc("If this is set, will only use given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
-        Option reportFilter = Option.builder().longOpt("reportDebugIntent").argName("package> <intent").hasArgs().valueSeparator(' ').desc("Only for Bugreport: This is useful to start a e.g. activity that e.g. logs additional info before reading the logcat. " +
-                "First param is a package filter (see --uninstall argument) followed by a series of params appended to a 'adb shell am' type command to start an activity or service (See https://goo.gl/MGK7ck). This will be executed for each app/package that is matched by the first parameter. " +
-                "You can use the placeholder '${package}' and will substitute the package name. Example: 'com.google* start -n ${package}/com.myapp.LogActivity --ez LOG true' See https://goo.gl/luuPfz for the correct intent start syntax.").build();
+        Option adbPathOpt = Option.builder().longOpt("adbPath").argName("path").hasArg(true).desc("Full path to adb executable. If this " +
+                "is omitted the tool tries to find adb in PATH env variable.").build();
+        Option deviceOpt = Option.builder(ARG_DEVICE_SERIAL).longOpt("serial").argName("device serial").hasArg(true).desc("If this is set, " +
+                "will only use given device. Default is all connected devices. Device id is the same that is given by 'adb devices'").build();
+        Option reportFilter = Option.builder().longOpt("reportDebugIntent").argName("package> <intent").hasArgs().valueSeparator(' ').desc("Only for " +
+                "Bugreport: This is useful to start a e.g. activity that e.g. logs additional info before reading the logcat. " +
+                "First param is a package filter (see --uninstall argument) followed by a series of params appended to a 'adb shell am' type " +
+                "command to start an activity or service (See https://goo.gl/MGK7ck). This will be executed for each app/package that is " +
+                "matched by the first parameter. You can use the placeholder '${package}' and will substitute the package name. " +
+                "Example: 'com.google* start -n ${package}/com.myapp.LogActivity --ez LOG true' See https://goo.gl/luuPfz for the " +
+                "correct intent start syntax.").build();
 
         Option dumpsysOpt = Option.builder().longOpt("dumpsysServices").argName("service-name").hasArgs().desc("Only for bugreport: include only theses dumpsys services. See all services with 'adb shell dumpsys list'").build();
         Option dryRunOpt = Option.builder().longOpt("dryRun").hasArg(false).desc("Use this to see what would be installed/uninstalled on what devices with the given params. Will not install/uninstall anything.").build();
@@ -190,6 +216,7 @@ public class CLIParser {
         help.setWidth(120);
         help.setLeftPadding(4);
         help.setDescPadding(3);
-        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | -" + ARG_FORCE_STOP + " <package filter> | -" + ARG_CLEAR_DATA + " <package filter> | " + ARG_APPINFO + " <package filter> | --help", "Version:" + CmdUtil.jarVersion(), options, " ", false);
+        help.printHelp("-" + ARG_INSTALL + " <apk file/folder> | -" + ARG_UNINSTALL + " <package filter> | -" + ARG_BUGREPORT + " <out folder> | -"
+                + ARG_FORCE_STOP + " <package filter> | -" + ARG_CLEAR_DATA + " <package filter> | " + ARG_APPINFO + " <package filter> | --help", "Version:" + CmdUtil.jarVersion(), options, " ", false);
     }
 }

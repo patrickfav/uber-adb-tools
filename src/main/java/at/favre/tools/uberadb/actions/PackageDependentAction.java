@@ -29,7 +29,10 @@ import at.favre.tools.uberadb.util.MiscUtil;
 
 import java.util.List;
 
-public class PackageDependentAction {
+public final class PackageDependentAction {
+
+    private PackageDependentAction() {
+    }
 
     public static void execute(AdbLocationFinder.LocationResult adbLocation, Arg arguments, CmdProvider cmdProvider, boolean preview, Commons.ActionResult actionResult, AdbDevice device, List<String> allPackages) {
         List<String> filteredPackages = new PackageMatcher(allPackages).findMatches(arguments.mainArgument);
