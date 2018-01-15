@@ -42,7 +42,7 @@ public class Install {
         }
 
         for (File installFile : installFiles) {
-            String installStatus = "\t" + installFile.getName() + "\n\t\tchecksum: " + FileUtil.createChecksum(installFile, "SHA-256") + " (sha256)\n";
+            String installStatus = "\t" + installFile.getName() + " (" + FileUtil.getFileSizeMb(installFile) + ")\n\t\tchecksum: " + FileUtil.createChecksum(installFile, "SHA-256") + " (sha256)\n";
 
             if (!arguments.dryRun) {
                 if (!preview) {
