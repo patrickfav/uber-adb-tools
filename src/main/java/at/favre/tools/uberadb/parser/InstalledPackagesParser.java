@@ -65,7 +65,7 @@ public class InstalledPackagesParser {
     }
 
     public static String parseShortenedInstallStatus(String cmdOut) {
-        if(cmdOut == null) {
+        if (cmdOut == null) {
             return "";
         }
 
@@ -81,9 +81,9 @@ public class InstalledPackagesParser {
             return "[" + matches.get(matches.size() - 1) + "]";
         }
 
-        String truncated=cmdOut.trim();
-        if(cmdOut.contains("\n")) {
-            truncated = truncated.substring(truncated.lastIndexOf("\n")+1,truncated.length());
+        String truncated = cmdOut.trim();
+        if (cmdOut.contains("\n")) {
+            truncated = truncated.substring(truncated.lastIndexOf("\n") + 1, truncated.length());
         }
 
         if (truncated.length() > 80) {

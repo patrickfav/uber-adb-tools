@@ -33,7 +33,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class FileUtil {
+public final class FileUtil {
+
+    private FileUtil() {
+    }
 
     public static String getFileExtension(File file) {
         if (file == null) {

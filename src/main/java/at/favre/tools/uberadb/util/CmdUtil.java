@@ -25,7 +25,10 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 
-public class CmdUtil {
+public final class CmdUtil {
+
+    private CmdUtil() {
+    }
 
     public static <T> T[] concat(T[] first, T[] second) {
         T[] result = Arrays.copyOf(first, first.length + second.length);

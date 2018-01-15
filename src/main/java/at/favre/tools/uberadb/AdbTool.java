@@ -38,7 +38,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class AdbTool {
+public final class AdbTool {
+
+    private AdbTool() {
+    }
 
     public static void main(String[] args) {
         Arg arguments = checkIfIsQuickInstall(args);
@@ -86,7 +89,6 @@ public class AdbTool {
 
             CmdProvider.Result devicesCmdResult = Commons.runAdbCommand(new String[]{"devices", "-l"}, cmdProvider, adbLocation);
             List<AdbDevice> devices = new AdbDevicesParser().parse(devicesCmdResult.out);
-
 
             if (!devices.isEmpty()) {
                 Commons.checkSpecificDevice(devices, arguments);
@@ -156,12 +158,13 @@ public class AdbTool {
         return result;
     }
 
-
     private static Commons.IterationResult iterateDevices(List<AdbDevice> devices, AdbLocationFinder.LocationResult adbLocation, Arg arguments,
                                                           CmdProvider cmdProvider, UserPromptHandler promptHandler, boolean preview) throws Exception {
         Commons.ActionResult actionResult = new Commons.ActionResult();
 
-        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP || arguments.mode == Arg.Mode.INFO || arguments.mode == Arg.Mode.START_ACTIVITY || (arguments.mode == Arg.Mode.INSTALL && devices.size() == 1 && Install.isSingleFile(arguments)))) {
+        if (preview && (arguments.dryRun || arguments.force || arguments.mode == Arg.Mode.BUGREPORT || arguments.mode == Arg.Mode.FORCE_STOP
+                || arguments.mode == Arg.Mode.INFO || arguments.mode == Arg.Mode.START_ACTIVITY
+                || (arguments.mode == Arg.Mode.INSTALL && devices.size() == 1 && Install.isSingleFile(arguments)))) {
             return new Commons.IterationResult(actionResult, true);
         }
 

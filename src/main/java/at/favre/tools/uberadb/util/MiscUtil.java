@@ -26,7 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MiscUtil {
+public final class MiscUtil {
+
+    private MiscUtil() {
+    }
+
     public static void zip(File targetZipFile, List<ZipFileDescriptor> filesToZip) throws Exception {
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");

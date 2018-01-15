@@ -21,7 +21,6 @@ package at.favre.tools.uberadb.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class AdbDevicesParser {
     private static final String STATUS_OFFLINE = "offline";
     private static final String STATUS_OK = "device";
@@ -31,7 +30,6 @@ public class AdbDevicesParser {
     private static final String PROP_MODEL = "model";
     private static final String PROP_DEVICE = "device";
     private static final String PROP_PRODUCT = "product";
-
 
     private static final java.lang.String EMULATOR = "emulator-";
 
@@ -52,7 +50,7 @@ public class AdbDevicesParser {
     }
 
     static AdbDevice parseDeviceLine(String line) {
-        char[] chars = line.replace("\t"," ").toCharArray();
+        char[] chars = line.replace("\t", " ").toCharArray();
         StringBuilder deviceName = new StringBuilder();
         String additionalInfo = null;
 
@@ -64,27 +62,27 @@ public class AdbDevicesParser {
                 break;
             }
         }
-        String status, product=null, model=null;
+        String status, product = null, model = null;
 
         if (additionalInfo != null) {
             String[] addProperties = additionalInfo.split(" ");
-            if(addProperties.length == 1) {
+            if (addProperties.length == 1) {
                 status = addProperties[0];
-            } else if(addProperties.length > 1) {
+            } else if (addProperties.length > 1) {
                 status = addProperties[0];
                 for (int i = 1; i < addProperties.length; i++) {
                     String[] keyValue = addProperties[i].split(":");
-                    if(keyValue.length == 2) {
-                        if(keyValue[0].equals(PROP_MODEL)) {
+                    if (keyValue.length == 2) {
+                        if (keyValue[0].equals(PROP_MODEL)) {
                             model = keyValue[1];
                         }
-                        if(keyValue[0].equals(PROP_PRODUCT)) {
+                        if (keyValue[0].equals(PROP_PRODUCT)) {
                             product = keyValue[1];
                         }
                     }
                 }
             } else {
-                throw new IllegalArgumentException("could not parse additional info from device: "+additionalInfo);
+                throw new IllegalArgumentException("could not parse additional info from device: " + additionalInfo);
             }
 
             boolean isEmulator = false;
@@ -109,7 +107,7 @@ public class AdbDevicesParser {
             case STATUS_BOOTLOADER:
                 return AdbDevice.Status.BOOTLOADER;
             default:
-                return AdbDevice.Status.UNKOWN;
+                return AdbDevice.Status.UNKNOWN;
         }
     }
 }

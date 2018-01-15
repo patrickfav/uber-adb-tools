@@ -1,3 +1,21 @@
+/*
+ *
+ *  *  Copyright 2016 Patrick Favre-Bulle
+ *  *
+ *  *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  you may not use this file except in compliance with the License.
+ *  *  You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  *  Unless required by applicable law or agreed to in writing, software
+ *  *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  See the License for the specific language governing permissions and
+ *  *  limitations under the License.
+ *
+ */
+
 package at.favre.tools.uberadb.parser;
 
 import org.junit.Test;
@@ -16,10 +34,10 @@ public class InstalledPackagesParserTest {
                 "package:/system/priv-app/CtsShimPrivPrebuilt/CtsShimPrivPrebuilt.apk=com.android.cts.priv.ctsshim\n" +
                 "package:/data/app/com.google.android.youtube-2/base.apk=com.google.android.youtube");
         assertTrue(packages.size() == 4);
-        assertEquals("com.synology.dsphoto",packages.get(0));
-        assertEquals("com.skype.raider",packages.get(1));
-        assertEquals("com.android.cts.priv.ctsshim",packages.get(2));
-        assertEquals("com.google.android.youtube",packages.get(3));
+        assertEquals("com.synology.dsphoto", packages.get(0));
+        assertEquals("com.skype.raider", packages.get(1));
+        assertEquals("com.android.cts.priv.ctsshim", packages.get(2));
+        assertEquals("com.google.android.youtube", packages.get(3));
     }
 
     @Test

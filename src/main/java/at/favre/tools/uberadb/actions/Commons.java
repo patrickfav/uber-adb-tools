@@ -26,7 +26,7 @@ import at.favre.tools.uberadb.util.CmdUtil;
 
 import java.util.List;
 
-public class Commons {
+public final class Commons {
     private Commons() {
     }
 
@@ -48,6 +48,7 @@ public class Commons {
         return cmdProvider.runCmd(CmdUtil.concat(locationResult.args, adbArgs));
     }
 
+    //CHECKSTYLE:OFF
     public static class ActionResult {
         public int deviceCount = 0;
         public int successCount = 0;
@@ -63,6 +64,7 @@ public class Commons {
             this.proceed = proceed;
         }
     }
+    //CHECKSTYLE:ON
 
     public static void checkSpecificDevice(List<AdbDevice> devices, Arg arguments) {
         if (arguments.device != null) {

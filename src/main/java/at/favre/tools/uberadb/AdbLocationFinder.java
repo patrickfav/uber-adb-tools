@@ -22,7 +22,9 @@ package at.favre.tools.uberadb;
  * Determines the location of the adb tool
  */
 public interface AdbLocationFinder {
-    enum Location {PATH, CUSTOM, WIN_DEFAULT, MAC_DEFAULT, LINUX_DEFAULT, ANDROID_HOME}
+    enum Location {
+        PATH, CUSTOM, WIN_DEFAULT, MAC_DEFAULT, LINUX_DEFAULT, ANDROID_HOME
+    }
 
     /**
      * Returns the location of the adb

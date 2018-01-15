@@ -18,7 +18,6 @@
 
 package at.favre.tools.uberadb.ui;
 
-
 import at.favre.tools.uberadb.util.FileUtil;
 
 import java.io.File;
@@ -67,5 +66,4 @@ public class FileArgParser {
         }
         return false;
     }
-
 }
