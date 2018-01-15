@@ -1,5 +1,9 @@
 # Releases
 
+## v1.0.2
+
+* No-Arg install will try to reinstall the app (usage with just the apk without any arguments)
+
 ## v1.0.1
 * do not use `javax.xml.bind.*` dependencies, that might crash on jre9
 

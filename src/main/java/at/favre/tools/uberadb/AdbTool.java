@@ -65,6 +65,7 @@ public class AdbTool {
             arguments.mainArgument = args;
             arguments.force = true;
             arguments.waitForDevice = true;
+            arguments.keepData = true;
             arguments.mode = Arg.Mode.INSTALL;
         }
         return arguments;
