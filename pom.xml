@@ -157,7 +157,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.15</version>
+                <version>1.7.22</version>
                 <executions>
                     <execution>
                         <id>l4j-clui</id>
@@ -177,10 +177,7 @@
                                 <preCp>anything</preCp>
                             </classPath>
                             <jre>
-                                <minVersion>1.7.0</minVersion>
-                                <opts>
-                                    <opt>-Djava.endorsed.dirs=./endorsed</opt>
-                                </opts>
+                                <minVersion>1.8.0</minVersion>
                             </jre>
                             <versionInfo>
                                 <fileVersion>0.0.0.1</fileVersion>
