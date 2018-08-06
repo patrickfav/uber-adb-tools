@@ -1,5 +1,10 @@
 # Releases
 
+## v1.0.3
+
+* update various dependencies and plugins
+* use newer launch4J version, which should be compatible with Java 9/10
+
 ## v1.0.2
 
 * No-Arg install will try to reinstall the app (usage with just the apk without any arguments)
