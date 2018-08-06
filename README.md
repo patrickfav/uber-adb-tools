@@ -30,7 +30,7 @@ This should run on any Windows, Mac or Linux machine,
 
 ### Requirements
 
-* JDK 7
+* JDK 8
 * [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) set in `PATH` or `ANDROID_HOME` is set (some default locations work also, see below)
 
 ## Download
@@ -328,13 +328,13 @@ If you want to skip jar signing just change the skip configuration in the
 
 ### Build with Maven
 
-Use maven (3.1+) to create a jar including all dependencies
+Use the Maven wrapper to create a jar including all dependencies
 
-    mvn clean package
+    mvnw clean package
 
 ## Tech Stack
 
-* Java 7
+* Java 8 (+ [errorprone](https://github.com/google/error-prone) static analyzer)
 * Maven
 
 # Credits
