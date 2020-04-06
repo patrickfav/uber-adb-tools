@@ -43,7 +43,7 @@ deploy:
   file:
   - "target/uber-adb-tools-*.jar"
   - "target/uadb.exe"
-  cleanup: false
+  skip_cleanup: true
   on:
     branch: master
     tags: true
