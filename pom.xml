@@ -33,6 +33,16 @@
     <url>https://favr.dev/opensource/uber-adb-tools</url>
     <inceptionYear>2016</inceptionYear>
 
+    <properties>
+        <commonConfig.jarSign.skip>false</commonConfig.jarSign.skip>
+        <!-- SonarQube Config -->
+        <sonar.organization>patrickfav</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.language>java</sonar.language>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -117,6 +127,25 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.nicoulaj.maven.plugins</groupId>
+                <artifactId>checksum-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>artifacts</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <algorithms>
+                        <algorithm>SHA-256</algorithm>
+                    </algorithms>
+                    <shasumSummary>false</shasumSummary>
+                    <attachChecksums>true</attachChecksums>
+                    <quiet>false</quiet>
+                </configuration>
             </plugin>
         </plugins>
     </build>
