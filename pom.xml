@@ -24,23 +24,14 @@
     <parent>
         <groupId>at.favre.lib</groupId>
         <artifactId>common-parent</artifactId>
-        <version>12</version>
+        <version>20</version>
     </parent>
 
     <groupId>at.favre.tools</groupId>
     <artifactId>uber-adb-tools</artifactId>
     <version>1.0.3</version>
-
-    <repositories>
-        <repository>
-            <id>jcenter</id>
-            <name>jcenter</name>
-            <url>https://jcenter.bintray.com</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+    <url>https://favr.dev/opensource/uber-adb-tools</url>
+    <inceptionYear>2016</inceptionYear>
 
     <build>
         <plugins>
@@ -53,13 +44,9 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -92,7 +79,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.22</version>
+                <version>2.1.3</version>
                 <executions>
                     <execution>
                         <id>l4j-clui</id>
@@ -139,12 +126,12 @@
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>1.4</version>
+            <version>1.5.0</version>
         </dependency>
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>[0.4, 0.5)</version>
+            <version>0.4.19</version>
         </dependency>
         <!-- test -->
         <dependency>
@@ -155,8 +142,24 @@
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.10.11</version>
+            <version>1.10.13</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <scm>
+        <connection>scm:git:https://github.com/patrickfav/uber-adb-tools.git</connection>
+        <developerConnection>scm:git:https://github.com/patrickfav/uber-adb-tools.git</developerConnection>
+        <url>https://github.com/patrickfav/uber-adb-tools</url>
+    </scm>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/patrickfav/uber-adb-tools/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>Github Actions</system>
+        <url>https://github.com/patrickfav/uber-adb-tools/actions</url>
+    </ciManagement>
 </project>
