@@ -1,5 +1,9 @@
 # Releases
 
+## v1.0.4
+* update various dependencies and plugins
+* migrate to github actions & sonaqube
+
 ## v1.0.3
 * update various dependencies and plugins
 * use newer launch4J version, which should be compatible with Java 9/10

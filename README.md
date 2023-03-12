@@ -63,7 +63,7 @@ use it to "Open with..." to automatically install an apk if double-clicked.
 
 The documentation of all possible parameters
 
-```bash 
+```
  --adbPath <path>                         Full path to adb executable. If this is omitted the tool tries to find
                                           adb in PATH env variable.
  --appinfo <package filter>               Will show additional information for like version, install-time, etc of
