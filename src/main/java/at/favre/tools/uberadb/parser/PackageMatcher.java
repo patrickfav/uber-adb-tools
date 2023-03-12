@@ -21,7 +21,7 @@ package at.favre.tools.uberadb.parser;
 import java.util.*;
 
 public class PackageMatcher {
-    private List<String> packages;
+    private final List<String> packages;
 
     public PackageMatcher(List<String> packages) {
         this.packages = packages;

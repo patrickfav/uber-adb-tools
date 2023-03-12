@@ -1,5 +1,8 @@
 # Uber Adb Tools for Android
-A simple tool that makes it more convenient to **install, uninstall and creating bug reports and more for multiple apps on multiple devices** with one command. Additionally uninstalling allows to use **wildcards as package name**. This is basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html) which is required to run.
+A simple tool that makes it more convenient to **install, uninstall and creating bug reports and more for multiple apps
+on multiple devices** with one command. Additionally, uninstalling allows to use **wildcards as package name**. This is
+basically a front-end for the [Android Debug Bridge (ADB)](https://developer.android.com/studio/command-line/adb.html)
+which is required to run.
 
 [![GitHub release](https://img.shields.io/github/release/patrickfav/uber-adb-tools.svg)](https://github.com/patrickfav/uber-adb-tools/releases/latest)
 [![Build Status](https://travis-ci.com/patrickfav/uber-adb-tools.svg?branch=master)](https://travis-ci.com/patrickfav/uber-adb-tools)
@@ -35,13 +38,16 @@ This should run on any Windows, Mac or Linux machine,
 
 ## Download
 
-**[Grab jar from latest Release](https://github.com/patrickfav/uber-adb-tools/releases/latest)**
+**[Grab jar from the latest Release](https://github.com/patrickfav/uber-adb-tools/releases/latest)**
 
 ### Using the *.exe Launcher
 
- ![logo](misc/icon_sm.png)
+![logo](misc/icon_sm.png)
 
- [Launch4J](http://launch4j.sourceforge.net/) is used to wrap the `.jar` into an Windows executable. It should automatically download the needed JRE if required. If a single argument will be passed (ie. a path) the tool will automatically install if it is an `.apk` (or folder with apks), so you can use it to drag an `.apk` over the `.exe` or use it to "Open with..." to automatically install an apk if double clicked.
+[Launch4J](http://launch4j.sourceforge.net/) is used to wrap the `.jar` into a Windows executable. It should
+automatically download the needed JRE if required. If a single argument will be passed (i.e. a path) the tool will
+automatically install if it is an `.apk` (or folder with apks), so you can use it to drag an `.apk` over the `.exe` or
+use it to "Open with..." to automatically install an apk if double-clicked.
 
 ## Demo
 
@@ -201,14 +207,19 @@ Only log the most essential
 
     java -jar uber-adb-tools.jar --bugreport --simpleBugreport
 
-Provide a activity intent to start before logcat will be pulled for request apps (packages) while using package placeholder:
+Provide an activity intent to start before logcat will be pulled for request apps (packages) while using package
+placeholder:
 
     java -jar uber-adb-tools.jar --bugreport --reportDebugIntent your.package.* start -n ${package}/com.company.app.DebugLogActivity --ez HEADLESS true
     
 #### Starting custom intents
 
-When using the `--reportDebugIntent` argument you first have to provide a package filter string (see uninstall) and then a series of arguments describing the activity/service/etc. to start. These arguments are internally appended to a `adb shell am ...` command, therefore use the same syntax, eg. start to `start` an activity with intent params and `startservice` to start an service. For details on the intent syntax, see https://developer.android.com/studio/command-line/shell.html#IntentSpec.
-    
+When using the `--reportDebugIntent` argument you first have to provide a package filter string (see uninstall) and then
+a series of arguments describing the activity/service/etc. to start. These arguments are internally appended to
+a `adb shell am ...` command, therefore use the same syntax, e.g. start to `start` an activity with intent params
+and `startservice` to start a service. For details on the intent syntax,
+see https://developer.android.com/studio/command-line/shell.html#IntentSpec.
+
 An example on how to use this:
 
 1. Create an activity that logs some custom code when a specific flag is set
@@ -270,11 +281,16 @@ Start all matching apps (launcher activity) with start delay of 9 seconds:
 
 ### Process Return Value
 
-This application will return `0` if every install/uninstall was successful, `1` if an error happens (e.g. wrong arguments) and `2` if at least one part of a install/uninstall process was not successful.
+This application will return `0` if every install/uninstall was successful, `1` if an error happens (e.g. wrong
+arguments) and `2` if at least one part of an installation/uninstall process was not successful.
 
 ### ADB Executable Location Strategy
 
-If you provide a custom location to adb, the tool will try to use it. Otherwise it will try to use the one provided by the system, which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514 ). As a fallback, if the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK. One of these default location checks involves checking if `ANDROID_HOME` is set, so if you don't want to set adb in `PATH`, use `ANDROID_HOME` environment variable.
+If you provide a custom location to adb, the tool will try to use it. Otherwise, it will try to use the one provided by
+the system, which requires adb to be set in `PATH` (See http://stackoverflow.com/questions/20564514 ). As a fallback, if
+the tool does not find the adb in `PATH` it tries to check some default locations for the Android SDK. One of these
+default location checks involves checking if `ANDROID_HOME` is set, so if you don't want to set adb in `PATH`,
+use `ANDROID_HOME` environment variable.
 
 ## Used ADB commands
 
@@ -296,7 +312,7 @@ Installs an app.
 
 ### Signed Jar
 
-The provided JARs in the Github release page are signed with my private key:
+The provided JARs in the GitHub release page are signed with my private key:
 
     CN=Patrick Favre-Bulle, OU=Private, O=PF Github Open Source, L=Vienna, ST=Vienna, C=AT
     Validity: Thu Sep 07 16:40:57 SGT 2017 to: Fri Feb 10 16:40:57 SGT 2034
@@ -338,7 +354,7 @@ This project uses my [`common-parent`](https://github.com/patrickfav/mvn-common-
 the plugin versions aswell as providing the checkstyle config rules. Specifically they are maintained in [`checkstyle-config`](https://github.com/patrickfav/checkstyle-config). Locally the files will be copied after you `mvnw install` into your `target` folder and is called
 `target/checkstyle-checker.xml`. So if you use a plugin for your IDE, use this file as your local configuration.
 
-## Tech Stack
+## Tech-Stack
 
 * Java 8 (+ [errorprone](https://github.com/google/error-prone) static analyzer)
 * Maven

@@ -47,7 +47,7 @@ public interface AdbLocationFinder {
         public String arg() {
             StringBuilder sb = new StringBuilder();
             for (String arg : args) {
-                sb.append(arg + " ");
+                sb.append(arg).append(" ");
             }
             return sb.toString();
         }

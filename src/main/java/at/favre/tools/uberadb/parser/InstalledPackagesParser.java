@@ -83,11 +83,11 @@ public class InstalledPackagesParser {
 
         String truncated = cmdOut.trim();
         if (cmdOut.contains("\n")) {
-            truncated = truncated.substring(truncated.lastIndexOf("\n") + 1, truncated.length());
+            truncated = truncated.substring(truncated.lastIndexOf("\n") + 1);
         }
 
         if (truncated.length() > 80) {
-            truncated = "..." + truncated.substring(truncated.length() - 79, truncated.length());
+            truncated = "..." + truncated.substring(truncated.length() - 79);
         }
 
         return truncated;

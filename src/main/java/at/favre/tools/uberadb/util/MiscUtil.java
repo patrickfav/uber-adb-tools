@@ -63,7 +63,7 @@ public final class MiscUtil {
         }
 
         try {
-            return Integer.valueOf(arguments[arguments.length - 1]);
+            return Integer.parseInt(arguments[arguments.length - 1]);
         } catch (Exception e) {
             return defaultValue;
         }
@@ -71,7 +71,7 @@ public final class MiscUtil {
 
     public static void wait(int seconds) {
         try {
-            Thread.sleep(seconds * 1000);
+            Thread.sleep(seconds * 1000L);
         } catch (InterruptedException e) {
             Thread.interrupted();
             e.printStackTrace();

@@ -19,7 +19,6 @@
 package at.favre.tools.uberadb.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -56,7 +55,7 @@ public final class FileUtil {
 
     public static String createChecksum(File file, String shaAlgo) {
         try {
-            InputStream fis = new FileInputStream(file);
+            InputStream fis = Files.newInputStream(file.toPath());
             byte[] buffer = new byte[1024];
             MessageDigest complete = MessageDigest.getInstance(shaAlgo);
             int numRead;
