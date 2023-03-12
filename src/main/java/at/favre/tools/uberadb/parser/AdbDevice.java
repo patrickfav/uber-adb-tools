@@ -18,6 +18,8 @@
 
 package at.favre.tools.uberadb.parser;
 
+import java.util.Objects;
+
 public class AdbDevice {
     public enum Status {
         OK, OFFLINE, UNAUTHORIZED, BOOTLOADER, UNKNOWN
@@ -56,10 +58,10 @@ public class AdbDevice {
         AdbDevice adbDevice = (AdbDevice) o;
 
         if (isEmulator != adbDevice.isEmulator) return false;
-        if (serial != null ? !serial.equals(adbDevice.serial) : adbDevice.serial != null) return false;
+        if (!Objects.equals(serial, adbDevice.serial)) return false;
         if (status != adbDevice.status) return false;
-        if (model != null ? !model.equals(adbDevice.model) : adbDevice.model != null) return false;
-        return product != null ? product.equals(adbDevice.product) : adbDevice.product == null;
+        if (!Objects.equals(model, adbDevice.model)) return false;
+        return Objects.equals(product, adbDevice.product);
 
     }
 

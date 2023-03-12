@@ -19,6 +19,7 @@
 package at.favre.tools.uberadb.ui;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Arg {
     public enum Mode {
@@ -88,8 +89,8 @@ public class Arg {
         if (waitForDevice != arg.waitForDevice) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(mainArgument, arg.mainArgument)) return false;
-        if (adbPath != null ? !adbPath.equals(arg.adbPath) : arg.adbPath != null) return false;
-        if (device != null ? !device.equals(arg.device) : arg.device != null) return false;
+        if (!Objects.equals(adbPath, arg.adbPath)) return false;
+        if (!Objects.equals(device, arg.device)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(reportFilterIntent, arg.reportFilterIntent)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals

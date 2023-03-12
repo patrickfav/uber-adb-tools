@@ -18,6 +18,7 @@
 
 package at.favre.tools.uberadb.parser;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +29,7 @@ public class DumpsysPackageParser {
             String versionName, codePath, installTime, updateTime, pkgHash;
             int versionCode;
 
-            versionCode = Integer.valueOf(find("versionCode=(\\d+?)\\s", dumpsysOut));
+            versionCode = Integer.parseInt(find("versionCode=(\\d+?)\\s", dumpsysOut));
             versionName = find("versionName=(.+?)\\s", dumpsysOut);
             codePath = find("codePath=(.+?)\\s", dumpsysOut);
             installTime = find("firstInstallTime=(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2})\\s", dumpsysOut);
@@ -73,13 +74,13 @@ public class DumpsysPackageParser {
             PackageInfo that = (PackageInfo) o;
 
             if (versionCode != that.versionCode) return false;
-            if (packageName != null ? !packageName.equals(that.packageName) : that.packageName != null) return false;
-            if (versionName != null ? !versionName.equals(that.versionName) : that.versionName != null) return false;
-            if (codePath != null ? !codePath.equals(that.codePath) : that.codePath != null) return false;
-            if (firstInstallTime != null ? !firstInstallTime.equals(that.firstInstallTime) : that.firstInstallTime != null)
+            if (!Objects.equals(packageName, that.packageName)) return false;
+            if (!Objects.equals(versionName, that.versionName)) return false;
+            if (!Objects.equals(codePath, that.codePath)) return false;
+            if (!Objects.equals(firstInstallTime, that.firstInstallTime))
                 return false;
-            if (updateTime != null ? !updateTime.equals(that.updateTime) : that.updateTime != null) return false;
-            return pkgHash != null ? pkgHash.equals(that.pkgHash) : that.pkgHash == null;
+            if (!Objects.equals(updateTime, that.updateTime)) return false;
+            return Objects.equals(pkgHash, that.pkgHash);
 
         }
 

@@ -22,7 +22,6 @@ import at.favre.tools.uberadb.AdbTool;
 import at.favre.tools.uberadb.CmdProvider;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Arrays;
 
 public final class CmdUtil {
@@ -46,12 +45,7 @@ public final class CmdUtil {
                 if (pathFile.isFile() && pathFile.getName().toLowerCase().contains(matchesExecutable)) {
                     return pathFile;
                 } else if (pathFile.isDirectory()) {
-                    File[] matchedFiles = pathFile.listFiles(new FileFilter() {
-                        @Override
-                        public boolean accept(File pathname) {
-                            return FileUtil.getFileNameWithoutExtension(pathname).toLowerCase().equals(matchesExecutable);
-                        }
-                    });
+                    File[] matchedFiles = pathFile.listFiles(pathname -> FileUtil.getFileNameWithoutExtension(pathname).toLowerCase().equals(matchesExecutable));
 
                     if (matchedFiles != null) {
                         for (File matchedFile : matchedFiles) {

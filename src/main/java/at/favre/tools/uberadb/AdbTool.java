@@ -211,7 +211,7 @@ public final class AdbTool {
             Commons.logLoud("No ready devices found.");
 
             if (hasUnauthorizedDevices(devices)) {
-                Commons.logLoud("Check if you authorized your computer on your Android device. See http://stackoverflow.com/questions/23081263");
+                Commons.logLoud("Check if you authorized your computer on your Android device. See https://stackoverflow.com/questions/23081263");
             }
         }
 

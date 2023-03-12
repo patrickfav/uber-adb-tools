@@ -31,7 +31,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -172,7 +172,7 @@ public final class BugReport {
         if (!file.exists()) {
             file.createNewFile();
         }
-        Files.write(file.toPath(), allPackages, Charset.forName("UTF-8"));
+        Files.write(file.toPath(), allPackages, StandardCharsets.UTF_8);
         Commons.log(String.format(Locale.US, "\tcreate installed packages file (%.2fkB)", (double) file.length() / 1024.0), arguments);
         return file;
     }
@@ -183,7 +183,7 @@ public final class BugReport {
         if (!file.exists()) {
             file.createNewFile();
         }
-        Files.write(file.toPath(), result.out.getBytes("UTF-8"));
+        Files.write(file.toPath(), result.out.getBytes(StandardCharsets.UTF_8));
         Commons.log(String.format(Locale.US, "\tcreate running process file (%.2fkB)", (double) file.length() / 1024.0), arguments);
         return file;
     }
@@ -208,7 +208,7 @@ public final class BugReport {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            Files.write(file.toPath(), dumpsys.getBytes("UTF-8"));
+            Files.write(file.toPath(), dumpsys.getBytes(StandardCharsets.UTF_8));
             size += file.length();
             files.add(file);
         }
@@ -231,7 +231,7 @@ public final class BugReport {
             if (file.exists()) {
                 file.createNewFile();
             }
-            Files.write(file.toPath(), result.toString().getBytes("UTF-8"));
+            Files.write(file.toPath(), result.toString().getBytes(StandardCharsets.UTF_8));
             size += file.length();
             files.add(file);
         }

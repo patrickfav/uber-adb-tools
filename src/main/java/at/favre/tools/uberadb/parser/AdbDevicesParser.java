@@ -28,7 +28,6 @@ public class AdbDevicesParser {
     private static final String STATUS_BOOTLOADER = "bootloader";
 
     private static final String PROP_MODEL = "model";
-    private static final String PROP_DEVICE = "device";
     private static final String PROP_PRODUCT = "product";
 
     private static final java.lang.String EMULATOR = "emulator-";
@@ -58,7 +57,7 @@ public class AdbDevicesParser {
             if (chars[i] != ' ') {
                 deviceName.append(chars[i]);
             } else {
-                additionalInfo = line.substring(i, line.length()).trim();
+                additionalInfo = line.substring(i).trim();
                 break;
             }
         }
@@ -85,10 +84,7 @@ public class AdbDevicesParser {
                 throw new IllegalArgumentException("could not parse additional info from device: " + additionalInfo);
             }
 
-            boolean isEmulator = false;
-            if (deviceName.toString().startsWith(EMULATOR)) {
-                isEmulator = true;
-            }
+            boolean isEmulator = deviceName.toString().startsWith(EMULATOR);
 
             return new AdbDevice(deviceName.toString(), translate(status), model, product, isEmulator);
         }
