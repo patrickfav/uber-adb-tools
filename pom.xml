@@ -34,7 +34,7 @@
     <inceptionYear>2016</inceptionYear>
 
     <properties>
-        <commonConfig.jarSign.skip>false</commonConfig.jarSign.skip>
+        <commonConfig.jarSign.skip>true</commonConfig.jarSign.skip>
         <!-- SonarQube Config -->
         <sonar.organization>patrickfav</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -52,6 +52,14 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
